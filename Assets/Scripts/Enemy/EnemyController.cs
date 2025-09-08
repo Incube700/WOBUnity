@@ -18,6 +18,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private Transform muzzle;            // точка вылета
     [SerializeField] private float fireCooldown = 1f;     // задержка между выстрелами (с)
     [SerializeField] private float fireDistance = 8f;     // дистанция, с которой открываем огонь (м)
+    [SerializeField] private bool useMuzzleRight = true;  // ориентировать пулю по оси Right (иначе Up)
 
     [Header("Линия видимости и укрытия")]
     [SerializeField] private LayerMask obstacleMask = ~0; // слои препятствий для Linecast
@@ -212,9 +213,13 @@ public class EnemyController : MonoBehaviour
 
     private void Shoot()
     {
-        // Пуля летит вдоль transform.up, поэтому смещаем немного вперёд
-        Vector3 spawnPos = muzzle.position + muzzle.up * 0.2f;
-        var go = Instantiate(bulletPrefab, spawnPos, muzzle.rotation);
+        // Пуля в скрипте Bullet летит вдоль transform.up.
+        // Чтобы совпасть с направлением дула, выбираем ось дула и
+        // формируем поворот так, чтобы up = выбранному направлению.
+        Vector3 dir = useMuzzleRight ? muzzle.right : muzzle.up;
+        Vector3 spawnPos = muzzle.position + dir * 0.2f; // небольшой вынос
+        Quaternion rot = Quaternion.LookRotation(Vector3.forward, dir);
+        Instantiate(bulletPrefab, spawnPos, rot);
     }
 
     // ------ Утилиты ИИ ------

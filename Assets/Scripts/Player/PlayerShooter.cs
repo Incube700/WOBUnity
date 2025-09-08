@@ -1,13 +1,16 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Простой скрипт стрельбы игрока.
 /// </summary>
 public class PlayerShooter : MonoBehaviour
 {
+    [FormerlySerializedAs("bullet2DPrefab")]
     [SerializeField] private GameObject bulletPrefab;   // префаб пули
     [SerializeField] private Transform muzzle;          // точка вылета
     [SerializeField] private float fireCooldown = 0.25f;// задержка между выстрелами
+    [SerializeField] private bool useMuzzleUp = true; // ориентировать пулю по оси Up (иначе Right)
 
     private float cooldown;                             // таймер перезарядки
 
@@ -42,6 +45,13 @@ public class PlayerShooter : MonoBehaviour
             return;                                     // прекращаем выполнение
         }
 
-        Instantiate(bulletPrefab, muzzle.position, muzzle.rotation); // создаём пулю в точке вылета
+        // Пуля должна лететь вдоль дула.
+        // Если спрайт/трансформ дула ориентирован «вправо» — берём muzzle.right,
+        // иначе берём muzzle.up. Поворот подбираем так, чтобы локальная up пули
+        // совпала с выбранным направлением (Bullet летит вдоль transform.up).
+        Vector3 dir = useMuzzleUp ? muzzle.up : muzzle.right;
+        Vector3 spawnPos = muzzle.position + dir * 0.2f; // небольшой вынос от дула
+        Quaternion rot = Quaternion.LookRotation(Vector3.forward, dir);
+        Instantiate(bulletPrefab, spawnPos, rot);
     }
 }
