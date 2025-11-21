@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Простая пуля с ручным подсчётом рикошетов и угла брони.
 /// </summary>
-[RequireComponent(typeof(Rigidbody2D))] // гарантируем наличие Rigidbody2D
+[RequireComponent(typeof(Rigidbody))] // гарантируем наличие Rigidbody
 public class Bullet : MonoBehaviour
 {
     [Header("Параметры полёта")]
@@ -11,32 +11,39 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float damage = 40f;          // урон при пробитии
     [SerializeField] private int maxCollisions = 4;       // исчезает после 4-го столкновения
 
-    private Rigidbody2D rb;                               // кэш Rigidbody2D
+    private Rigidbody rb;                                 // кэш Rigidbody
     private int collisionCount = 0;                       // сколько столкновений уже было
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();                 // получаем Rigidbody2D
-        rb.gravityScale = 0f;                             // топ-даун — без гравитации
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // точные столкновения
-        rb.linearVelocity = transform.up.normalized * speed;    // стартовая скорость вдоль up
+        rb = GetComponent<Rigidbody>();                   // получаем Rigidbody
+        rb.useGravity = false;                            // топ-даун — без гравитации
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous; // точные столкновения
+        // Lock Y axis to keep it flat
+        rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        rb.linearVelocity = transform.forward * speed;          // стартовая скорость вдоль forward (Z)
     }
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = rb.linearVelocity.normalized * speed;     // поддерживаем постоянную скорость
+        // Keep velocity constant and flat
+        Vector3 v = rb.linearVelocity;
+        v.y = 0f;
+        rb.linearVelocity = v.normalized * speed;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionEnter(Collision collision)
     {
         collisionCount++;                                 // считаем столкновения
-        Vector2 normal = collision.GetContact(0).normal;  // нормаль поверхности
+        Vector3 normal = collision.GetContact(0).normal;  // нормаль поверхности
         float angle = MathAngles.ImpactAngle(rb.linearVelocity, normal); // угол между пулей и нормалью
 
         if (angle > 45f)                                  // угол больше 45° — наносим урон
         {
-            DamageReceiver2D receiver = collision.collider.GetComponentInParent<DamageReceiver2D>(); // ищем получателя урона
+            DamageReceiver receiver = collision.collider.GetComponentInParent<DamageReceiver>(); // ищем получателя урона
             if (receiver != null) receiver.ApplyDamage(damage); // передаём урон
+            
+            SpawnExplosion(collision.GetContact(0).point); // создаём взрыв
             Destroy(gameObject);                          // удаляем пулю после попадания
             return;                                       // дальнейшая обработка не нужна
         }
@@ -47,7 +54,21 @@ public class Bullet : MonoBehaviour
             return;                                       // прекращаем обработку
         }
 
-        Vector2 reflected = Vector2.Reflect(rb.linearVelocity.normalized, normal); // отражаем направление
-        rb.linearVelocity = reflected * speed;                  // задаём новую скорость после рикошета
+        Vector3 reflected = Vector3.Reflect(rb.linearVelocity.normalized, normal); // отражаем направление
+        // Flatten reflection just in case
+        reflected.y = 0f;
+        rb.linearVelocity = reflected.normalized * speed;       // задаём новую скорость после рикошета
+    }
+
+    private void SpawnExplosion(Vector3 position)
+    {
+        // Create a new GameObject for the explosion
+        GameObject explosionObj = new GameObject("Explosion");
+        explosionObj.transform.position = position;
+        explosionObj.transform.rotation = Quaternion.Euler(90f, 0f, 0f); // Lie flat on ground (XZ)
+        
+        // Add SpriteRenderer and ExplosionVFX
+        explosionObj.AddComponent<SpriteRenderer>();
+        explosionObj.AddComponent<ExplosionVFX>();
     }
 }

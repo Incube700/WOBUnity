@@ -1,19 +1,19 @@
 using UnityEngine;
 
-public class Health : MonoBehaviour
+public class Health : DamageReceiver
 {
-    [SerializeField] private int maxHealth = 5; // начальное здоровье
-    private int _current; // текущее здоровье
+    [SerializeField] private float maxHealth = 5f; // начальное здоровье
+    private float _current; // текущее здоровье
 
     private void Awake()
     {
         _current = maxHealth; // устанавливаем здоровье при запуске
     }
 
-    public void ApplyDamage(int amount)
+    public override void ApplyDamage(float amount)
     {
         _current -= amount; // уменьшаем здоровье на величину урона
-        if (_current <= 0) // проверяем, не умер ли объект
+        if (_current <= 0f) // проверяем, не умер ли объект
         {
             Destroy(gameObject); // уничтожаем объект при смерти
         }

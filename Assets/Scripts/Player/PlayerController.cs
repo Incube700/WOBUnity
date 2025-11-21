@@ -1,58 +1,81 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+public class PlayerController : DamageReceiver
 {
-    [SerializeField] private float moveSpeed = 5f; // скорость перемещения
-    [SerializeField] private Rigidbody2D rb; // Rigidbody2D игрока
-    [SerializeField] private Transform turret; // трансформ башни
-    [SerializeField] private Transform muzzle; // точка вылета пули
-    [SerializeField] private Bullet bulletPrefab; // префаб пули
-    [SerializeField] private float fireCooldown = 0.3f; // задержка между выстрелами
-    [SerializeField] private Health health; // здоровье игрока
+    [SerializeField] private LayerMask enemyLayer; // Слой врагов
 
-    private float _nextFireTime; // время следующего выстрела
+    private TankMover _mover;
+    private TurretController _turret;
+    private WeaponController _weapon;
     private float _nextContactDamageTime; // таймер урона от контакта
+    private Plane _groundPlane; // плоскость для рейкаста мыши
+
+    private void Awake()
+    {
+        _mover = GetComponent<TankMover>();
+        _turret = GetComponent<TurretController>();
+        _weapon = GetComponent<WeaponController>();
+        
+        // Ensure components exist (optional, or use RequireComponent)
+        if (_mover == null) _mover = gameObject.AddComponent<TankMover>();
+        if (_turret == null) _turret = gameObject.AddComponent<TurretController>();
+        if (_weapon == null) _weapon = gameObject.AddComponent<WeaponController>();
+
+        _groundPlane = new Plane(Vector3.up, Vector3.zero); // Плоскость на высоте 0
+    }
 
     private void Update()
     {
-        AimTurret(); // поворачиваем башню на курсор
-        HandleFire(); // проверяем возможность выстрела
+        HandleAiming();
+        HandleShooting();
     }
 
     private void FixedUpdate()
     {
-        Move(); // перемещаем игрока в физическом апдейте
+        HandleMovement();
     }
 
-    private void Move()
+    private void HandleMovement()
     {
-        Vector2 input = GameInput.Instance.Move; // считываем оси движения
-        rb.velocity = input.normalized * moveSpeed; // задаём скорость без ускорения
+        if (_mover != null)
+        {
+            _mover.Move(GameInput.Instance.Move);
+        }
     }
 
-    private void AimTurret()
+    private void HandleAiming()
     {
-        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(
-            GameInput.Instance.PointerScreen); // мировые координаты курсора
-        Vector2 dir = mouseWorld - turret.position; // направление от башни к курсору
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // переводим направление в градусы
-        turret.rotation = Quaternion.Euler(0f, 0f, angle - 90f); // направляем башню на курсор
+        Ray ray = Camera.main.ScreenPointToRay(GameInput.Instance.PointerScreen);
+        if (_groundPlane.Raycast(ray, out float enter))
+        {
+            Vector3 hitPoint = ray.GetPoint(enter);
+            if (_turret != null)
+            {
+                _turret.AimTowards(hitPoint);
+            }
+        }
     }
 
-    private void HandleFire()
+    private void HandleShooting()
     {
-        if (!GameInput.Instance.FirePressed) return; // выходим, если кнопка не нажата
-        if (Time.time < _nextFireTime) return; // проверяем кулдаун
-        _nextFireTime = Time.time + fireCooldown; // устанавливаем время следующего выстрела
-        Bullet bullet = Instantiate(bulletPrefab, muzzle.position, muzzle.rotation); // создаём пулю
-        bullet.Init(muzzle.up); // задаём пуле направление по оси вверх башни
+        if (GameInput.Instance.FirePressed)
+        {
+            if (_weapon != null)
+            {
+                _weapon.TryShoot(enemyLayer);
+            }
+        }
     }
 
-    private void OnCollisionStay2D(Collision2D collision)
+    private void OnCollisionStay(Collision collision)
     {
+        // В 3D используем OnCollisionStay вместо OnCollisionStay2D
         if (collision.collider.GetComponent<EnemyController>() == null) return; // урон только врагам
         if (Time.time < _nextContactDamageTime) return; // применяем урон не чаще раза в секунду
         _nextContactDamageTime = Time.time + 1f; // запоминаем время следующего тика урона
-        collision.collider.GetComponent<Health>()?.ApplyDamage(1); // наносим 1 единицу урона
+        
+        // Используем DamageReceiver (базовый класс) или Health
+        collision.collider.GetComponent<DamageReceiver>()?.ApplyDamage(1f); // наносим 1 единицу урона
     }
 }
