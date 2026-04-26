@@ -4,14 +4,50 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b49b0284-51bb-4d38-8aec-6820f32b673c" name="Changes" comment="" />
+    <list default="true" id="b49b0284-51bb-4d38-8aec-6820f32b673c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.WOBLearnUnity/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.WOBLearnUnity/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/GameInput.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Core/GameInput.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Editor/SandBoxSceneGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Editor/SandBoxSceneGenerator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/HitResolver.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/HitResolver.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/PlayerTankController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/PlayerTankController.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectile.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectile.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/RicochetCalculator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/RicochetCalculator.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankFacade.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankFacade.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankHealth.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankHealth.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankMovement.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankMovement.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankShooter.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankShooter.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TurretAiming.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TurretAiming.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/ProjectBootstrapper.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/ProjectBootstrapper.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/SandboxSceneBuilder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/SandboxSceneBuilder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/SceneLoaderService.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/SceneLoaderService.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/MainMenuBootstrapper.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/MainMenuBootstrapper.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxBootstrapper.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxBootstrapper.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxHudPresenter.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxHudPresenter.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxHudView.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxHudView.cs.meta" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="35" />
+    <option name="cachedIndexableFilesCount" value="1" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
@@ -32,23 +68,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
-    "junie.onboarding.icon.badge.shown": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecapSpentCounter">
     <option name="endsOfQuotaMs" value="1777892432993" />
     <option name="spentUsd" value="0.0044395" />
@@ -103,6 +139,8 @@
       <updated>1777225139447</updated>
       <workItem from="1777225144068" duration="603000" />
       <workItem from="1777228683560" duration="1060000" />
+      <workItem from="1777230757305" duration="1794000" />
+      <workItem from="1777232777691" duration="822000" />
     </task>
     <servers />
   </component>

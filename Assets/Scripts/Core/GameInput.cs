@@ -19,9 +19,11 @@ public class GameInput : MonoBehaviour
         _actions.Enable(); // активируем все действия
     }
 
-    public Vector2 Move => _actions.Player.Move.ReadValue<Vector2>(); // оси движения
+    public Vector2 Move => _actions.Gameplay.Move.ReadValue<Vector2>(); // оси движения
 
-    public bool FirePressed => _actions.Player.Fire.triggered; // выстрел в этот кадр
+    public bool Fire => _actions.Gameplay.Fire.triggered; // выстрел (нажат в этом кадре)
+    public bool FireHeld => _actions.Gameplay.Fire.IsPressed(); // выстрел (удерживается)
+    public bool FirePressed => Fire; // для обратной совместимости, если кто-то использует
 
     public Vector2 PointerScreen => Mouse.current.position.ReadValue(); // позиция курсора на экране
 }

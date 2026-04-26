@@ -68,6 +68,14 @@ public class PlayerController : DamageReceiver
         }
     }
 
+    public override void ApplyDamage(float amount)
+    {
+        if (TryGetComponent(out Health health))
+        {
+            health.ApplyDamage(amount);
+        }
+    }
+
     private void OnCollisionStay(Collision collision)
     {
         // В 3D используем OnCollisionStay вместо OnCollisionStay2D

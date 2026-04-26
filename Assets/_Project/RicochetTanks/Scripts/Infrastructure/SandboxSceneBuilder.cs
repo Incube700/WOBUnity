@@ -1,5 +1,7 @@
-using RicochetTanks.Gameplay;
+using RicochetTanks.Gameplay.Tanks;
+using RicochetTanks.Gameplay.Combat;
 using RicochetTanks.UI;
+using RicochetTanks.UI.Sandbox;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
