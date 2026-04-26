@@ -1,0 +1,12 @@
+Library
+Temp
+Logs
+UserSettings
+obj
+.idea
+.vscode
+WOBLearnUnity
+WOBLearnUnity-1
+graphify-out
+*.csproj
+*.sln
