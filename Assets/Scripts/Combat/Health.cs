@@ -1,5 +1,7 @@
 using UnityEngine;
 
+using Assets,Scripts,Combat,DamageReceiver;
+
 public class Health : DamageReceiver
 {
     [SerializeField] private float maxHealth = 5f; // начальное здоровье
