@@ -63,9 +63,13 @@ public class EnemyController : MonoBehaviour
 
     private void AcquireTarget()
     {
-        if (target != null) return;
-        var player = FindObjectOfType<PlayerController>();
-        if (player != null) target = player.transform;
+        if (target != null)
+            return;
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+        if (player != null)
+            target = player.transform;
     }
 
     private void AimAndFire()
