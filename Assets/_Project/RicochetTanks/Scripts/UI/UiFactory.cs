@@ -29,7 +29,10 @@ namespace RicochetTanks.UI
             image.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
 
             var button = buttonObject.AddComponent<Button>();
-            button.onClick.AddListener(onClick);
+            if (onClick != null)
+            {
+                button.onClick.AddListener(onClick);
+            }
 
             var textObject = new GameObject("Label");
             textObject.transform.SetParent(buttonObject.transform, false);

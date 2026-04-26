@@ -8,7 +8,7 @@ namespace RicochetTanks.UI
     public class MainMenuBootstrapper : MonoBehaviour
     {
         private const string MainMenuSceneName = "RicochetTanks_MainMenu";
-        private const string SandboxSceneName = "RicochetTanks_Sandbox";
+        private const string SandboxSceneName = SandboxBootstrapper.SandBoxSceneName;
 
         private readonly SceneLoaderService _sceneLoaderService = new SceneLoaderService();
 
