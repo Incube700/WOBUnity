@@ -15,8 +15,29 @@ namespace RicochetTanks.Gameplay
             }
         }
 
+        public void Configure(Transform turret, Camera targetCamera)
+        {
+            _turret = turret;
+            _camera = targetCamera;
+        }
+
         public void AimAtMouse()
         {
+            if (_turret == null)
+            {
+                return;
+            }
+
+            if (_camera == null)
+            {
+                _camera = Camera.main;
+            }
+
+            if (_camera == null)
+            {
+                return;
+            }
+
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
             var ground = new Plane(Vector3.up, Vector3.zero);
 

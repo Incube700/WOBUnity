@@ -4,20 +4,36 @@ namespace RicochetTanks.Gameplay
 {
     public class PlayerTankController : MonoBehaviour
     {
-        [SerializeField] private TankMovement _movement;
-        [SerializeField] private TurretAiming _aiming;
-        [SerializeField] private TankShooter _shooter;
+        [SerializeField] private TankFacade _tank;
+
+        public void Configure(TankFacade tank)
+        {
+            _tank = tank;
+        }
+
+        private void Awake()
+        {
+            if (_tank == null)
+            {
+                _tank = GetComponent<TankFacade>();
+            }
+        }
 
         private void Update()
         {
+            if (_tank == null || _tank.Movement == null || _tank.Aiming == null || _tank.Shooter == null)
+            {
+                return;
+            }
+
             var horizontal = Input.GetAxisRaw("Horizontal");
             var vertical = Input.GetAxisRaw("Vertical");
-            _movement.SetMoveDirection(new Vector2(horizontal, vertical));
-            _aiming.AimAtMouse();
+            _tank.Movement.SetMoveDirection(new Vector2(horizontal, vertical));
+            _tank.Aiming.AimAtMouse();
 
             if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
             {
-                _shooter.TryShoot();
+                _tank.Shooter.TryShoot();
             }
         }
     }

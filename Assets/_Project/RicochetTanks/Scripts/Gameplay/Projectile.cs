@@ -8,36 +8,63 @@ namespace RicochetTanks.Gameplay
         [SerializeField] private int _damage = 34;
         [SerializeField] private int _maxRicochets = 3;
 
+        private TankFacade _owner;
+        private Rigidbody _rigidbody;
         private Vector3 _direction;
         private int _ricochetCount;
+
+        private void Awake()
+        {
+            _rigidbody = GetComponent<Rigidbody>();
+        }
+
+        public void Configure(TankFacade owner, int damage, int maxRicochets, float speed)
+        {
+            _owner = owner;
+            _damage = damage;
+            _maxRicochets = maxRicochets;
+            _speed = speed;
+        }
 
         public void Initialize(Vector3 direction)
         {
             _direction = direction.normalized;
+            ApplyVelocity();
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            transform.position += _direction * (_speed * Time.deltaTime);
+            ApplyVelocity();
         }
 
         private void OnCollisionEnter(Collision other)
         {
-            if (other.collider.TryGetComponent<TankHealth>(out var health))
+            if (HitResolver.TryApplyDamage(other.collider, _owner, _damage))
             {
-                health.ApplyDamage(_damage);
                 Destroy(gameObject);
                 return;
             }
 
-            var normal = other.contacts[0].normal;
-            _direction = Vector3.Reflect(_direction, normal).normalized;
-            _ricochetCount++;
-
-            if (_ricochetCount > _maxRicochets)
+            if (_ricochetCount >= _maxRicochets || other.contactCount == 0)
             {
                 Destroy(gameObject);
+                return;
             }
+
+            var normal = other.GetContact(0).normal;
+            _direction = RicochetCalculator.Reflect(_direction, normal);
+            _ricochetCount++;
+            ApplyVelocity();
+        }
+
+        private void ApplyVelocity()
+        {
+            if (_rigidbody == null)
+            {
+                return;
+            }
+
+            _rigidbody.linearVelocity = _direction * _speed;
         }
     }
 }
