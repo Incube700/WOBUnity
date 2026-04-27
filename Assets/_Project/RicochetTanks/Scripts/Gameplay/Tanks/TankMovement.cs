@@ -46,7 +46,7 @@ namespace RicochetTanks.Gameplay.Tanks
             }
         }
 
-       private void FixedUpdate()
+        private void FixedUpdate()
         {
             if (_rigidbody == null)
             {
@@ -59,19 +59,38 @@ namespace RicochetTanks.Gameplay.Tanks
                 return;
             }
 
+            RotateBody();
+            MoveBody();
+        }
+
+        private void RotateBody()
+        {
             var rotationDelta = Quaternion.Euler(0f, _turn * _turnSpeed * Time.fixedDeltaTime, 0f);
             _rigidbody.MoveRotation(_rigidbody.rotation * rotationDelta);
-            _rigidbody.linearVelocity = transform.forward * (_throttle * _moveSpeed);
-        } 
+        }
+
+        private void MoveBody()
+        {
+            var planarVelocity = transform.forward * (_throttle * _moveSpeed);
+
+            if (_rigidbody.isKinematic)
+            {
+                var nextPosition = _rigidbody.position + planarVelocity * Time.fixedDeltaTime;
+                _rigidbody.MovePosition(nextPosition);
+                return;
+            }
+
+            _rigidbody.linearVelocity = new Vector3(planarVelocity.x, _rigidbody.linearVelocity.y, planarVelocity.z);
+        }
 
         private void StopRigidbody()
         {
-            if (_rigidbody == null)
+            if (_rigidbody == null || _rigidbody.isKinematic)
             {
                 return;
             }
 
-            _rigidbody.linearVelocity = Vector3.zero;
+            _rigidbody.linearVelocity = new Vector3(0f, _rigidbody.linearVelocity.y, 0f);
             _rigidbody.angularVelocity = Vector3.zero;
         }
     }
