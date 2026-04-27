@@ -1,108 +1,216 @@
-# Codex / AI Implementation Prompt — World of Balance
+# Codex / AI Implementation Prompt — World of Balance / Ricochet Tanks
 
-Используй этот промпт для дальнейшей разработки проекта **World of Balance / Мир Баланса** в Unity 6. Цель — добавлять фичи быстро, но не ломать архитектуру, производительность и читаемость проекта.
+Use this prompt when developing **World of Balance / Ricochet Tanks** in Unity 6.
 
----
-
-## 1. Project Context
-
-Ты работаешь в Unity 6 проекте **World of Balance** от BurnHeartGames.
-
-Это 3D top-down тактическая дуэль танков 1v1:
-
-- компактная арена 10x10;
-- игрок снизу-слева;
-- противник/болванка сверху-справа;
-- центральный квадратный блок/укрытие;
-- независимые корпус и башня;
-- быстрые снаряды;
-- до 3 рикошетов, на 4-м столкновении снаряд исчезает;
-- зональная броня: front/side/rear;
-- результат попадания зависит от угла, пробития и оставшейся энергии;
-- Desktop + Mobile input;
-- Bootstrap → MainMenu → Sandbox scene flow.
-
-Главные документы:
-
-- `README.md` — GitHub landing page и краткое описание проекта.
-- `GDD.md` — главный источник правды по дизайну и архитектуре.
-- `AI_IMPLEMENTATION_PROMPT.md` — этот документ.
+Goal: implement features quickly, but do not break architecture, performance, scene flow, or the Milestone 1 scope lock.
 
 ---
 
-## 2. Non-Negotiable Architecture Rules
+## 1. Required Reading
 
-### 2.1. No God Objects
+Before changing code, read:
 
-Не создавай и не расширяй монолитный `GameManager`, который знает обо всём.
+- `README.md`
+- `GDD.md`
+- `AI_IMPLEMENTATION_PROMPT.md`
 
-Запрещено:
+`GDD.md` is the main source of truth. If code and docs disagree, report the mismatch before making a risky change.
 
-- огромный `Update` на 300+ строк;
-- `GameManager.Instance`;
-- `FindObjectOfType`/`GameObject.Find` в gameplay logic;
-- UI, input, combat, spawn и game flow в одном классе;
-- логика бота через россыпь bool-флагов вместо FSM.
+---
 
-### 2.2. Bootstrap & Contexts
+## 2. Project Context
 
-Используй контексты:
+You are working on a Unity 6 project by BurnHeartGames.
 
-- `ProjectContext` — глобальные сервисы, живут всю игру;
-- `SceneContext` — сервисы и объекты текущей сцены;
-- Bootstrap/EntryPoint только создаёт, регистрирует, связывает и запускает.
+Current prototype identity:
 
-DI-контейнер можно использовать в инфраструктуре, installers, factories и bootstrap. Gameplay-классам контейнер напрямую не передавать. Они получают конкретные зависимости через constructor/init method.
+- compact 10x10 tank duel;
+- Bootstrap -> MainMenu -> Sandbox scene flow;
+- player tank bottom-left;
+- enemy dummy tank top-right;
+- center square obstacle;
+- independent hull and turret;
+- fast visible projectiles;
+- up to 3 ricochets;
+- projectile is destroyed on the next contact after max bounces;
+- projectile ignores owner briefly after firing;
+- after safe time, returning projectile can hit owner;
+- desktop first playable comes before mobile controls;
+- future identity includes armor zones and angle-based ricochet/penetration.
 
-### 2.3. Feature-Based Structure
-
-Новые фичи добавляй по модулям:
+Current implementation is isolated in:
 
 ```text
-Assets/_Project/Scripts/
- ┣ Infrastructure/
- ┣ Common/
- ┣ Gameplay/
- ┃ ┣ ECS/
- ┃ ┣ Features/
- ┃ ┃ ┣ Arena/
- ┃ ┃ ┣ Tanks/
- ┃ ┃ ┣ Projectiles/
- ┃ ┃ ┣ Armor/
- ┃ ┃ ┣ CombatFlow/
- ┃ ┃ ┣ EnemyAI/
- ┃ ┃ ┣ Input/
- ┃ ┃ ┣ HUD/
- ┃ ┃ ┗ VFX/
- ┃ ┗ States/
- ┗ UI/
-   ┣ Views/
-   ┗ Presenters/
+Assets/_Project/RicochetTanks/
 ```
 
-Если текущая структура проекта отличается, сначала найди ближайшее существующее место и аккуратно впиши фичу туда. Не создавай параллельную архитектуру без необходимости.
+Important existing runtime pieces:
+
+- `ProjectBootstrapper`
+- `MainMenuView`
+- `MainMenuPresenter`
+- `SandboxBootstrapper`
+- `SandboxSceneBuilder`
+- `SandboxMatchController`
+- `DesktopInputReader`
+- `TankFacade`
+- `ProjectileFactory`
+- `HitResolver`
+- `ArenaConfig`
+- `TankConfig`
+- `ProjectileConfig`
+
+Prefer extending these cleanly over creating parallel duplicate systems.
 
 ---
 
-## 3. Coding Style
+## 3. Milestone 1 Scope Lock
 
-Следуй стилю проекта:
+First playable must stay focused:
 
-- C#;
-- private поля: `_camelCase`;
-- классы, методы, свойства: `PascalCase`;
-- bool методы: `Is...`, `Can...`, `Has...`;
-- try-методы возвращают `bool`: `TryShoot`, `TrySpend`, `TryGetTarget`;
-- не использовать магические числа — выносить в config/const;
-- избегать отрицательных условий там, где можно сделать код читаемее;
-- не писать лишние комментарии, объясняющие очевидный код;
-- комментарии допустимы для сложной математики рикошета/брони.
+1. Bootstrap -> MainMenu -> Sandbox.
+2. 10x10 arena + center obstacle.
+3. Player tank movement + turret aiming.
+4. Shooting + fast visible projectiles.
+5. Ricochet up to 3 bounces.
+6. Dummy enemy health/death.
+7. HUD with HP, last hit result, round result, restart.
+8. Restart flow.
+9. Manual test checklist passes.
+
+Do **not** add before Milestone 1 is stable:
+
+- multiplayer;
+- progression/currency/shop;
+- multiple tanks;
+- multiple maps;
+- complex enemy AI;
+- destructible environment;
+- different projectile types;
+- dash/shield abilities;
+- campaign/story;
+- leaderboards;
+- advanced VFX/SFX pass;
+- monetization.
 
 ---
 
-## 4. Lifecycle Rules
+## 4. Initial Balance Values
 
-Для обычных C# классов используй lifecycle:
+Use config values, not magic numbers in gameplay code.
+
+| Parameter | Start Value |
+|---|---:|
+| Arena size | 10x10 |
+| Player HP | 100 |
+| Enemy HP | 100 |
+| Player move speed | 4 units/sec |
+| Player rotation speed | 130 deg/sec |
+| Turret rotation speed | 220 deg/sec |
+| Projectile speed | 22 units/sec |
+| Projectile damage | 35 |
+| Projectile max bounces | 3 |
+| Bounce speed multiplier | 0.78 |
+| Min projectile speed | 5 units/sec |
+| Projectile max lifetime | 4 sec |
+| Safe owner time | 0.15 sec |
+| Reload time | 0.8 sec |
+| Restart delay after death | 1.0 sec |
+
+Future armor values:
+
+| Parameter | Start Value |
+|---|---:|
+| Front armor | 100 |
+| Side armor | 70 |
+| Rear armor | 40 |
+| Auto ricochet angle | 70 degrees |
+
+---
+
+## 5. First Sandbox Layout
+
+Gameplay plane is XZ.
+
+| Object | Position | Notes |
+|---|---|---|
+| Arena center | `(0, 0, 0)` | 10x10 |
+| Player spawn | `(-3.5, 0, -3.5)` | faces center |
+| Enemy spawn | `(3.5, 0, 3.5)` | faces center |
+| Center obstacle | `(0, 0, 0)` | 2x2 square |
+
+Camera:
+
+- Orthographic;
+- position around `(0, 10, 0)`;
+- rotation around `(90, 0, 0)`;
+- orthographic size around `6`;
+- full arena visible.
+
+---
+
+## 6. Non-Negotiable Architecture Rules
+
+### 6.1. No God Objects
+
+Forbidden:
+
+- giant `GameManager`;
+- `GameManager.Instance`;
+- huge all-in-one MonoBehaviour;
+- input + UI + combat + spawn + match flow in one class;
+- random boolean flags instead of state machine when state machine is required;
+- runtime `FindObjectOfType` / `GameObject.Find` in gameplay loop.
+
+### 6.2. Bootstrap / Context Direction
+
+Current scene bootstrappers are allowed and expected.
+
+Long-term direction:
+
+- `ProjectContext` for global services;
+- `SceneContext` for scene services;
+- bootstrapper wires scene dependencies;
+- DI container is infrastructure only;
+- gameplay classes receive concrete dependencies, not the container.
+
+### 6.3. Feature-Based Integration
+
+Do not create unrelated duplicate architecture. Fit new code into the existing RicochetTanks structure.
+
+Preferred logical modules:
+
+- Infrastructure / Bootstrap;
+- MainMenu;
+- Sandbox;
+- Input;
+- Tanks;
+- Projectiles;
+- Combat / Hit resolving;
+- HUD / UI;
+- VFX;
+- future Armor;
+- future EnemyAI.
+
+---
+
+## 7. Coding Style
+
+- C#.
+- Private fields: `_camelCase`.
+- Classes, methods, properties: `PascalCase`.
+- Bool methods: `Is...`, `Can...`, `Has...`.
+- Try methods return bool: `TryShoot`, `TryGetTarget`.
+- No magic numbers in gameplay code.
+- Avoid unnecessary comments.
+- Comments are allowed for non-obvious ricochet, physics, or armor math.
+- Keep methods small and responsibilities clear.
+
+---
+
+## 8. Lifecycle Rules
+
+For plain C# services/controllers/presenters use:
 
 ```csharp
 public interface IInitializable
@@ -116,60 +224,88 @@ public interface IDisposable
 }
 ```
 
-Правила:
+Rules:
 
-- подписка на события — в `Initialize`;
-- отписка — в `Dispose`;
-- для `MonoBehaviour` допустимы `OnEnable/OnDisable`, если объект реально живёт в сцене;
-- не смешивать `Construct` + `OnEnable` подписки без ясной причины;
-- если подписка через лямбду неизбежна, сохранить delegate в поле, чтобы можно было отписаться. Лучше использовать именованный метод.
+- subscribe in `Initialize`;
+- unsubscribe in `Dispose`;
+- MonoBehaviour may use `OnEnable` / `OnDisable` if it is a real scene/prefab object;
+- prefer named event handlers;
+- avoid anonymous lambdas for subscriptions that require unsubscribe;
+- if a lambda is unavoidable, store the delegate in a field.
 
 ---
 
-## 5. ECS / Data-Oriented Rules
+## 9. MVP UI Rules
 
-Используй ECS/Data-Oriented слой там, где это даёт пользу:
+UI views:
+
+- are MonoBehaviours;
+- display data;
+- raise button/input events;
+- do not apply damage;
+- do not spawn projectiles;
+- do not decide match results.
+
+Presenters/controllers:
+
+- wire UI to services/gameplay;
+- subscribe/unsubscribe cleanly;
+- convert gameplay state into view state;
+- should not become overloaded God Objects.
+
+Existing examples:
+
+- `MainMenuView`
+- `MainMenuPresenter`
+
+Follow that separation for HUD/result/restart UI.
+
+---
+
+## 10. Projectile Physics Rules
+
+Fast projectile handling must be stable.
+
+Preferred approach:
+
+- custom deterministic movement per tick;
+- Raycast/SphereCast along the movement segment;
+- ricochet from `hit.normal`;
+- direction locked to XZ plane;
+- speed reduced by bounce multiplier;
+- destroy after max bounces next contact;
+- destroy after max lifetime or low speed;
+- owner safe time prevents immediate self-hit.
+
+Do not rely only on Unity collision callbacks for high-speed projectiles.
+
+---
+
+## 11. ECS / Data-Oriented Direction
+
+Use ECS/Data-Oriented style when it makes the project simpler and faster, especially for:
 
 - projectiles;
+- hit requests;
 - damage requests;
-- hit events;
 - temporary VFX requests;
-- bot runtime data;
-- массовые объекты.
+- future bot runtime data.
 
-Если в проекте есть custom `EntitiesCore` и сгенерированный `EntityAPI`, не рассыпай `GetComponent<T>()` по gameplay-коду. Используй сгенерированные свойства/методы `entity.Xxx`.
+If the project has a custom `EntitiesCore` and generated `EntityAPI`, do not scatter `GetComponent<T>()` through gameplay code. Use generated `entity.Xxx` access and regenerate API after component changes.
 
-После добавления или переименования компонента:
-
-1. добавь/измени component;
-2. сгенерируй Entity API через editor tool;
-3. обнови код, использующий component;
-4. проверь компиляцию;
-5. не делай массовую миграцию без промежуточной проверки.
-
-Не тащи Unity DOTS/ECS ради галочки, если текущий проект использует свой lightweight ECS.
+Do not introduce Unity DOTS/ECS only for show. Use the project’s existing architecture first.
 
 ---
 
-## 6. State Machine Rules
+## 12. State Machine Rules
 
-FSM использовать для:
+FSM is planned for:
 
-- enemy AI;
-- match/game flow;
-- возможно UI flow.
+- future enemy AI;
+- match/game flow if match logic grows;
+- possibly UI flow.
 
-Enemy states на старте:
-
-- `Idle`;
-- `Patrol`;
-- `Chase`;
-- `Aim`;
-- `Shoot`;
-- `Evade`;
-- `Dead`.
-
-Каждый state должен иметь явный lifecycle:
+State classes should have explicit lifecycle such as:
 
 ```csharp
 public interface IState
@@ -180,149 +316,180 @@ public interface IState
 }
 ```
 
-Правила:
+Rules:
 
-- логика конкретного этапа живёт внутри state;
-- переходы явные;
-- нет россыпи bool-флагов, имитирующих state machine;
-- подписки внутри state отписывать в `Exit` или `Dispose`;
-- debug overlay должен показывать текущее состояние бота.
+- state logic lives inside states;
+- transitions are explicit;
+- no random bool-flag state soup;
+- unsubscribe in `Exit` or `Dispose`;
+- add debug display for current enemy state when AI arrives.
 
----
-
-## 7. MVP UI Rules
-
-UI делать через MVP.
-
-### View
-
-`MonoBehaviour`, который:
-
-- показывает данные;
-- проигрывает UI-анимации;
-- отдаёт события кнопок;
-- не принимает gameplay decisions.
-
-### Presenter
-
-Обычный C# класс, который:
-
-- получает зависимости через constructor;
-- подписывается в `Initialize`;
-- отписывается в `Dispose`;
-- преобразует данные модели/сервиса во view state;
-- не должен быть `MonoBehaviour`.
-
-Gameplay не должен напрямую менять UI. Он сообщает события/изменяет model, presenter обновляет view.
+Enemy AI is out of scope for Milestone 1 except dummy enemy health/death.
 
 ---
 
-## 8. Config Rules
+## 13. Event Contracts
 
-Все настройки баланса выносить в ScriptableObject:
+Core gameplay events to prefer:
 
-- `TankConfig`;
-- `ProjectileConfig`;
-- `ArenaConfig`;
-- `ArmorConfig`;
-- `EnemyAIConfig`;
-- `InputConfig`, если нужно;
-- `VFXConfig`, если нужно.
+- `MatchStarted`
+- `MatchFinished`
+- `RestartRequested`
+- `HealthChanged`
+- `Died`
+- `ProjectileSpawned`
+- `ProjectileBounced`
+- `ProjectileHit`
+- `ProjectileDestroyed`
+- `HitResolved`
+- `ReloadStarted`
+- `ReloadFinished`
 
-Не хардкодить:
+Rules:
 
-- скорость снаряда;
-- количество рикошетов;
-- размер арены;
-- здоровье;
-- броню;
-- дистанции AI;
-- cooldown;
-- UI timings.
-
----
-
-## 9. Performance Rules
-
-Критично для мобильной цели и слабых устройств:
-
-- не использовать LINQ в `Update`, `FixedUpdate`, ECS systems и частых циклах;
-- не создавать мусор каждый кадр;
-- использовать pooling для снарядов, VFX и floating text;
-- не делать `new` в hot path без необходимости;
-- не искать объекты через Unity search API в gameplay loop;
-- physics/raycast делать осознанно, не спамить без причины;
-- расчёты движения и рикошетов вести в XZ-плоскости.
+- gameplay raises events;
+- UI listens through presenters/controllers;
+- VFX/SFX listen through dedicated handlers;
+- gameplay must not directly call UI views;
+- fact events use past tense when appropriate.
 
 ---
 
-## 10. Feature Integration Algorithm
+## 14. Debug Requirements
 
-Когда добавляешь новую фичу, действуй так:
+Required debug feedback:
 
-1. Прочитай `README.md` и `GDD.md`.
-2. Найди существующий feature-module, куда фича относится.
-3. Если модуля нет — создай новый модуль с ясной ответственностью.
-4. Определи public interfaces/events, не лезь во внутренности соседних модулей.
-5. Добавь/обнови ScriptableObject config.
-6. Добавь runtime/service/system классы.
-7. Если есть UI — добавь View + Presenter.
-8. Если есть поведение по этапам — добавь state/state machine.
-9. Если есть динамические боевые сущности — рассмотри ECS component/system.
-10. Добавь debug gizmos/logs для проверки.
-11. Проверь компиляцию.
-12. Обнови `GDD.md`/`README.md`, если изменилась механика или roadmap.
+```text
+[SHOT]
+[BOUNCE]
+[HIT]
+[ROUND]
+[ARMOR]
+[AI]
+[FLOW]
+```
 
----
+Useful debug visualization:
 
-## 11. Current Implementation Priority
+- projectile direction;
+- bounce count;
+- collision normal;
+- hit point;
+- owner safe-time state;
+- spawn points;
+- arena bounds;
+- future armor zone and hit angle;
+- future enemy FSM state.
 
-Сначала собрать First Playable, не расползаясь:
-
-1. Bootstrap → MainMenu → Sandbox.
-2. Arena 10x10 + central block.
-3. Player tank movement + turret aiming.
-4. Shooting + fast projectiles.
-5. Ricochet up to 3 bounces.
-6. Dummy enemy health/death.
-7. HUD health/restart/result.
-8. Mobile input layer.
-9. Armor zones and penetration.
-10. Enemy FSM bot.
-
-Не добавлять новые “крутые” фичи, пока этот список не работает стабильно.
+Debug must be toggleable or editor-only where possible.
 
 ---
 
-## 12. Acceptance Criteria
+## 15. Performance Rules
 
-Перед завершением задачи проверь:
-
-- проект компилируется;
-- сцена запускается;
-- нет новых God Object классов;
-- зависимости не ищутся через `Find` в runtime logic;
-- нет подписок без отписки;
-- UI не содержит gameplay logic;
-- Presenter не является MonoBehaviour;
-- state machine не заменена bool-флагами;
-- ECS API регенерирован, если менялись компоненты;
-- нет LINQ/аллокаций в hot path;
-- конфиги вынесены в ScriptableObject;
-- добавлены понятные debug hooks;
-- документация обновлена, если нужно.
+- No LINQ in `Update`, `FixedUpdate`, projectile systems, AI systems, or hot loops.
+- Pool projectiles, VFX, and floating text when repeated spawning appears.
+- No per-frame allocations without reason.
+- No runtime object search in gameplay loops.
+- Keep projectile/armor math on XZ plane.
+- Avoid physics spam.
 
 ---
 
-## 13. Response Format for Codex
+## 16. Feature Integration Algorithm
 
-Когда предлагаешь изменения, выдавай результат так:
+When adding a feature:
 
-1. **Что меняется** — коротко.
-2. **Какие файлы создать/изменить** — список путей.
-3. **Почему так архитектурно правильно** — 3–5 пунктов.
-4. **Код** — по файлам, полностью.
-5. **Как проверить в Unity** — пошагово.
-6. **Что не трогал** — чтобы не было скрытых поломок.
+1. Read `README.md`, `GDD.md`, and this file.
+2. Check whether the feature is in Milestone 1 or backlog.
+3. If it is out of scope, do not implement it unless explicitly requested.
+4. Find the existing module/class to extend.
+5. Avoid duplicate systems.
+6. Add/update configs for all gameplay numbers.
+7. Add service/system/controller code with clear responsibilities.
+8. Add View + Presenter/controller only if UI is needed.
+9. Add debug logs/gizmos for verification.
+10. Run/describe manual test checklist.
+11. Update docs if mechanics, architecture, or roadmap changed.
 
-Не предлагай “переписать весь проект” без крайней необходимости. Делай маленькие безопасные итерации.
+---
+
+## 17. Manual Test Checklist
+
+Before finalizing a gameplay change, verify relevant items:
+
+### Scene Flow
+
+- Project starts from Bootstrap.
+- MainMenu opens.
+- Play opens Sandbox.
+- Restart resets match.
+- No Console errors on scene load.
+
+### Player
+
+- Player spawns bottom-left.
+- Player moves forward/back.
+- Player rotates hull.
+- Player cannot leave arena.
+- Turret follows aim point.
+- Player can shoot.
+
+### Projectile
+
+- Projectile spawns from barrel.
+- Projectile does not instantly hit owner.
+- Projectile is fast but visible.
+- Projectile bounces from wall.
+- Projectile bounces from center obstacle.
+- Projectile disappears after max bounces.
+- Projectile disappears after max lifetime or low speed.
+
+### Combat
+
+- Projectile can hit enemy.
+- Enemy loses HP.
+- Enemy dies at 0 HP.
+- Round ends after death.
+- HUD shows last hit result.
+
+### Architecture
+
+- No new God Object.
+- No gameplay `FindObjectOfType` / `GameObject.Find`.
+- Subscriptions unsubscribe.
+- Config values are not hardcoded.
+- UI does not contain gameplay logic.
+
+---
+
+## 18. Acceptance Criteria
+
+A task is acceptable only if:
+
+- project compiles;
+- relevant scene runs;
+- no new God Object appears;
+- dependencies are wired explicitly;
+- UI and gameplay remain separated;
+- hot paths avoid avoidable allocations;
+- events unsubscribe correctly;
+- config values are used for balance;
+- debug feedback is enough to verify behavior;
+- relevant manual tests are described or passed;
+- docs are updated when design/architecture changes.
+
+---
+
+## 19. Response Format for Codex
+
+When proposing changes, answer in this format:
+
+1. **What changes** — short summary.
+2. **Files to create/change** — paths.
+3. **Architecture reason** — 3-5 points.
+4. **Code** — complete files or precise patches.
+5. **How to test in Unity** — step-by-step.
+6. **What was not touched** — to avoid hidden breakage.
+
+Do not propose rewriting the whole project unless absolutely necessary. Prefer small safe iterations.
