@@ -4,6 +4,10 @@ namespace RicochetTanks.Infrastructure.SceneLoading
 {
     public sealed class SceneLoaderService
     {
+        public const string BootstrapSceneName = "Bootstrap";
+        public const string MainMenuSceneName = "MainMenu";
+        public const string SandboxSceneName = "Sandbox";
+
         public void Load(string sceneName)
         {
             SceneManager.LoadScene(sceneName);
@@ -13,6 +17,15 @@ namespace RicochetTanks.Infrastructure.SceneLoading
         {
             var activeScene = SceneManager.GetActiveScene();
             SceneManager.LoadScene(activeScene.name);
+        }
+
+        public static void QuitGame()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            UnityEngine.Application.Quit();
+#endif
         }
     }
 }

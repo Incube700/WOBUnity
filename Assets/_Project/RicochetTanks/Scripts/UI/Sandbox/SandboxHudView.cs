@@ -8,6 +8,9 @@ namespace RicochetTanks.UI.Sandbox
     {
         [SerializeField] private Text _playerHpText;
         [SerializeField] private Text _enemyHpText;
+        [SerializeField] private Text _lastHitText;
+        [SerializeField] private Text _roundResultText;
+        [SerializeField] private Text _controlsHintText;
         [SerializeField] private Button _restartButton;
 
         private bool _isSubscribed;
@@ -24,11 +27,20 @@ namespace RicochetTanks.UI.Sandbox
             Unsubscribe();
         }
 
-        public void Configure(Text playerHpText, Text enemyHpText, Button restartButton)
+        public void Configure(
+            Text playerHpText,
+            Text enemyHpText,
+            Text lastHitText,
+            Text roundResultText,
+            Text controlsHintText,
+            Button restartButton)
         {
             Unsubscribe();
             _playerHpText = playerHpText;
             _enemyHpText = enemyHpText;
+            _lastHitText = lastHitText;
+            _roundResultText = roundResultText;
+            _controlsHintText = controlsHintText;
             _restartButton = restartButton;
             Subscribe();
         }
@@ -46,6 +58,30 @@ namespace RicochetTanks.UI.Sandbox
             if (_enemyHpText != null)
             {
                 _enemyHpText.text = $"Enemy HP: {currentHp}/{maxHp}";
+            }
+        }
+
+        public void SetLastHitResult(string text)
+        {
+            if (_lastHitText != null)
+            {
+                _lastHitText.text = text;
+            }
+        }
+
+        public void SetRoundResult(string text)
+        {
+            if (_roundResultText != null)
+            {
+                _roundResultText.text = text;
+            }
+        }
+
+        public void SetControlsHint(string text)
+        {
+            if (_controlsHintText != null)
+            {
+                _controlsHintText.text = text;
             }
         }
 

@@ -1,24 +1,21 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using RicochetTanks.Infrastructure.SceneLoading;
 
 namespace RicochetTanks.Infrastructure.Bootstrap
 {
     public static class ProjectBootstrapper
     {
-        private const string MainMenuSceneName = "RicochetTanks_MainMenu";
-        private const string LegacySandboxSceneName = "RicochetTanks_Sandbox";
-        private const string SandBoxSceneName = "Sand Box";
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Initialize()
         {
             var activeSceneName = SceneManager.GetActiveScene().name;
-            if (activeSceneName == MainMenuSceneName || activeSceneName == LegacySandboxSceneName || activeSceneName == SandBoxSceneName)
+            if (activeSceneName == SceneLoaderService.MainMenuSceneName || activeSceneName == SceneLoaderService.SandboxSceneName)
             {
                 return;
             }
 
-            SceneManager.LoadScene(MainMenuSceneName);
+            SceneManager.LoadScene(SceneLoaderService.MainMenuSceneName);
         }
     }
 }

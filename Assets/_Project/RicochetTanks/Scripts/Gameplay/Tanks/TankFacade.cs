@@ -16,6 +16,7 @@ namespace RicochetTanks.Gameplay.Tanks
         public TurretAiming Aiming => _aiming;
         public TankShooter Shooter => _shooter;
         public TankHealth Health => _health;
+        public PlayerTankController Controller => _controller;
 
         public void Configure(
             TankMovement movement,
@@ -41,6 +42,25 @@ namespace RicochetTanks.Gameplay.Tanks
             if (_controller != null)
             {
                 _controller.enabled = isPlayerControlled;
+                _controller.SetControlEnabled(isPlayerControlled);
+            }
+        }
+
+        public void SetGameplayEnabled(bool isGameplayEnabled)
+        {
+            if (_movement != null)
+            {
+                _movement.SetMovementEnabled(isGameplayEnabled);
+            }
+
+            if (_shooter != null)
+            {
+                _shooter.SetCanShoot(isGameplayEnabled);
+            }
+
+            if (_controller != null)
+            {
+                _controller.SetControlEnabled(isGameplayEnabled && _controller.enabled);
             }
         }
     }

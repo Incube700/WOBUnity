@@ -1,4 +1,4 @@
-# ⚔️ World of Balance / Мир Баланса
+# World of Balance / Ricochet Tanks
 
 **by Sergo Burnheart · BurnHeartGames**  
 3D top-down tactical prototype about tanks, ricochets, armor angles and readable combat systems.
@@ -22,163 +22,71 @@
 - [GDD.md](GDD.md) — основной дизайн-документ и правила разработки.
 - [AI_IMPLEMENTATION_PROMPT.md](AI_IMPLEMENTATION_PROMPT.md) — промпт для Codex/AI-ассистента, чтобы новые фичи интегрировались архитектурно правильно.
 
----
+## Current Status
 
-## ✅ First Playable Scope
+Milestone 1 is focused on a clean first playable demo:
 
-Первая рабочая версия должна быть маленькой, но полностью играбельной:
+- `Bootstrap -> MainMenu -> Sandbox` scene flow.
+- 10x10 greybox arena with four walls and a center square obstacle.
+- Player tank starts bottom-left; enemy dummy starts top-right.
+- Desktop tank controls: hull movement/turning, independent turret aim, shooting, restart.
+- Fast visible projectiles with a bright material and trail.
+- Projectiles ricochet from walls/obstacles up to 3 times; the next contact destroys them.
+- Tanks have HP; enemy can die; HUD shows HP, last hit, round result, controls, and restart.
+- Runtime debug logs: `[SHOT]`, `[BOUNCE]`, `[HIT]`, `[ROUND]`.
 
-| Блок | Требование |
-|---|---|
-| **Сцены** | `Bootstrap` → `MainMenu` → `Sandbox` |
-| **Арена** | поле 10x10, читаемые границы, центральный квадрат/блок |
-| **Игрок** | танк снизу-слева, движение корпусом, башня отдельно, стрельба |
-| **Противник** | болванка сверху-справа, получает урон, позже заменяется FSM-ботом |
-| **Снаряды** | быстрые, видимые, до 3 рикошетов, на 4-м исчезают |
-| **Броня** | зоны лоб/борт/корма, угол попадания влияет на пробитие |
-| **UI** | здоровье, перезарядка, результат попадания, рестарт |
-| **Ввод** | Desktop: WASD + мышь; Mobile: виртуальный джойстик + кнопки |
-| **Сборка** | Desktop для быстрой разработки, Android как целевая мобильная платформа |
-
----
-
-## 🧠 Основные механики
-
-### Рикошеты
-
-- Снаряд отражается от стен и препятствий по нормали поверхности.
-- После каждого отскока скорость и пробитие падают.
-- Максимум: **3 рикошета**. На следующем столкновении или при низкой скорости снаряд удаляется.
-- Рикошет может стать тактическим выстрелом по цели за укрытием.
-
-### Угловая броня
-
-- У танка есть зоны брони: **front / side / rear**.
-- Эффективная броня растёт при остром угле попадания.
-- Острый угол может дать авторикошет.
-- Попадание в корму должно быть заметно выгоднее, чем в лоб.
-
-### Кинетика снаряда
-
-- Снаряд хранит начальную и текущую скорость.
-- Пробитие и урон зависят от оставшейся энергии.
-- После дальнего полёта и рикошетов снаряд становится менее опасным.
-
-### Читаемая обратная связь
-
-Игрок должен понимать результат каждого выстрела:
-
-- `Penetrated` — пробил, нанесён урон.
-- `Ricochet` — снаряд отскочил.
-- `No Penetration` — не хватило пробития.
-- `Destroyed` — танк уничтожен.
-
----
-
-## 🏗️ Архитектурное направление
-
-Проект не должен превращаться в один большой `GameManager`. Разработка ведётся через feature-based структуру, DI/контексты, FSM, ECS-подход для динамических сущностей и MVP для UI.
+Older course/homework code is kept outside the active prototype path. The playable prototype lives under:
 
 ```text
-Assets/_Project/
- ┣ Scripts/
- ┃ ┣ Infrastructure/        # ProjectContext, SceneContext, DI, scene loading
- ┃ ┣ Common/                # shared interfaces, math, pooling, events
- ┃ ┣ Gameplay/
- ┃ ┃ ┣ ECS/                 # entities, components, systems, generated Entity API
- ┃ ┃ ┣ Features/
- ┃ ┃ ┃ ┣ Arena/
- ┃ ┃ ┃ ┣ Tanks/
- ┃ ┃ ┃ ┣ Projectiles/
- ┃ ┃ ┃ ┣ Armor/
- ┃ ┃ ┃ ┣ CombatFlow/
- ┃ ┃ ┃ ┣ EnemyAI/
- ┃ ┃ ┃ ┣ Input/
- ┃ ┃ ┃ ┣ HUD/
- ┃ ┃ ┃ ┗ VFX/
- ┃ ┃ ┗ States/             # game flow states / enemy states
- ┃ ┗ UI/
- ┃   ┣ Views/               # MonoBehaviour views only
- ┃   ┗ Presenters/          # plain C# presenters
- ┣ Configs/                 # ScriptableObject configs
- ┣ Scenes/                  # Bootstrap, MainMenu, Sandbox
- ┗ Prefabs/
+Assets/_Project/RicochetTanks/
 ```
 
-### Правила проекта
+## How To Run
 
-- `Bootstrap/EntryPoint` только создаёт, связывает и запускает системы. Он не содержит геймплейную логику.
-- `View` — это `MonoBehaviour`, который только показывает UI/анимации и отдаёт события пользователя.
-- `Presenter` — обычный C# класс, подписывается в `Initialize`, отписывается в `Dispose`.
-- Gameplay-системы не должны знать про UI напрямую.
-- Динамические боевые сущности по возможности вести через ECS/Data-Oriented слой.
-- Логику этапов игры и ботов держать в State Machine, а не в россыпи boolean-флагов.
-- Все параметры баланса выносить в `ScriptableObject`, без магических чисел в коде.
-- В подписках на события использовать именованные методы, без анонимных лямбд, если нужна отписка.
+Use Unity `6000.4.3f1`.
 
----
+1. Open the project in Unity.
+2. Open `Assets/_Project/RicochetTanks/Scenes/Bootstrap.unity`.
+3. Press Play.
+4. Click `Play Sandbox` in the main menu.
 
-## 🛠️ Технологии
+You can also open `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity` directly and press Play.
 
-| Область | Выбор |
-|---|---|
-| Engine | Unity 6 |
-| Language | C# |
-| Architecture | Feature-based modules, DI contexts, ECS-style gameplay, FSM, MVP UI |
-| Physics | 3D Rigidbody/Collider or lightweight custom top-down movement where needed |
-| Input | Unity Input System: Desktop + Mobile actions |
-| UI | UGUI/TextMeshPro или UI Toolkit, через MVP |
-| Version Control | Git + GitHub |
-| IDE | JetBrains Rider / VS Code |
+## Controls
 
----
+```text
+W / S or Up / Down     Move forward / backward relative to the hull
+A / D or Left / Right  Rotate hull
+Mouse                  Aim turret
+Left Mouse / Space     Fire
+R                      Restart Sandbox
+Restart button         Restart Sandbox
+```
 
-## 🗺️ Roadmap
+## Prototype Architecture
 
-### Milestone 0 — Documentation & Repository
+The current prototype uses small MonoBehaviours for Unity-facing objects and keeps wiring in scene bootstraps:
 
-- [x] Обновить `README.md` как GitHub-страницу проекта.
-- [x] Обновить `GDD.md` как главный документ разработки.
-- [x] Добавить Codex/AI prompt для безопасной интеграции фич.
+- `ProjectBootstrapper` starts the scene flow.
+- `MainMenuView` + `MainMenuPresenter` handle menu UI.
+- `SandboxBootstrapper` builds and wires the playable scene.
+- `SandboxSceneBuilder` procedurally creates the greybox arena, tanks, camera, HUD, input reader, and projectile factory.
+- `SandboxMatchController` owns match state, restart, win/loss result, and hit feedback.
+- `TankFacade`, `TankMovement`, `TurretAiming`, `TankShooter`, and `TankHealth` split tank responsibilities.
+- `ProjectileFactory`, `Projectile`, `RicochetCalculator`, and `HitResolver` handle shooting, ricochets, and damage.
+- `ArenaConfig`, `TankConfig`, and `ProjectileConfig` keep gameplay numbers out of core logic.
 
-### Milestone 1 — First Playable Sandbox
+## Deferred Features
 
-- [ ] Bootstrap-сцена и переход в `MainMenu`/`Sandbox`.
-- [ ] Арена 10x10 с центральным блоком.
-- [ ] Игрок: движение, башня, выстрел.
-- [ ] Болванка-противник: здоровье, получение урона, смерть.
-- [ ] Быстрые снаряды с рикошетами до 3 раз.
-- [ ] HUD здоровья и рестарт.
+Not part of Milestone 1 yet:
 
-### Milestone 2 — Combat Depth
+- Full armor model with front/side/rear zones.
+- Kinetic penetration, damage falloff, and angle-based ricochet.
+- Enemy AI and enemy shooting.
+- Mobile controls beyond the planned input layer.
+- VFX polish such as impact sparks, muzzle flash, and floating combat text.
 
-- [ ] Зональная броня: лоб/борт/корма.
-- [ ] Расчёт угла попадания, пробития и авторикошета.
-- [ ] Всплывающий текст результата попадания.
-- [ ] Pooling для снарядов/VFX.
+## Design Docs
 
-### Milestone 3 — Enemy FSM Bot
-
-- [ ] FSM: `Idle`, `Patrol`, `Chase`, `Aim`, `Shoot`, `Evade`, `Dead`.
-- [ ] Простейшее упреждение выстрела.
-- [ ] Debug overlay состояния бота.
-
-### Milestone 4 — Mobile/Android Build
-
-- [ ] Виртуальный джойстик движения.
-- [ ] Отдельная кнопка выстрела.
-- [ ] UI-safe layout под телефон.
-- [ ] Android build profile.
-
----
-
-## 📲 Контакты
-
-- Instagram: [@sergo_burnheart](https://instagram.com/sergo_burnheart)
-- YouTube Devlog: скоро
-
----
-
-## ✨ Статус
-
-Проект в раннем прототипе. Цель — сделать небольшой, чистый и понятный портфолио-проект, который показывает прогресс от идеи до архитектурно собранного Unity-прототипа.
+- Gameplay direction: [GDD.md](GDD.md)
+- Compact AI/code map: [AI_CONTEXT_GRAPH.md](AI_CONTEXT_GRAPH.md)

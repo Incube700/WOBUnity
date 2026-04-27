@@ -1,32 +1,51 @@
 using System;
+using RicochetTanks.Configs;
 using RicochetTanks.Gameplay.Tanks;
 using RicochetTanks.Infrastructure;
 using RicochetTanks.Infrastructure.SceneLoading;
+using RicochetTanks.Input.Desktop;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace RicochetTanks.UI.Sandbox
 {
-    public class SandboxBootstrapper : MonoBehaviour
+    public sealed class SandboxBootstrapper : MonoBehaviour
     {
-        public const string SandBoxSceneName = "Sand Box";
-
-        private const string SandboxSceneName = "RicochetTanks_Sandbox";
-
         private readonly SceneLoaderService _sceneLoaderService = new SceneLoaderService();
 
+        [SerializeField] private ArenaConfig _arenaConfig;
+        [SerializeField] private TankConfig _tankConfig;
+        [SerializeField] private ProjectileConfig _projectileConfig;
         [SerializeField] private TankFacade _player;
         [SerializeField] private TankFacade _enemy;
         [SerializeField] private SandboxHudView _hudView;
         [SerializeField] private Camera _camera;
+        [SerializeField] private DesktopInputReader _inputReader;
 
         private SandboxHudPresenter _hudPresenter;
+        private SandboxMatchController _matchController;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void RegisterSceneLoadedCallback()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void EnsureSandboxObjects()
+        private static void EnsureInitialSandboxObjects()
         {
-            var sceneName = SceneManager.GetActiveScene().name;
-            if (sceneName != SandboxSceneName && sceneName != SandBoxSceneName)
+            TryCreateForScene(SceneManager.GetActiveScene().name);
+        }
+
+        private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            TryCreateForScene(scene.name);
+        }
+
+        private static void TryCreateForScene(string sceneName)
+        {
+            if (sceneName != SceneLoaderService.SandboxSceneName)
             {
                 return;
             }
@@ -44,6 +63,7 @@ namespace RicochetTanks.UI.Sandbox
         {
             EnsureSceneBuilt();
             BindHud();
+            BindMatch();
         }
 
         private void OnDestroy()
@@ -58,11 +78,12 @@ namespace RicochetTanks.UI.Sandbox
             _enemy = context.Enemy;
             _hudView = context.HudView;
             _camera = context.Camera;
+            _inputReader = context.InputReader;
         }
 
         public void RebuildScene()
         {
-            Configure(SandboxSceneBuilder.Build(transform));
+            Configure(SandboxSceneBuilder.Build(transform, _arenaConfig, _tankConfig, _projectileConfig));
         }
 
         private void EnsureSceneBuilt()
@@ -79,16 +100,27 @@ namespace RicochetTanks.UI.Sandbox
         {
             if (_player == null || _enemy == null || _hudView == null)
             {
-                throw new InvalidOperationException("Sand Box scene did not build the required player, enemy, and HUD.");
+                throw new InvalidOperationException("Sandbox scene did not build the required player, enemy, and HUD.");
             }
 
             _hudPresenter?.Dispose();
-            _hudPresenter = new SandboxHudPresenter(_hudView, _player.Health, _enemy.Health, OnRestartClicked);
+            _hudPresenter = new SandboxHudPresenter(_hudView, _player.Health, _enemy.Health);
         }
 
-        private void OnRestartClicked()
+        private void BindMatch()
         {
-            _sceneLoaderService.ReloadActiveScene();
+            if (_player == null || _enemy == null || _hudView == null || _inputReader == null)
+            {
+                throw new InvalidOperationException("Sandbox scene did not build the required match wiring.");
+            }
+
+            _matchController = GetComponent<SandboxMatchController>();
+            if (_matchController == null)
+            {
+                _matchController = gameObject.AddComponent<SandboxMatchController>();
+            }
+
+            _matchController.Configure(_player, _enemy, _hudView, _inputReader, _sceneLoaderService);
         }
     }
 }

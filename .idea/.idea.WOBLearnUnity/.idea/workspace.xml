@@ -6,40 +6,58 @@
   <component name="ChangeListManager">
     <list default="true" id="b49b0284-51bb-4d38-8aec-6820f32b673c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.WOBLearnUnity/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.WOBLearnUnity/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/GameInput.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Core/GameInput.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Editor/SandBoxSceneGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Editor/SandBoxSceneGenerator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/HitResolver.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/HitResolver.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/PlayerTankController.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/PlayerTankController.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectile.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectile.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/RicochetCalculator.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/RicochetCalculator.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankFacade.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankFacade.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankHealth.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankHealth.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankMovement.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankMovement.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankShooter.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TankShooter.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TurretAiming.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Gameplay/TurretAiming.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/ProjectBootstrapper.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/ProjectBootstrapper.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/SandboxSceneBuilder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/SandboxSceneBuilder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/SceneLoaderService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/Infrastructure/SceneLoaderService.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/MainMenuBootstrapper.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/MainMenuBootstrapper.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxBootstrapper.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxBootstrapper.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxHudPresenter.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxHudPresenter.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxHudView.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scripts/UI/SandboxHudView.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Arena_1.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Arena_1.unity.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat/Bullet.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat/Bullet.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat/DamageReceiver.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat/DamageReceiver.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat/ExplosionVFX.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat/ExplosionVFX.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat/Health.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Combat/Health.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Components.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Components/TankMover.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Components/TankMover.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Components/TurretController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Components/TurretController.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Components/WeaponController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Components/WeaponController.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/GameInput.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/GameInput.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/MathAngles.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/MathAngles.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/MovementStrategy.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/MovementStrategy.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/SimpleCannonStrategy.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/SimpleCannonStrategy.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/StandardMovementStrategy.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/StandardMovementStrategy.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/TripleShotStrategy.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/TripleShotStrategy.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/WeaponStrategy.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Core/Strategies/WeaponStrategy.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Enemy.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Enemy/CoverPoint.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Enemy/CoverPoint.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Enemy/EnemyController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Enemy/EnemyController.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GameInputActions.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GameInputActions.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerController.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerShooter.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player/PlayerShooter.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scenes/Sand Box.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scenes/Sand Box.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WOBLearnUnity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/WOBLearnUnity-1" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,29 +86,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "feature/ricochet-tanks-prototype",
+    "junie.onboarding.icon.badge.shown": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecapSpentCounter">
     <option name="endsOfQuotaMs" value="1777892432993" />
-    <option name="spentUsd" value="0.0044395" />
+    <option name="spentUsd" value="0.092836" />
   </component>
   <component name="RecapUselessUpdatesCounter">
-    <option name="suspendCountdown" value="9" />
+    <option name="suspendCountdown" value="5" />
   </component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
@@ -140,7 +158,7 @@
       <workItem from="1777225144068" duration="603000" />
       <workItem from="1777228683560" duration="1060000" />
       <workItem from="1777230757305" duration="1794000" />
-      <workItem from="1777232777691" duration="822000" />
+      <workItem from="1777232777691" duration="2991000" />
     </task>
     <servers />
   </component>

@@ -4,10 +4,13 @@ namespace RicochetTanks.Gameplay.Tanks
 {
     public class TankMovement : MonoBehaviour
     {
-        [SerializeField] private float _speed = 5f;
+        [SerializeField] private float _moveSpeed = 4.5f;
+        [SerializeField] private float _turnSpeed = 150f;
 
         private Rigidbody _rigidbody;
-        private Vector3 _moveDirection;
+        private float _throttle;
+        private float _turn;
+        private bool _isMovementEnabled = true;
 
         private void Awake()
         {
@@ -19,9 +22,28 @@ namespace RicochetTanks.Gameplay.Tanks
             _rigidbody = body;
         }
 
-        public void SetMoveDirection(Vector2 input)
+        public void Configure(Rigidbody body, float moveSpeed, float turnSpeed)
         {
-            _moveDirection = new Vector3(input.x, 0f, input.y).normalized;
+            _rigidbody = body;
+            _moveSpeed = moveSpeed;
+            _turnSpeed = turnSpeed;
+        }
+
+        public void SetInput(float throttle, float turn)
+        {
+            _throttle = Mathf.Clamp(throttle, -1f, 1f);
+            _turn = Mathf.Clamp(turn, -1f, 1f);
+        }
+
+        public void SetMovementEnabled(bool isMovementEnabled)
+        {
+            _isMovementEnabled = isMovementEnabled;
+
+            if (!_isMovementEnabled)
+            {
+                SetInput(0f, 0f);
+                StopRigidbody();
+            }
         }
 
         private void FixedUpdate()
@@ -31,12 +53,26 @@ namespace RicochetTanks.Gameplay.Tanks
                 return;
             }
 
-            _rigidbody.linearVelocity = _moveDirection * _speed;
-
-            if (_moveDirection.sqrMagnitude > 0.001f)
+            if (!_isMovementEnabled)
             {
-                transform.rotation = Quaternion.LookRotation(_moveDirection, Vector3.up);
+                StopRigidbody();
+                return;
             }
+
+            var rotationDelta = Quaternion.Euler(0f, _turn * _turnSpeed * Time.fixedDeltaTime, 0f);
+            _rigidbody.MoveRotation(_rigidbody.rotation * rotationDelta);
+            _rigidbody.linearVelocity = transform.forward * (_throttle * _moveSpeed);
+        }
+
+        private void StopRigidbody()
+        {
+            if (_rigidbody == null)
+            {
+                return;
+            }
+
+            _rigidbody.linearVelocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
         }
     }
 }

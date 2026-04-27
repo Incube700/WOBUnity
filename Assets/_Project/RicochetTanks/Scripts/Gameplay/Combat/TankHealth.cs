@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace RicochetTanks.Gameplay.Combat
 {
-    public class TankHealth : MonoBehaviour
+    public class TankHealth : MonoBehaviour, IDamageable
     {
         [SerializeField] private int _maxHp = 100;
 

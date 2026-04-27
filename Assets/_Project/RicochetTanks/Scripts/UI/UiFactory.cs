@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -14,6 +15,18 @@ namespace RicochetTanks.UI
             canvasObject.AddComponent<CanvasScaler>();
             canvasObject.AddComponent<GraphicRaycaster>();
             return canvas;
+        }
+
+        public static void EnsureEventSystem(string name)
+        {
+            if (Object.FindAnyObjectByType<EventSystem>() != null)
+            {
+                return;
+            }
+
+            var eventSystemObject = new GameObject(name);
+            eventSystemObject.AddComponent<EventSystem>();
+            eventSystemObject.AddComponent<StandaloneInputModule>();
         }
 
         public static Button CreateButton(Transform parent, string text, Vector2 anchoredPosition, UnityAction onClick)
@@ -52,14 +65,19 @@ namespace RicochetTanks.UI
 
         public static Text CreateText(Transform parent, string name, Vector2 anchoredPosition)
         {
+            return CreateText(parent, name, anchoredPosition, new Vector2(260f, 30f), TextAnchor.MiddleLeft);
+        }
+
+        public static Text CreateText(Transform parent, string name, Vector2 anchoredPosition, Vector2 size, TextAnchor alignment)
+        {
             var textObject = new GameObject(name);
             textObject.transform.SetParent(parent, false);
             var rectTransform = textObject.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(260f, 30f);
+            rectTransform.sizeDelta = size;
             rectTransform.anchoredPosition = anchoredPosition;
             var label = textObject.AddComponent<Text>();
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            label.alignment = TextAnchor.MiddleLeft;
+            label.alignment = alignment;
             label.color = Color.white;
             return label;
         }

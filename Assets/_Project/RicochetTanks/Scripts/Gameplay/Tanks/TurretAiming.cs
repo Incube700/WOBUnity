@@ -23,11 +23,6 @@ namespace RicochetTanks.Gameplay.Tanks
 
         public void AimAtMouse()
         {
-            if (_turret == null)
-            {
-                return;
-            }
-
             if (_camera == null)
             {
                 _camera = Camera.main;
@@ -38,7 +33,7 @@ namespace RicochetTanks.Gameplay.Tanks
                 return;
             }
 
-            var ray = _camera.ScreenPointToRay(Input.mousePosition);
+            var ray = _camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
             var ground = new Plane(Vector3.up, Vector3.zero);
 
             if (!ground.Raycast(ray, out var enter))
@@ -46,8 +41,17 @@ namespace RicochetTanks.Gameplay.Tanks
                 return;
             }
 
-            var hitPoint = ray.GetPoint(enter);
-            var direction = hitPoint - _turret.position;
+            AimAt(ray.GetPoint(enter));
+        }
+
+        public void AimAt(Vector3 worldPoint)
+        {
+            if (_turret == null)
+            {
+                return;
+            }
+
+            var direction = worldPoint - _turret.position;
             direction.y = 0f;
 
             if (direction.sqrMagnitude > 0.001f)
