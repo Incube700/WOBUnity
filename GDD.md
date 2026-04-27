@@ -12,7 +12,50 @@
 
 **World of Balance / Ricochet Tanks** — компактный прототип дуэли танков с видом сверху.
 
-Первая играбельная версия должна быть понятна сразу: одна арена, два танка, центральное препятствие, видимые снаряды, рикошеты, HP, победа/поражение и перезапуск.
+The camera style for Milestone 1 is **strict top-down**, not side view, not isometric, not tilted, and not cinematic orbit. The player should understand the arena like a board.
+
+## 1.1. Camera and Coordinate System
+
+The MVP demo uses a **strict top-down camera**, not an isometric or tilted camera.
+
+### World Coordinate System
+
+The game world is built on the XZ plane:
+
+- `X` — horizontal map axis.
+- `Z` — vertical map axis on the map.
+- `Y` — height only.
+
+Gameplay movement and combat must stay on the XZ plane:
+
+- tanks move on XZ;
+- tank hulls rotate around Y;
+- turrets rotate around Y;
+- projectiles fly on XZ;
+- ricochet reflection must preserve XZ-plane movement;
+- projectile ricochet must not introduce unwanted vertical movement.
+
+### Main Camera
+
+The main gameplay camera must be orthographic and look straight down.
+
+Recommended MVP camera setup:
+
+```text
+Projection: Orthographic
+Position:   (0, 10, 0)
+Rotation:   (90, 0, 0)
+Size:       6-7
+```
+
+The main demo must not use an isometric/tilted camera such as:
+
+```text
+Position: (0, 8, -7)
+Rotation: (55, 0, 0)
+```
+
+Scene View in Unity may be angled for editing convenience, but Game View must show the arena strictly from above.
 
 Камера для Milestone 1 — **строго сверху**. Не вид сбоку, не кинематографическая камера. Игрок должен воспринимать арену как игровую доску.
 
@@ -78,7 +121,14 @@ Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
 
 Старые сцены типа `Sand Box` и `RicochetTanks_*` считаются legacy и не должны быть частью активного игрового потока.
 
-Сцена во время запуска должна содержать:
+- 10x10 dark greybox arena.
+- Visible grid on the arena floor.
+- Four dark ricochet walls.
+- Center square cover / ricochet block.
+- Green player tank at bottom-left.
+- Red enemy dummy tank at top-right.
+- Orthographic strict top-down camera.
+- HUD with HP, last hit, round result, controls, restart.
 
 - арену 10x10;
 - видимую сетку пола;
@@ -126,9 +176,10 @@ Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
 - `ProjectileConfig`;
 - позже: `ArmorConfig`, `EnemyAIConfig`, `VFXConfig`.
 
----
-
-## 5. Схема первой песочницы
+- gameplay plane: XZ;
+- Y is height only;
+- arena center: `(0, 0, 0)`;
+- Game View must be strict top-down.
 
 Игровая плоскость — XZ.  
 Y — высота.  
@@ -136,24 +187,24 @@ Y — высота.
 
 | Объект | Позиция | Размер |
 |---|---|---|
-| Центр арены | `(0, 0, 0)` | 10x10 |
-| Спавн игрока | `(-3.5, 0, -3.5)` | к центру |
-| Спавн врага | `(3.5, 0, 3.5)` | к центру |
-| Центральный блок | `(0, 0, 0)` | 2x2 |
-| Северная стена | `(0, 0, 5)` | граница |
-| Южная стена | `(0, 0, -5)` | граница |
-| Восточная стена | `(5, 0, 0)` | граница |
-| Западная стена | `(-5, 0, 0)` | граница |
+| Arena center | `(0, 0, 0)` | 10x10 |
+| Player spawn | `(-3.5, 0, -3.5)` | faces center, appears bottom-left in Game View |
+| Enemy spawn | `(3.5, 0, 3.5)` | faces center, appears top-right in Game View |
+| Center obstacle | `(0, 0, 0)` | 2x2 square |
+| North wall | `(0, 0, 5)` | boundary |
+| South wall | `(0, 0, -5)` | boundary |
+| East wall | `(5, 0, 0)` | boundary |
+| West wall | `(-5, 0, 0)` | boundary |
 
 Камера:
 
-- тип: Orthographic;
-- позиция: `(0, 10, 0)`;
-- поворот: `(90, 0, 0)`;
-- orthographic size: около `6`;
-- цель: вся арена видна сразу.
+- type: Orthographic;
+- first playable position: `(0, 10, 0)`;
+- first playable rotation: `(90, 0, 0)`;
+- orthographic size: around `6-7`;
+- goal: full arena visibility from strict top-down Game View.
 
-Лёгкую изометрию можно рассмотреть позже, только если она не ухудшит читаемость снарядов.
+Isometric or tilted cameras are not allowed for the MVP demo, because they confuse scene assembly, projectile debugging, ricochet readability, and Codex/AI follow-up tasks.
 
 ---
 
@@ -184,9 +235,65 @@ Restart               перезапуск
 
 ---
 
-## 7. Главная модель боя
+## 8. Combat Rules
 
-Бой строится не вокруг фиксированного урона, а вокруг цепочки:
+Milestone 1:
+
+- Tanks start with 100 HP.
+- Projectile speed is 22 units/sec.
+- Projectile damage is 35.
+- Projectile penetration is 100.
+- Projectile is a bright visible sphere with TrailRenderer.
+- Projectile spawns in front of the muzzle.
+- Projectile ignores its owner briefly after firing.
+- After safe time, a returning projectile can hit its owner.
+- Projectile movement is deterministic custom movement with `SphereCast` checks per physics tick.
+- Projectile ricochets manually from the hit normal using `Vector3.Reflect`.
+- Projectile direction must stay on the XZ plane after ricochet.
+- Ricochets work against arena walls and the center block.
+- Glancing tank hits can ricochet from armor instead of dealing damage.
+- Max ricochets: 3.
+- After 3 ricochets, the next contact destroys the projectile.
+- Each ricochet multiplies speed by `0.85`.
+- Projectile speed is clamped to minimum `5`.
+- Reload time is `0.8` seconds.
+- Safe owner time is `0.15` seconds.
+- Basic armor values are front `100`, side `70`, rear `40`.
+- Auto ricochet angle is `70` degrees.
+- Enemy death shows `Player Wins`.
+- Player death shows `Enemy Wins`.
+- Restart resets the match.
+
+Gameplay event contracts:
+
+- `HealthChanged`
+- `Died`
+- `ProjectileSpawned`
+- `ProjectileHit`
+- `ProjectileBounced`
+- `HitResolved`
+- `MatchStarted`
+- `MatchFinished`
+- `RestartRequested`
+
+Gameplay systems raise these events. UI listens through presenters, VFX should listen through visual event handlers, and gameplay systems must not directly call UI views.
+
+Debug visualization for First Playable:
+
+- Toggle through `DebugVisualizationConfig`.
+- Projectile direction.
+- Predicted next projectile segment.
+- Collision normal.
+- Bounce count.
+- Armor zone hit: Front / Side / Rear / Unknown.
+- Hit angle.
+- Current penetration.
+- Effective armor.
+- Enemy FSM state, currently `DummyIdle` / `Disabled`.
+- Player/enemy spawn points.
+- Arena bounds.
+
+Debug logs:
 
 ```text
 попадание
@@ -310,7 +417,55 @@ result = Penetrated
 quality = penetration / effectiveArmor
 ```
 
-Для Milestone 1:
+Important pieces:
+
+- `SandboxBootstrapper` creates and wires the playable scene.
+- `SandboxSceneBuilder` creates arena, tanks, camera, HUD, input, projectile factory.
+- `SandboxMatchController` owns round state and restart.
+- `SandboxGameplayEvents` exposes the core gameplay event contracts.
+- `SandboxDebugVisualizer` listens to gameplay events and draws debug data.
+- `DesktopInputReader` reads keyboard/mouse input.
+- `TankFacade` connects movement, turret, shooter, health, controller.
+- `TankMovement` owns hull movement.
+- `TurretAiming` owns turret rotation.
+- `TankShooter` delegates projectile creation.
+- `ProjectileFactory` creates visible projectiles.
+- `Projectile` owns movement, safe time, lifetime, ricochet count.
+- `HitResolver` applies damage and publishes hit events.
+- `TankArmor` resolves front / side / rear armor and auto ricochet angle.
+- `TankHealth` owns HP and death.
+
+Architecture rules:
+
+- No Singleton.
+- No giant GameManager.
+- UI view only displays data and raises events.
+- Presenter/controller wires systems.
+- Projectile logic stays separate.
+- Health logic stays separate.
+- Round logic stays separate.
+- Entry point only composes dependencies.
+- No lambdas for event subscriptions that need unsubscribe.
+- Private fields use `_camelCase`.
+- World/gameplay logic uses XZ as the gameplay plane and Y as height only.
+- The MVP camera is strict orthographic top-down, not isometric/tilted.
+
+## 6. Future GDD Features
+
+Not part of Milestone 1:
+
+- Kinetic penetration and speed-based damage falloff.
+- More detailed armor/damage model beyond the current basic armor checks.
+- Enemy AI and enemy shooting.
+- Mobile controls.
+- Muzzle flash, sparks, impact marks, floating combat text.
+- No huge all-in-one MonoBehaviour.
+- UI views display data and raise events.
+- Presenters/controllers wire UI to services/gameplay.
+- Gameplay logic does not live in UI button handlers.
+- Scene references use serialized fields or explicit bootstrap wiring.
+- Event subscriptions use named handlers and unsubscribe cleanly.
+- Config values live in ScriptableObjects or config classes, not magic numbers in gameplay code.
 
 | Quality | Damage |
 |---:|---:|
