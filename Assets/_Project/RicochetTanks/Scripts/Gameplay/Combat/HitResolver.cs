@@ -11,7 +11,7 @@ namespace RicochetTanks.Gameplay.Combat
         public static bool TryResolveTankHit(
             Collider collider,
             TankFacade source,
-            int damage,
+            float damage,
             int penetration,
             bool canHitSource,
             Vector3 projectileDirection,

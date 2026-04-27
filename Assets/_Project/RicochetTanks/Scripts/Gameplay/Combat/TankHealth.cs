@@ -5,13 +5,13 @@ namespace RicochetTanks.Gameplay.Combat
 {
     public class TankHealth : MonoBehaviour, IDamageable
     {
-        [SerializeField] private int _maxHp = 100;
+        [SerializeField] private float _maxHp = 100f;
 
         public event Action<TankHealth> Died;
-        public event Action<int, int> HealthChanged;
+        public event Action<float, float> HealthChanged;
 
-        public int CurrentHp { get; private set; }
-        public int MaxHp => _maxHp;
+        public float CurrentHp { get; private set; }
+        public float MaxHp => _maxHp;
         public bool IsAlive => CurrentHp > 0;
 
         private void Awake()
@@ -19,7 +19,7 @@ namespace RicochetTanks.Gameplay.Combat
             ResetHealth();
         }
 
-        public void Configure(int maxHp)
+        public void Configure(float maxHp)
         {
             _maxHp = Mathf.Max(1, maxHp);
             ResetHealth();
@@ -31,14 +31,14 @@ namespace RicochetTanks.Gameplay.Combat
             HealthChanged?.Invoke(CurrentHp, _maxHp);
         }
 
-        public void ApplyDamage(int damage)
+        public void ApplyDamage(float damage)
         {
             if (CurrentHp <= 0)
             {
                 return;
             }
 
-            CurrentHp = Mathf.Max(0, CurrentHp - damage);
+            CurrentHp = Mathf.Max(0f, CurrentHp - Mathf.Max(0f, damage));
             HealthChanged?.Invoke(CurrentHp, _maxHp);
 
             if (CurrentHp == 0)

@@ -2,9 +2,9 @@ namespace RicochetTanks.Gameplay.Combat
 {
     public interface IDamageable
     {
-        int CurrentHp { get; }
-        int MaxHp { get; }
+        float CurrentHp { get; }
+        float MaxHp { get; }
         bool IsAlive { get; }
-        void ApplyDamage(int damage);
+        void ApplyDamage(float damage);
     }
 }

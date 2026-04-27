@@ -16,9 +16,9 @@ namespace RicochetTanks.Gameplay.Events
         public event Action<MatchFinishedEvent> MatchFinished;
         public event Action RestartRequested;
 
-        public void RaiseProjectileSpawned(Projectile projectile, TankFacade owner, Vector3 position, Vector3 direction, float speed)
+        public void RaiseProjectileSpawned(Projectile projectile, TankFacade owner, Vector3 position, Vector3 direction, float speed, float damage, int bouncesLeft)
         {
-            ProjectileSpawned?.Invoke(new ProjectileSpawnedEvent(projectile, owner, position, direction, speed));
+            ProjectileSpawned?.Invoke(new ProjectileSpawnedEvent(projectile, owner, position, direction, speed, damage, bouncesLeft));
         }
 
         public void RaiseProjectileHit(Projectile projectile, Collider collider, Vector3 point, Vector3 normal, Vector3 direction)
@@ -26,9 +26,9 @@ namespace RicochetTanks.Gameplay.Events
             ProjectileHit?.Invoke(new ProjectileHitEvent(projectile, collider, point, normal, direction));
         }
 
-        public void RaiseProjectileBounced(Projectile projectile, int ricochetCount, float speed, Vector3 normal)
+        public void RaiseProjectileBounced(Projectile projectile, int ricochetCount, int bouncesLeft, float speed, float damage, Vector3 normal)
         {
-            ProjectileBounced?.Invoke(new ProjectileBouncedEvent(projectile, ricochetCount, speed, normal));
+            ProjectileBounced?.Invoke(new ProjectileBouncedEvent(projectile, ricochetCount, bouncesLeft, speed, damage, normal));
         }
 
         public void RaiseHitResolved(HitResolvedEvent hit)

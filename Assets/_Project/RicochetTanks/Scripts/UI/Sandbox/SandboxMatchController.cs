@@ -1,3 +1,4 @@
+using RicochetTanks.Configs;
 using RicochetTanks.Gameplay.Combat;
 using RicochetTanks.Gameplay.Events;
 using RicochetTanks.Gameplay.Tanks;
@@ -14,6 +15,7 @@ namespace RicochetTanks.UI.Sandbox
         private SandboxGameplayEvents _gameplayEvents;
         private DesktopInputReader _inputReader;
         private SceneLoaderService _sceneLoaderService;
+        private MatchConfig _matchConfig;
         private MatchResult _matchResult = MatchResult.Playing;
         private bool _isSubscribed;
 
@@ -24,6 +26,17 @@ namespace RicochetTanks.UI.Sandbox
             DesktopInputReader inputReader,
             SceneLoaderService sceneLoaderService)
         {
+            Configure(player, enemy, gameplayEvents, inputReader, sceneLoaderService, null);
+        }
+
+        public void Configure(
+            TankFacade player,
+            TankFacade enemy,
+            SandboxGameplayEvents gameplayEvents,
+            DesktopInputReader inputReader,
+            SceneLoaderService sceneLoaderService,
+            MatchConfig matchConfig)
+        {
             Unsubscribe();
 
             _player = player;
@@ -31,6 +44,7 @@ namespace RicochetTanks.UI.Sandbox
             _gameplayEvents = gameplayEvents;
             _inputReader = inputReader;
             _sceneLoaderService = sceneLoaderService;
+            _matchConfig = matchConfig;
             _matchResult = MatchResult.Playing;
 
             Subscribe();
@@ -129,9 +143,19 @@ namespace RicochetTanks.UI.Sandbox
                 _enemy.SetGameplayEnabled(false);
             }
 
-            var label = result == MatchResult.PlayerWins ? "Player Wins" : "Enemy Wins";
+            var label = ResolveResultLabel(result);
             _gameplayEvents?.RaiseMatchFinished(result, label);
             Debug.Log($"[ROUND] result={label}");
+        }
+
+        private string ResolveResultLabel(MatchResult result)
+        {
+            if (_matchConfig == null)
+            {
+                return result == MatchResult.PlayerWins ? "Player Wins" : "Enemy Wins";
+            }
+
+            return result == MatchResult.PlayerWins ? _matchConfig.PlayerWinsLabel : _matchConfig.EnemyWinsLabel;
         }
 
         public void RequestRestart()

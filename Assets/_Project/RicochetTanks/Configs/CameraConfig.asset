@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 104590744f2854ca2af594b3c52afa1c, type: 3}
+  m_Name: CameraConfig
+  m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.Configs.CameraConfig
+  _orthographic: 1
+  _localPosition: {x: 0, y: 14, z: 0}
+  _localEulerAngles: {x: 90, y: 0, z: 0}
+  _orthographicSize: 6.25
+  _nearClipPlane: 0.1
+  _farClipPlane: 50
+  _backgroundColor: {r: 0.04, g: 0.05, b: 0.055, a: 1}

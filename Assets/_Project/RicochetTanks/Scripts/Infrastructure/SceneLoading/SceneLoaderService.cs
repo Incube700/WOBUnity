@@ -4,7 +4,10 @@ namespace RicochetTanks.Infrastructure.SceneLoading
 {
     public sealed class SceneLoaderService
     {
+        public const string BootstrapSceneName = "Bootstrap";
+        public const string MainMenuSceneName = "MainMenu";
         public const string SandboxSceneName = "Sandbox";
+        public const string DemoSceneName = "RicochetTanks_Demo";
 
         public void Load(string sceneName)
         {
