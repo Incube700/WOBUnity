@@ -1,62 +1,74 @@
-# ⚔️ World of Balance
+# World of Balance / Ricochet Tanks
 
 **by Sergo Burnheart**
 
-🔥 Creative Director | Indie Game Dev | Unity Developer
+Unity prototype for a top-down / light-isometric tank duel where positioning, aiming angles, and ricochets matter.
 
----
+## Current Status
 
-## 🎮 Описание игры
-**World of Balance** — это мой первый инди-прототип на Unity.
-3D Изометрическая аркада с танками и рикошетами, где решают угол выстрела и стратегия.
-Каждый снаряд может отскакивать до трёх раз, а на четвёртом исчезает.
-Минимализм в графике и чёткая физика делают акцент на геймплей и реакцию игрока.
+Milestone 1 is focused on a clean first playable demo:
 
-Идея проста: *меньше лишнего — больше драйва*.
+- `Bootstrap -> MainMenu -> Sandbox` scene flow.
+- 10x10 greybox arena with four walls and a center square obstacle.
+- Player tank starts bottom-left; enemy dummy starts top-right.
+- Desktop tank controls: hull movement/turning, independent turret aim, shooting, restart.
+- Fast visible projectiles with a bright material and trail.
+- Projectiles ricochet from walls/obstacles up to 3 times; the next contact destroys them.
+- Tanks have HP; enemy can die; HUD shows HP, last hit, round result, controls, and restart.
+- Runtime debug logs: `[SHOT]`, `[BOUNCE]`, `[HIT]`, `[ROUND]`.
 
----
+Older course/homework code is kept outside the active prototype path. The playable prototype lives under:
 
-## 🚀 Мой путь
-Я иду от нуля в коде и геймдизайне к своей мечте — создавать игры.
-Этот проект — не просто танки. Это шаг к большим мирам, к собственным играм,
-которые будут объединять баланс, опыт, .
+```text
+Assets/_Project/RicochetTanks/
+```
 
----
+## How To Run
 
-## 🔧 Технологии
-- Unity (3D Core + C#)
-- VS Code (C# Dev Kit, Unity Debugger)
-- Git + GitHub для командной работы и истории проекта
+Use Unity `6000.4.3f1`.
 
----
+1. Open the project in Unity.
+2. Open `Assets/_Project/RicochetTanks/Scenes/Bootstrap.unity`.
+3. Press Play.
+4. Click `Play Sandbox` in the main menu.
 
-## 🌌 Идея проекта
-- Простая, но глубокая механика: рикошеты + броня
-- Чистый минимализм в графике (геометрия и цвета)
-- Честная физика: *угол падения равен углу отражения*
-- Бои, где всё решает мастерство и хладнокровие
+You can also open `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity` directly and press Play.
 
-Подробный дизайн-документ: [GDD.md](GDD.md)
+## Controls
 
----
+```text
+W / S or Up / Down     Move forward / backward relative to the hull
+A / D or Left / Right  Rotate hull
+Mouse                  Aim turret
+Left Mouse / Space     Fire
+R                      Restart Sandbox
+Restart button         Restart Sandbox
+```
 
-## 🛠️ Последние изменения
-- **Миграция на 3D**: Полный переход на 3D физику (`Rigidbody`, `Collider`) и изометрическую камеру.
-- **Raycasts**: Внедрение `Physics.Raycast` для ИИ и прицеливания.
-- **VFX**: Добавлен 3D-эффект взрыва (спрайт в 3D пространстве).
-- Обновлен `GDD.md` с учетом перехода в 3D.
+## Prototype Architecture
 
----
+The current prototype uses small MonoBehaviours for Unity-facing objects and keeps wiring in scene bootstraps:
 
-## 📲 Контакты и ссылки
-- Instagram: [@sergo_burnheart](https://instagram.com/sergo_burnheart)
-- YouTube Devlog: *скоро будет*
+- `ProjectBootstrapper` starts the scene flow.
+- `MainMenuView` + `MainMenuPresenter` handle menu UI.
+- `SandboxBootstrapper` builds and wires the playable scene.
+- `SandboxSceneBuilder` procedurally creates the greybox arena, tanks, camera, HUD, input reader, and projectile factory.
+- `SandboxMatchController` owns match state, restart, win/loss result, and hit feedback.
+- `TankFacade`, `TankMovement`, `TurretAiming`, `TankShooter`, and `TankHealth` split tank responsibilities.
+- `ProjectileFactory`, `Projectile`, `RicochetCalculator`, and `HitResolver` handle shooting, ricochets, and damage.
+- `ArenaConfig`, `TankConfig`, and `ProjectileConfig` keep gameplay numbers out of core logic.
 
----
+## Deferred Features
 
-## ✨ Статус
-Проект в раннем прототипе.
-Моя цель — показать прогресс, научиться строить механику шаг за шагом
-и в будущем вырасти в полноценного разработчика игр.
+Not part of Milestone 1 yet:
 
----
+- Full armor model with front/side/rear zones.
+- Kinetic penetration, damage falloff, and angle-based ricochet.
+- Enemy AI and enemy shooting.
+- Mobile controls beyond the planned input layer.
+- VFX polish such as impact sparks, muzzle flash, and floating combat text.
+
+## Design Docs
+
+- Gameplay direction: [GDD.md](GDD.md)
+- Compact AI/code map: [AI_CONTEXT_GRAPH.md](AI_CONTEXT_GRAPH.md)

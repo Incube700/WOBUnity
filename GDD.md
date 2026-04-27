@@ -1,58 +1,119 @@
-# Game Design Document (GDD) — World of Balance
+# Game Design Document — World of Balance / Ricochet Tanks
 
-## 1. Общая информация
-*   **Название**: World of Balance
-*   **Жанр**: 3D Isometric Arcade / Tactical Shooter
-*   **Платформа**: PC (Unity)
-*   **Визуальный стиль**: Минимализм, 3D изометрия, неоновая/контрастная палитра.
+## 1. Vision
 
-## 2. Концепция
-Игрок управляет танком на небольшой арене. Главная особенность — использование геометрии уровня и рикошетов для поражения противников, которые могут находиться за укрытиями. Игра про позиционирование, расчет углов и реакцию.
-и геометрия брони рикошеты по физике брони спереди по бокам и сзади, как в Wot для первых прототипов 
-## 3. Игровые Механики
+World of Balance / Ricochet Tanks is a compact tank duel prototype. The core fantasy is simple: win by reading the arena, aiming well, and using ricochets better than the opponent.
 
-### 3.1. Управление
-*   **Движение**: Клавиши `WASD` или Стрелки. Танк имеет инерцию (разгон/торможение).
-*   **Прицеливание**: Башня танка всегда поворачивается в сторону курсора мыши.
-*   **Стрельба**: `ЛКМ` (Левая кнопка мыши).
+Milestone 1 is a first playable demo, not the full final game.
 
-### 3.2. Боевая система
-*   **Снаряды**:
-    *   Летят по прямой.имеет вес, с расстонием теряет скорость и урон 
-    *   **Рикошет**: Отскакивают от стен (до 3-х раз). Угол падения равен углу отражения.
-    *   **Урон**: Наносится при попадании во врага (прямом или после рикошета).
-    *   **Кулдаун**: Задержка между выстрелами (например, 0.5 - 1 сек), чтобы каждый выстрел был значим.
-*   **Здоровье**: У игрока и врагов есть HP. 1-3 попадания для уничтожения (зависит от баланса).
+## 2. Milestone 1 Playable Demo
 
-### 3.3. Враги (ИИ)
-*   **Поведение**:
-    *   Держат дистанцию.
-    *   Пытаются спрятаться за укрытиями, если игрок целится в них напрямую.
-    *   Стреляют с упреждением или пытаются использовать простые рикошеты (на более поздних этапах).
+Scene flow:
 
-### 3.4. Уровни
-*   **Арены**: Замкнутые пространства с набором стен и препятствий.
-*   **Препятствия**: Неразрушимые стены, от которых идеально отскакивают снаряды.
+```text
+Bootstrap -> MainMenu -> Sandbox
+```
 
-## 4. Идеи для развития (Cool Features)
-Список фич, которые сделают игру интереснее и глубже, сохраняя простоту основы:
+Sandbox requirements:
 
-1.  **Лазерный прицел (Trajection Preview)**:
-    *   Показывает траекторию полета снаряда с учетом 1-го отскока. Позволяет точнее планировать сложные выстрелы.
-2.  **Разрушаемое окружение**:
-    *   Некоторые стены трескаются и ломаются от выстрелов, меняя геометрию арены в процессе боя.
-3.  **Активные способности (Skills)**:
-    *   *Рывок (Dash)*: Резкий скачок в сторону движения для уклонения.
-    *   *Щит*: Временная неуязвимость или отражение снарядов обратно.
-4.  **Типы снарядов**:
-    *   *Bouncy Bomb*: Снаряд, который взрывается после 3-го отскока или при контакте с врагом, нанося урон по площади.
-    *   *Piercing Shot*: Пробивает одну стену или одного врага насквозь.
-5.  **Динамические препятствия**:
-    *   Движущиеся стены, вращающиеся двери или зоны, замедляющие/ускоряющие снаряды.
-6.  **Режим "Дуэль" (Hotseat/Local Multiplayer)**:
-    *   Два игрока на одной клавиатуре/геймпадах сражаются друг с другом на одной арене.
+- 10x10 greybox arena.
+- Four boundary walls.
+- Center square obstacle.
+- Player tank in the bottom-left.
+- Enemy dummy tank in the top-right.
+- Top-down / light-isometric camera.
+- HUD with player HP, enemy HP, last hit result, round result, controls hint, and restart.
 
-## 5. Техническая реализация (MVP)
-*   **Физика**: Unity Physics (3D Rigidbody, BoxCollider/SphereCollider).
-*   **Рикошет**: Реализация через `Vector3.Reflect` с блокировкой оси Y для сохранения плоскости боя.
-*   **Графика**: 3D модели (Кубы, Цилиндры) или спрайты в 3D пространстве. Изометрическая камера.
+## 3. Controls
+
+Desktop is first priority:
+
+```text
+W / S or Up / Down     Move forward / backward relative to the hull
+A / D or Left / Right  Rotate hull
+Mouse                  Aim turret independently
+Left Mouse / Space     Fire
+R                      Restart Sandbox
+```
+
+Mobile controls are deferred until after the desktop first playable is stable.
+
+## 4. Combat Rules
+
+Current Milestone 1 rules:
+
+- Tanks start with 100 HP.
+- Projectile damage is fixed.
+- Projectile speed is fast but readable.
+- Projectile has a visible material and trail.
+- Projectile ignores its owner briefly after firing.
+- After safe time, a returning projectile can hit its owner.
+- Projectile ricochets from walls and the center obstacle using `Vector3.Reflect`.
+- Each ricochet multiplies speed by `0.78`.
+- Projectile can ricochet 3 times; the next contact destroys it.
+- Enemy death ends the round with `Player Wins`.
+- Player death ends the round with `Enemy Wins`.
+
+Debug feedback during development:
+
+```text
+[SHOT]
+[BOUNCE]
+[HIT]
+[ROUND]
+```
+
+## 5. Technical Direction
+
+Current implementation keeps the prototype isolated in:
+
+```text
+Assets/_Project/RicochetTanks/
+```
+
+Important runtime pieces:
+
+- `ProjectBootstrapper` starts the canonical scene flow.
+- `MainMenuView` and `MainMenuPresenter` keep UI display and button logic separate.
+- `SandboxBootstrapper` wires scene-level dependencies.
+- `SandboxSceneBuilder` procedurally creates the greybox demo scene.
+- `SandboxMatchController` owns match state, restart, and win/loss.
+- `DesktopInputReader` reads desktop controls.
+- `TankFacade` exposes tank subsystems.
+- `ProjectileFactory` creates visible projectiles.
+- `HitResolver` applies damage and reports hit results.
+- `ArenaConfig`, `TankConfig`, and `ProjectileConfig` hold gameplay numbers.
+
+Architecture rules:
+
+- No Singleton.
+- No huge all-in-one MonoBehaviour.
+- UI views display data and raise events.
+- Presenters/controllers wire UI to services/gameplay.
+- Gameplay logic does not live in UI button handlers.
+- Scene references use serialized fields or explicit bootstrap wiring.
+- Event subscriptions use named handlers and unsubscribe cleanly.
+
+## 6. Future GDD Combat Core
+
+After Milestone 1:
+
+- Add armor zones: front, side, rear.
+- Add hit outcomes: penetrated, ricochet, no penetration, wall ricochet.
+- Add kinetic projectile data: initial speed, current speed, mass, base damage, base penetration.
+- Add damage falloff based on current projectile speed.
+- Add angle-based armor math and auto-ricochet thresholds.
+- Add impact VFX, muzzle flash, sparks, impact marks, and floating result text.
+
+## 7. Future Enemy AI
+
+Enemy AI is intentionally out of scope for Milestone 1. Later versions should add:
+
+- Search.
+- Chase.
+- Reposition.
+- Engage.
+- Evade.
+- Line-of-sight checks.
+- Simple lead aiming.
+- HUD/debug display for AI state.

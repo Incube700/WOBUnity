@@ -10,9 +10,9 @@ namespace RicochetTanks.Editor
 {
     public static class SandBoxSceneGenerator
     {
-        private const string ScenePath = "Assets/_Project/RicochetTanks/Scenes/Sand Box.unity";
+        private const string ScenePath = "Assets/_Project/RicochetTanks/Scenes/Sandbox.unity";
 
-        [MenuItem("Tools/Ricochet Tanks/Generate Sand Box Scene")]
+        [MenuItem("Tools/Ricochet Tanks/Generate Sandbox Scene")]
         public static void Generate()
         {
             EnsureFolder("Assets/_Project", "RicochetTanks");
@@ -27,14 +27,14 @@ namespace RicochetTanks.Editor
             EditorSceneManager.MarkSceneDirty(scene);
             if (!EditorSceneManager.SaveScene(scene, ScenePath))
             {
-                Debug.LogError($"Failed to save Sand Box scene to {ScenePath}.");
+                Debug.LogError($"Failed to save Sandbox scene to {ScenePath}.");
                 return;
             }
 
             AssetDatabase.ImportAsset(ScenePath);
             EnsureSceneInBuildSettings(ScenePath);
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath);
-            Debug.Log($"Generated Sand Box scene at {ScenePath}.");
+            Debug.Log($"Generated Sandbox scene at {ScenePath}.");
         }
 
         private static void EnsureFolder(string parent, string folderName)

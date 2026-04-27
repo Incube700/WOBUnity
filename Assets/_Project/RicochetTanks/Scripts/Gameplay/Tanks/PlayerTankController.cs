@@ -1,3 +1,4 @@
+using RicochetTanks.Input.Desktop;
 using UnityEngine;
 
 namespace RicochetTanks.Gameplay.Tanks
@@ -5,10 +6,31 @@ namespace RicochetTanks.Gameplay.Tanks
     public class PlayerTankController : MonoBehaviour
     {
         [SerializeField] private TankFacade _tank;
+        [SerializeField] private DesktopInputReader _inputReader;
+        [SerializeField] private Camera _camera;
+
+        private bool _isControlEnabled = true;
 
         public void Configure(TankFacade tank)
         {
             _tank = tank;
+        }
+
+        public void Configure(TankFacade tank, DesktopInputReader inputReader, Camera camera)
+        {
+            _tank = tank;
+            _inputReader = inputReader;
+            _camera = camera;
+        }
+
+        public void SetControlEnabled(bool isControlEnabled)
+        {
+            _isControlEnabled = isControlEnabled;
+
+            if (!_isControlEnabled && _tank != null && _tank.Movement != null)
+            {
+                _tank.Movement.SetInput(0f, 0f);
+            }
         }
 
         private void Awake()
@@ -21,17 +43,25 @@ namespace RicochetTanks.Gameplay.Tanks
 
         private void Update()
         {
-            if (_tank == null || _tank.Movement == null || _tank.Aiming == null || _tank.Shooter == null)
+            if (!_isControlEnabled || _tank == null || _tank.Movement == null || _tank.Aiming == null || _tank.Shooter == null)
             {
                 return;
             }
 
-            var horizontal = Input.GetAxisRaw("Horizontal");
-            var vertical = Input.GetAxisRaw("Vertical");
-            _tank.Movement.SetMoveDirection(new Vector2(horizontal, vertical));
-            _tank.Aiming.AimAtMouse();
+            if (_inputReader == null)
+            {
+                return;
+            }
 
-            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
+            _inputReader.ReadTankInput(out var throttle, out var turn);
+            _tank.Movement.SetInput(throttle, turn);
+
+            if (_inputReader.TryGetAimPoint(_camera, 0f, out var aimPoint))
+            {
+                _tank.Aiming.AimAt(aimPoint);
+            }
+
+            if (_inputReader.IsFirePressed())
             {
                 _tank.Shooter.TryShoot();
             }

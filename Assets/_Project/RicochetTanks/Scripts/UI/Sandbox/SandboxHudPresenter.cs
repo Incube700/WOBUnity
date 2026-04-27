@@ -8,20 +8,16 @@ namespace RicochetTanks.UI.Sandbox
         private readonly SandboxHudView _view;
         private readonly TankHealth _playerHealth;
         private readonly TankHealth _enemyHealth;
-        private readonly Action _restartRequested;
 
         public SandboxHudPresenter(
             SandboxHudView view,
             TankHealth playerHealth,
-            TankHealth enemyHealth,
-            Action restartRequested)
+            TankHealth enemyHealth)
         {
             _view = view;
             _playerHealth = playerHealth;
             _enemyHealth = enemyHealth;
-            _restartRequested = restartRequested;
 
-            _view.RestartClicked += OnRestartClicked;
             _playerHealth.HealthChanged += OnPlayerHealthChanged;
             _enemyHealth.HealthChanged += OnEnemyHealthChanged;
 
@@ -31,7 +27,6 @@ namespace RicochetTanks.UI.Sandbox
 
         public void Dispose()
         {
-            _view.RestartClicked -= OnRestartClicked;
             _playerHealth.HealthChanged -= OnPlayerHealthChanged;
             _enemyHealth.HealthChanged -= OnEnemyHealthChanged;
         }
@@ -44,11 +39,6 @@ namespace RicochetTanks.UI.Sandbox
         private void OnEnemyHealthChanged(int currentHp, int maxHp)
         {
             _view.SetEnemyHp(currentHp, maxHp);
-        }
-
-        private void OnRestartClicked()
-        {
-            _restartRequested?.Invoke();
         }
     }
 }

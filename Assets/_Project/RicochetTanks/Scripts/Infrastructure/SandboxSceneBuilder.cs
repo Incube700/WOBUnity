@@ -1,48 +1,72 @@
-using RicochetTanks.Gameplay.Tanks;
+using RicochetTanks.Configs;
 using RicochetTanks.Gameplay.Combat;
+using RicochetTanks.Gameplay.Projectiles;
+using RicochetTanks.Gameplay.Tanks;
+using RicochetTanks.Input.Desktop;
 using RicochetTanks.UI;
 using RicochetTanks.UI.Sandbox;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace RicochetTanks.Infrastructure
 {
     public sealed class SandboxSceneContext
     {
-        public SandboxSceneContext(TankFacade player, TankFacade enemy, SandboxHudView hudView, Camera camera)
+        public SandboxSceneContext(
+            TankFacade player,
+            TankFacade enemy,
+            SandboxHudView hudView,
+            Camera camera,
+            DesktopInputReader inputReader,
+            ProjectileFactory projectileFactory)
         {
             Player = player;
             Enemy = enemy;
             HudView = hudView;
             Camera = camera;
+            InputReader = inputReader;
+            ProjectileFactory = projectileFactory;
         }
 
         public TankFacade Player { get; }
         public TankFacade Enemy { get; }
         public SandboxHudView HudView { get; }
         public Camera Camera { get; }
+        public DesktopInputReader InputReader { get; }
+        public ProjectileFactory ProjectileFactory { get; }
     }
 
     public static class SandboxSceneBuilder
     {
-        private const float ArenaHalfSize = 5f;
-        private const float WallThickness = 0.35f;
-
         public static SandboxSceneContext Build(Transform root)
+        {
+            return Build(root, null, null, null);
+        }
+
+        public static SandboxSceneContext Build(Transform root, ArenaConfig arenaConfig, TankConfig tankConfig, ProjectileConfig projectileConfig)
         {
             ClearChildren(root);
 
+            var resolvedArenaConfig = ResolveConfig(arenaConfig);
+            var resolvedTankConfig = ResolveConfig(tankConfig);
+            var resolvedProjectileConfig = ResolveConfig(projectileConfig);
+
             var camera = CreateCamera(root);
             CreateLight(root);
-            CreateArena(root);
+            CreateArena(root, resolvedArenaConfig);
+            var inputReader = CreateInput(root);
+            var projectileFactory = CreateProjectileFactory(root, resolvedProjectileConfig);
 
-            var player = CreateTank("Player Tank", root, new Vector3(-3.75f, 0f, -3.75f), new Color(0.2f, 0.85f, 0.35f), camera, true);
-            var enemy = CreateTank("Enemy Dummy Tank", root, new Vector3(3.75f, 0f, 3.75f), new Color(0.95f, 0.25f, 0.2f), camera, false);
+            var player = CreateTank("Player Tank", root, resolvedArenaConfig.PlayerStartPosition, new Color(0.2f, 0.85f, 0.35f), camera, true, inputReader, projectileFactory, resolvedTankConfig, resolvedProjectileConfig);
+            var enemy = CreateTank("Enemy Dummy Tank", root, resolvedArenaConfig.EnemyStartPosition, new Color(0.95f, 0.25f, 0.2f), camera, false, inputReader, projectileFactory, resolvedTankConfig, resolvedProjectileConfig);
             var hudView = CreateHud(root);
-            CreateEventSystem(root);
+            UiFactory.EnsureEventSystem("Sandbox EventSystem");
 
-            return new SandboxSceneContext(player, enemy, hudView, camera);
+            return new SandboxSceneContext(player, enemy, hudView, camera, inputReader, projectileFactory);
+        }
+
+        private static T ResolveConfig<T>(T config) where T : ScriptableObject
+        {
+            return config != null ? config : ScriptableObject.CreateInstance<T>();
         }
 
         private static void ClearChildren(Transform root)
@@ -55,7 +79,7 @@ namespace RicochetTanks.Infrastructure
 
         private static Camera CreateCamera(Transform root)
         {
-            var cameraObject = new GameObject("Sand Box Camera");
+            var cameraObject = new GameObject("Sandbox Camera");
             cameraObject.tag = "MainCamera";
             cameraObject.transform.SetParent(root, false);
             cameraObject.transform.position = new Vector3(0f, 11f, -9f);
@@ -82,7 +106,7 @@ namespace RicochetTanks.Infrastructure
             light.intensity = 1.2f;
         }
 
-        private static void CreateArena(Transform root)
+        private static void CreateArena(Transform root, ArenaConfig config)
         {
             var floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
             floor.name = "10x10 Arena Floor";
@@ -91,15 +115,41 @@ namespace RicochetTanks.Infrastructure
             floor.isStatic = true;
             Tint(floor, new Color(0.36f, 0.38f, 0.4f));
 
-            var wallLength = ArenaHalfSize * 2f + WallThickness;
-            CreateCube(root, "North Wall", new Vector3(0f, 0.5f, ArenaHalfSize + WallThickness * 0.5f), new Vector3(wallLength, 1f, WallThickness), new Color(0.22f, 0.23f, 0.25f));
-            CreateCube(root, "South Wall", new Vector3(0f, 0.5f, -ArenaHalfSize - WallThickness * 0.5f), new Vector3(wallLength, 1f, WallThickness), new Color(0.22f, 0.23f, 0.25f));
-            CreateCube(root, "East Wall", new Vector3(ArenaHalfSize + WallThickness * 0.5f, 0.5f, 0f), new Vector3(WallThickness, 1f, wallLength), new Color(0.22f, 0.23f, 0.25f));
-            CreateCube(root, "West Wall", new Vector3(-ArenaHalfSize - WallThickness * 0.5f, 0.5f, 0f), new Vector3(WallThickness, 1f, wallLength), new Color(0.22f, 0.23f, 0.25f));
-            CreateCube(root, "Center Square Obstacle", new Vector3(0f, 0.5f, 0f), new Vector3(2f, 1f, 2f), new Color(0.28f, 0.29f, 0.31f));
+            var wallLength = config.HalfSize * 2f + config.WallThickness;
+            CreateCube(root, "North Wall", new Vector3(0f, 0.5f, config.HalfSize + config.WallThickness * 0.5f), new Vector3(wallLength, 1f, config.WallThickness), new Color(0.22f, 0.23f, 0.25f));
+            CreateCube(root, "South Wall", new Vector3(0f, 0.5f, -config.HalfSize - config.WallThickness * 0.5f), new Vector3(wallLength, 1f, config.WallThickness), new Color(0.22f, 0.23f, 0.25f));
+            CreateCube(root, "East Wall", new Vector3(config.HalfSize + config.WallThickness * 0.5f, 0.5f, 0f), new Vector3(config.WallThickness, 1f, wallLength), new Color(0.22f, 0.23f, 0.25f));
+            CreateCube(root, "West Wall", new Vector3(-config.HalfSize - config.WallThickness * 0.5f, 0.5f, 0f), new Vector3(config.WallThickness, 1f, wallLength), new Color(0.22f, 0.23f, 0.25f));
+            CreateCube(root, "Center Square Obstacle", new Vector3(0f, 0.5f, 0f), config.CenterObstacleSize, new Color(0.28f, 0.29f, 0.31f));
         }
 
-        private static TankFacade CreateTank(string name, Transform parent, Vector3 position, Color color, Camera camera, bool isPlayerControlled)
+        private static DesktopInputReader CreateInput(Transform root)
+        {
+            var inputObject = new GameObject("Desktop Input Reader");
+            inputObject.transform.SetParent(root, false);
+            return inputObject.AddComponent<DesktopInputReader>();
+        }
+
+        private static ProjectileFactory CreateProjectileFactory(Transform root, ProjectileConfig config)
+        {
+            var factoryObject = new GameObject("Projectile Factory");
+            factoryObject.transform.SetParent(root, false);
+            var factory = factoryObject.AddComponent<ProjectileFactory>();
+            factory.Configure(config);
+            return factory;
+        }
+
+        private static TankFacade CreateTank(
+            string name,
+            Transform parent,
+            Vector3 position,
+            Color color,
+            Camera camera,
+            bool isPlayerControlled,
+            DesktopInputReader inputReader,
+            ProjectileFactory projectileFactory,
+            TankConfig tankConfig,
+            ProjectileConfig projectileConfig)
         {
             var root = new GameObject(name);
             root.transform.SetParent(parent, false);
@@ -111,6 +161,10 @@ namespace RicochetTanks.Infrastructure
             rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
+            var hitbox = root.AddComponent<BoxCollider>();
+            hitbox.center = new Vector3(0f, 0.5f, 0f);
+            hitbox.size = new Vector3(1.2f, 0.9f, 1.35f);
+
             var facade = root.AddComponent<TankFacade>();
             var movement = root.AddComponent<TankMovement>();
             var aiming = root.AddComponent<TurretAiming>();
@@ -119,22 +173,26 @@ namespace RicochetTanks.Infrastructure
             var controller = root.AddComponent<PlayerTankController>();
 
             var body = CreateCube(root.transform, "Body", new Vector3(0f, 0.28f, 0f), new Vector3(0.85f, 0.4f, 1.15f), color);
+            RemoveCollider(body);
             var turret = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             turret.name = "Turret";
             turret.transform.SetParent(root.transform, false);
             turret.transform.localPosition = new Vector3(0f, 0.6f, 0f);
             turret.transform.localScale = new Vector3(0.32f, 0.12f, 0.32f);
             Tint(turret, Color.Lerp(color, Color.white, 0.18f));
+            RemoveCollider(turret);
 
             var barrel = CreateCube(turret.transform, "Barrel", new Vector3(0f, 0f, 0.55f), new Vector3(0.16f, 0.16f, 0.85f), Color.Lerp(color, Color.black, 0.18f));
+            RemoveCollider(barrel);
             var muzzle = new GameObject("Muzzle").transform;
             muzzle.SetParent(turret.transform, false);
             muzzle.localPosition = new Vector3(0f, 0f, 1.25f);
 
-            movement.Configure(rigidbody);
+            movement.Configure(rigidbody, tankConfig.MoveSpeed, tankConfig.TurnSpeed);
             aiming.Configure(turret.transform, camera);
-            shooter.Configure(muzzle, facade);
-            health.Configure(100);
+            shooter.Configure(muzzle, facade, projectileFactory, projectileConfig);
+            health.Configure(tankConfig.MaxHp);
+            controller.Configure(facade, inputReader, camera);
             facade.Configure(movement, aiming, shooter, health, controller);
             facade.SetPlayerControlled(isPlayerControlled);
 
@@ -146,24 +204,19 @@ namespace RicochetTanks.Infrastructure
 
         private static SandboxHudView CreateHud(Transform root)
         {
-            var canvas = UiFactory.CreateCanvas("Sand Box HUD Canvas");
+            var canvas = UiFactory.CreateCanvas("Sandbox HUD Canvas");
             canvas.transform.SetParent(root, false);
 
-            var playerHpText = UiFactory.CreateText(canvas.transform, "PlayerHpText", new Vector2(-330f, 190f));
-            var enemyHpText = UiFactory.CreateText(canvas.transform, "EnemyHpText", new Vector2(-330f, 155f));
-            var restartButton = UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(310f, 180f), null);
+            var playerHpText = UiFactory.CreateText(canvas.transform, "PlayerHpText", new Vector2(-330f, 200f));
+            var enemyHpText = UiFactory.CreateText(canvas.transform, "EnemyHpText", new Vector2(-330f, 168f));
+            var lastHitText = UiFactory.CreateText(canvas.transform, "LastHitText", new Vector2(-330f, 136f), new Vector2(420f, 30f), TextAnchor.MiddleLeft);
+            var roundResultText = UiFactory.CreateText(canvas.transform, "RoundResultText", new Vector2(0f, 200f), new Vector2(300f, 30f), TextAnchor.MiddleCenter);
+            var controlsHintText = UiFactory.CreateText(canvas.transform, "ControlsHintText", new Vector2(0f, -210f), new Vector2(720f, 30f), TextAnchor.MiddleCenter);
+            var restartButton = UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(310f, 190f), null);
 
             var hudView = canvas.gameObject.AddComponent<SandboxHudView>();
-            hudView.Configure(playerHpText, enemyHpText, restartButton);
+            hudView.Configure(playerHpText, enemyHpText, lastHitText, roundResultText, controlsHintText, restartButton);
             return hudView;
-        }
-
-        private static void CreateEventSystem(Transform root)
-        {
-            var eventSystemObject = new GameObject("EventSystem");
-            eventSystemObject.transform.SetParent(root, false);
-            eventSystemObject.AddComponent<EventSystem>();
-            eventSystemObject.AddComponent<StandaloneInputModule>();
         }
 
         private static GameObject CreateCube(Transform parent, string name, Vector3 localPosition, Vector3 localScale, Color color)
@@ -184,6 +237,23 @@ namespace RicochetTanks.Infrastructure
             {
                 renderer.material.color = color;
             }
+        }
+
+        private static void RemoveCollider(GameObject target)
+        {
+            if (!target.TryGetComponent<Collider>(out var collider))
+            {
+                return;
+            }
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                Object.DestroyImmediate(collider);
+                return;
+            }
+#endif
+            Object.Destroy(collider);
         }
 
         private static void DestroyObject(GameObject target)
