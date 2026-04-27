@@ -1,0 +1,54 @@
+using RicochetTanks.Gameplay.Combat;
+using RicochetTanks.Gameplay.Projectiles;
+using RicochetTanks.Gameplay.Tanks;
+using System;
+using UnityEngine;
+
+namespace RicochetTanks.Gameplay.Events
+{
+    public sealed class SandboxGameplayEvents
+    {
+        public event Action<ProjectileSpawnedEvent> ProjectileSpawned;
+        public event Action<ProjectileHitEvent> ProjectileHit;
+        public event Action<ProjectileBouncedEvent> ProjectileBounced;
+        public event Action<HitResolvedEvent> HitResolved;
+        public event Action MatchStarted;
+        public event Action<MatchFinishedEvent> MatchFinished;
+        public event Action RestartRequested;
+
+        public void RaiseProjectileSpawned(Projectile projectile, TankFacade owner, Vector3 position, Vector3 direction, float speed)
+        {
+            ProjectileSpawned?.Invoke(new ProjectileSpawnedEvent(projectile, owner, position, direction, speed));
+        }
+
+        public void RaiseProjectileHit(Projectile projectile, Collider collider, Vector3 point, Vector3 normal, Vector3 direction)
+        {
+            ProjectileHit?.Invoke(new ProjectileHitEvent(projectile, collider, point, normal, direction));
+        }
+
+        public void RaiseProjectileBounced(Projectile projectile, int ricochetCount, float speed, Vector3 normal)
+        {
+            ProjectileBounced?.Invoke(new ProjectileBouncedEvent(projectile, ricochetCount, speed, normal));
+        }
+
+        public void RaiseHitResolved(HitResolvedEvent hit)
+        {
+            HitResolved?.Invoke(hit);
+        }
+
+        public void RaiseMatchStarted()
+        {
+            MatchStarted?.Invoke();
+        }
+
+        public void RaiseMatchFinished(MatchResult result, string label)
+        {
+            MatchFinished?.Invoke(new MatchFinishedEvent(result, label));
+        }
+
+        public void RaiseRestartRequested()
+        {
+            RestartRequested?.Invoke();
+        }
+    }
+}

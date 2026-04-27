@@ -1,92 +1,104 @@
 # World of Balance / Ricochet Tanks
 
-**by Sergo Burnheart · BurnHeartGames**  
-3D top-down tactical prototype about tanks, ricochets, armor angles and readable combat systems.
+**by Sergo Burnheart / BurnHeartGames**
 
----
+Unity 6 prototype: top-down tank duel with ricochet projectiles.
 
-## 🎮 Коротко об игре
+## Как запускать сейчас
 
-**World of Balance** — мой первый портфолио-прототип на Unity 6: дуэль танков 1v1 на компактной арене, где решают не цифры, а **позиция, угол выстрела, рикошет и контроль дистанции**.
-
-Игрок управляет танком с независимым корпусом и башней. Снаряд летит быстро, может отскакивать от стен и препятствий до **3 раз**, теряет энергию после каждого рикошета и может вернуться в стрелявшего. Броня работает по зонам: лоб, борта, корма. Чем острее угол попадания, тем выше шанс рикошета или непробития.
-
-> Идея простая: **меньше лишнего — больше драйва, честной физики и понятной тактики**.
-
----
-
-## 🧪 Текущая цель разработки
-
-Сейчас проект ведётся как **чистый Unity 6 прототип для портфолио**. Главная задача — собрать стабильный First Playable и дальше развивать его по документам:
-
-- [GDD.md](GDD.md) — основной дизайн-документ и правила разработки.
-- [AI_IMPLEMENTATION_PROMPT.md](AI_IMPLEMENTATION_PROMPT.md) — промпт для Codex/AI-ассистента, чтобы новые фичи интегрировались архитектурно правильно.
-
-## Current Status
-
-Milestone 1 is focused on a clean first playable demo:
-
-- `Bootstrap -> MainMenu -> Sandbox` scene flow.
-- 10x10 greybox arena with four walls and a center square obstacle.
-- Player tank starts bottom-left; enemy dummy starts top-right.
-- Desktop tank controls: hull movement/turning, independent turret aim, shooting, restart.
-- Fast visible projectiles with a bright material and trail.
-- Projectiles ricochet from walls/obstacles up to 3 times; the next contact destroys them.
-- Tanks have HP; enemy can die; HUD shows HP, last hit, round result, controls, and restart.
-- Runtime debug logs: `[SHOT]`, `[BOUNCE]`, `[HIT]`, `[ROUND]`.
-
-Older course/homework code is kept outside the active prototype path. The playable prototype lives under:
+Открывать и запускать нужно только одну сцену:
 
 ```text
-Assets/_Project/RicochetTanks/
+Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
 ```
 
-## How To Run
+Шаги:
 
-Use Unity `6000.4.3f1`.
+1. Открой проект в Unity `6000.4.3f1`.
+2. Открой `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity`.
+3. Нажми Play.
 
-1. Open the project in Unity.
-2. Open `Assets/_Project/RicochetTanks/Scenes/Bootstrap.unity`.
-3. Press Play.
-4. Click `Play Sandbox` in the main menu.
+Ничего вручную в сцену добавлять не нужно. `SandboxBootstrapper` создаётся автоматически и сам собирает арену, камеру, HUD, танки, input и projectile factory.
 
-You can also open `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity` directly and press Play.
+## Что должно быть видно в Play Mode
 
-## Controls
+- Тёмная 10x10 арена с сеткой.
+- Чёрные стены по периметру для рикошетов.
+- Серый центральный квадратный блок / укрытие.
+- Зелёный `Player Tank` внизу-слева.
+- Красный `Enemy Dummy Tank` вверху-справа.
+- Камера строго сверху, без вращения вокруг танка.
+- HUD: HP игрока, HP врага, Last Hit, Round Result, Restart, подсказка управления.
+
+## Управление
 
 ```text
-W / S or Up / Down     Move forward / backward relative to the hull
-A / D or Left / Right  Rotate hull
-Mouse                  Aim turret
-Left Mouse / Space     Fire
-R                      Restart Sandbox
-Restart button         Restart Sandbox
+W / S или Up / Down      вперёд / назад относительно корпуса
+A / D или Left / Right   поворот корпуса
+Mouse                    поворот башни
+Left Mouse / Space       выстрел
+R                        рестарт матча
+Restart button           рестарт матча
 ```
 
-## Prototype Architecture
+## Если нужно собрать сцену вручную
 
-The current prototype uses small MonoBehaviours for Unity-facing objects and keeps wiring in scene bootstraps:
+Это запасной вариант. Обычно он не нужен.
 
-- `ProjectBootstrapper` starts the scene flow.
-- `MainMenuView` + `MainMenuPresenter` handle menu UI.
-- `SandboxBootstrapper` builds and wires the playable scene.
-- `SandboxSceneBuilder` procedurally creates the greybox arena, tanks, camera, HUD, input reader, and projectile factory.
-- `SandboxMatchController` owns match state, restart, win/loss result, and hit feedback.
-- `TankFacade`, `TankMovement`, `TurretAiming`, `TankShooter`, and `TankHealth` split tank responsibilities.
-- `ProjectileFactory`, `Projectile`, `RicochetCalculator`, and `HitResolver` handle shooting, ricochets, and damage.
-- `ArenaConfig`, `TankConfig`, and `ProjectileConfig` keep gameplay numbers out of core logic.
+1. Создай пустую сцену и назови её `Sandbox`.
+2. Сохрани её в `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity`.
+3. Добавь пустой GameObject `SandboxBootstrapper`.
+4. Повесь на него компонент:
 
-## Deferred Features
+```text
+RicochetTanks.UI.Sandbox.SandboxBootstrapper
+```
 
-Not part of Milestone 1 yet:
+5. Нажми Play. Bootstrapper сам создаст всё остальное.
 
-- Full armor model with front/side/rear zones.
-- Kinetic penetration, damage falloff, and angle-based ricochet.
-- Enemy AI and enemy shooting.
-- Mobile controls beyond the planned input layer.
-- VFX polish such as impact sparks, muzzle flash, and floating combat text.
+Не добавляй вручную player, enemy, стены, камеру или HUD, если используешь текущий procedural setup. Иначе можно получить дубли.
+
+## Что уже работает
+
+- Одна основная рабочая сцена `Sandbox`.
+- Top-down камера.
+- Procedural arena builder.
+- Player movement и turret aiming.
+- Shooting через LMB / Space.
+- Visible projectile с TrailRenderer.
+- Projectile летит через deterministic custom movement + SphereCast per tick, а не через Unity collision callbacks.
+- Ricochet от стен, центрального блока и скользящих попаданий по броне танка.
+- Debug visualization включён через `DebugVisualizationConfig`: projectile direction, predicted next segment, collision normal, bounce count, armor zone, hit angle, penetration, effective armor, enemy FSM state, spawn points, arena bounds.
+- Core gameplay events: `HealthChanged`, `Died`, `ProjectileSpawned`, `ProjectileHit`, `ProjectileBounced`, `HitResolved`, `MatchStarted`, `MatchFinished`, `RestartRequested`.
+- HUD обновляется через `SandboxHudPresenter`; gameplay controllers не вызывают UI view напрямую.
+- Initial balance: arena 10x10, HP 100/100, projectile speed 22, damage 35, penetration 100, reload 0.8 sec, bounce multiplier 0.85, min projectile speed 5, safe owner time 0.15 sec.
+- Armor balance: front 100, side 70, rear 40, auto ricochet angle 70 degrees.
+- Damage по enemy dummy.
+- HP HUD.
+- Player Wins / Enemy Wins.
+- Restart по `R` и кнопке.
+- Debug logs: `[SHOT]`, `[BOUNCE]`, `[HIT]`, `[ROUND]`.
+
+## Что ещё не реализовано
+
+- Kinetic penetration и damage falloff.
+- Подробная damage model поверх текущей базовой брони.
+- Enemy AI.
+- Mobile controls.
+- Muzzle flash, sparks, impact marks, floating text.
+
+## Основные файлы
+
+- `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity`
+- `Assets/_Project/RicochetTanks/Scripts/Infrastructure/SandboxSceneBuilder.cs`
+- `Assets/_Project/RicochetTanks/Scripts/UI/Sandbox/SandboxBootstrapper.cs`
+- `Assets/_Project/RicochetTanks/Scripts/UI/Sandbox/SandboxMatchController.cs`
+- `Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectiles/Projectile.cs`
+- `Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectiles/ProjectileFactory.cs`
+- `Assets/_Project/RicochetTanks/Scripts/Gameplay/Debug/SandboxDebugVisualizer.cs`
+- `Assets/_Project/RicochetTanks/Scripts/Configs/DebugVisualizationConfig.cs`
 
 ## Design Docs
 
-- Gameplay direction: [GDD.md](GDD.md)
-- Compact AI/code map: [AI_CONTEXT_GRAPH.md](AI_CONTEXT_GRAPH.md)
+- [GDD.md](GDD.md)
+- [AI_CONTEXT_GRAPH.md](AI_CONTEXT_GRAPH.md)

@@ -1,4 +1,5 @@
 using RicochetTanks.Gameplay.Combat;
+using RicochetTanks.Gameplay.Events;
 using RicochetTanks.Gameplay.Tanks;
 using RicochetTanks.Infrastructure.SceneLoading;
 using RicochetTanks.Input.Desktop;
@@ -10,7 +11,7 @@ namespace RicochetTanks.UI.Sandbox
     {
         private TankFacade _player;
         private TankFacade _enemy;
-        private SandboxHudView _hudView;
+        private SandboxGameplayEvents _gameplayEvents;
         private DesktopInputReader _inputReader;
         private SceneLoaderService _sceneLoaderService;
         private MatchResult _matchResult = MatchResult.Playing;
@@ -19,7 +20,7 @@ namespace RicochetTanks.UI.Sandbox
         public void Configure(
             TankFacade player,
             TankFacade enemy,
-            SandboxHudView hudView,
+            SandboxGameplayEvents gameplayEvents,
             DesktopInputReader inputReader,
             SceneLoaderService sceneLoaderService)
         {
@@ -27,20 +28,20 @@ namespace RicochetTanks.UI.Sandbox
 
             _player = player;
             _enemy = enemy;
-            _hudView = hudView;
+            _gameplayEvents = gameplayEvents;
             _inputReader = inputReader;
             _sceneLoaderService = sceneLoaderService;
             _matchResult = MatchResult.Playing;
 
             Subscribe();
-            SetInitialHudState();
+            _gameplayEvents?.RaiseMatchStarted();
         }
 
         private void Update()
         {
             if (_inputReader != null && _inputReader.IsRestartPressed())
             {
-                Restart();
+                RequestRestart();
             }
         }
 
@@ -66,12 +67,11 @@ namespace RicochetTanks.UI.Sandbox
                 _enemy.Health.Died += OnEnemyDied;
             }
 
-            if (_hudView != null)
+            if (_gameplayEvents != null)
             {
-                _hudView.RestartClicked += OnRestartClicked;
+                _gameplayEvents.RestartRequested += OnRestartRequested;
             }
 
-            HitResolver.HitResolved += OnHitResolved;
             _isSubscribed = true;
         }
 
@@ -92,35 +92,12 @@ namespace RicochetTanks.UI.Sandbox
                 _enemy.Health.Died -= OnEnemyDied;
             }
 
-            if (_hudView != null)
+            if (_gameplayEvents != null)
             {
-                _hudView.RestartClicked -= OnRestartClicked;
+                _gameplayEvents.RestartRequested -= OnRestartRequested;
             }
 
-            HitResolver.HitResolved -= OnHitResolved;
             _isSubscribed = false;
-        }
-
-        private void SetInitialHudState()
-        {
-            if (_hudView == null)
-            {
-                return;
-            }
-
-            _hudView.SetLastHitResult("Last Hit: none");
-            _hudView.SetRoundResult("Round: Playing");
-            _hudView.SetControlsHint("W/S move  A/D turn  Mouse aim  LMB/Space fire  R restart");
-        }
-
-        private void OnHitResolved(HitResolvedEvent hit)
-        {
-            if (_hudView == null || hit.Target == null)
-            {
-                return;
-            }
-
-            _hudView.SetLastHitResult($"Last Hit: {hit.Target.name} {hit.Result} -{hit.Damage} HP ({hit.CurrentHp}/{hit.MaxHp})");
         }
 
         private void OnPlayerDied(TankHealth health)
@@ -153,16 +130,16 @@ namespace RicochetTanks.UI.Sandbox
             }
 
             var label = result == MatchResult.PlayerWins ? "Player Wins" : "Enemy Wins";
-            _hudView?.SetRoundResult($"Round: {label}");
+            _gameplayEvents?.RaiseMatchFinished(result, label);
             Debug.Log($"[ROUND] result={label}");
         }
 
-        private void OnRestartClicked()
+        public void RequestRestart()
         {
-            Restart();
+            _gameplayEvents?.RaiseRestartRequested();
         }
 
-        private void Restart()
+        private void OnRestartRequested()
         {
             _sceneLoaderService?.ReloadActiveScene();
         }

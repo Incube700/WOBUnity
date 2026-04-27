@@ -6,12 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Project/RicochetTanks/Scenes/Bootstrap.unity
-    guid: 26962569693b42798ad3209933829baa
-  - enabled: 1
-    path: Assets/_Project/RicochetTanks/Scenes/MainMenu.unity
-    guid: 11559838021146749d111a326ee21672
-  - enabled: 1
     path: Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
     guid: f70357431ed54139b23ffe499a1049d6
   m_configObjects:

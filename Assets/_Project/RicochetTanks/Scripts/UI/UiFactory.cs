@@ -12,7 +12,10 @@ namespace RicochetTanks.UI
             var canvasObject = new GameObject(name);
             var canvas = canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasObject.AddComponent<CanvasScaler>();
+            var scaler = canvasObject.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1280f, 720f);
+            scaler.matchWidthOrHeight = 0.5f;
             canvasObject.AddComponent<GraphicRaycaster>();
             return canvas;
         }
@@ -31,11 +34,16 @@ namespace RicochetTanks.UI
 
         public static Button CreateButton(Transform parent, string text, Vector2 anchoredPosition, UnityAction onClick)
         {
+            return CreateButton(parent, text, anchoredPosition, new Vector2(220f, 45f), onClick);
+        }
+
+        public static Button CreateButton(Transform parent, string text, Vector2 anchoredPosition, Vector2 size, UnityAction onClick)
+        {
             var buttonObject = new GameObject(text + "Button");
             buttonObject.transform.SetParent(parent, false);
 
             var rectTransform = buttonObject.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(220f, 45f);
+            rectTransform.sizeDelta = size;
             rectTransform.anchoredPosition = anchoredPosition;
 
             var image = buttonObject.AddComponent<Image>();
@@ -59,6 +67,7 @@ namespace RicochetTanks.UI
             label.alignment = TextAnchor.MiddleCenter;
             label.color = Color.white;
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.fontSize = 16;
 
             return button;
         }

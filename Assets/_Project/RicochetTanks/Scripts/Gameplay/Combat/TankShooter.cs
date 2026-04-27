@@ -8,7 +8,7 @@ namespace RicochetTanks.Gameplay.Combat
     public class TankShooter : MonoBehaviour
     {
         [SerializeField] private Transform _muzzle;
-        [SerializeField] private float _cooldown = 0.35f;
+        [SerializeField] private float _cooldown = 0.8f;
 
         private TankFacade _owner;
         private ProjectileFactory _projectileFactory;
