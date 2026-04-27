@@ -1,8 +1,26 @@
 # World of Balance / Ricochet Tanks
 
-**by Sergo Burnheart**
+**by Sergo Burnheart · BurnHeartGames**  
+3D top-down tactical prototype about tanks, ricochets, armor angles and readable combat systems.
 
-Unity prototype for a top-down / light-isometric tank duel where positioning, aiming angles, and ricochets matter.
+---
+
+## 🎮 Коротко об игре
+
+**World of Balance** — мой первый портфолио-прототип на Unity 6: дуэль танков 1v1 на компактной арене, где решают не цифры, а **позиция, угол выстрела, рикошет и контроль дистанции**.
+
+Игрок управляет танком с независимым корпусом и башней. Снаряд летит быстро, может отскакивать от стен и препятствий до **3 раз**, теряет энергию после каждого рикошета и может вернуться в стрелявшего. Броня работает по зонам: лоб, борта, корма. Чем острее угол попадания, тем выше шанс рикошета или непробития.
+
+> Идея простая: **меньше лишнего — больше драйва, честной физики и понятной тактики**.
+
+---
+
+## 🧪 Текущая цель разработки
+
+Сейчас проект ведётся как **чистый Unity 6 прототип для портфолио**. Главная задача — собрать стабильный First Playable и дальше развивать его по документам:
+
+- [GDD.md](GDD.md) — основной дизайн-документ и правила разработки.
+- [AI_IMPLEMENTATION_PROMPT.md](AI_IMPLEMENTATION_PROMPT.md) — промпт для Codex/AI-ассистента, чтобы новые фичи интегрировались архитектурно правильно.
 
 ## Current Status
 
