@@ -9,15 +9,16 @@
 
 ## 1. Vision
 
-**World of Balance / Ricochet Tanks** is a compact top-down tank duel prototype. The core fantasy is simple: win by reading the arena, aiming well, protecting your armor angle, and using ricochets better than the opponent.
+Ricochet Tanks is a compact top-down tank duel prototype. The first playable must be readable immediately: one arena, two tanks, one central obstacle, visible projectiles, ricochets, HP, win/loss, restart.
 
-Milestone 1 is a first playable demo, not the full final game.
+The camera style for Milestone 1 is **strict top-down**, not side view and not cinematic orbit. The player should understand the arena like a board.
 
+## 2. Milestone 1 Scene
 The project must stay small in gameplay scope but clean in architecture. Every new feature should make the prototype more playable, more readable, or more portfolio-ready.
 
 ---
 
-## 2. Design Pillars
+## 2.0.1 Design Pillars
 
 ### 2.1. Honest Ricochet Physics
 
@@ -39,54 +40,26 @@ Even small features must be integrated cleanly: feature modules, configs, events
 
 ## 3. Milestone 1 Playable Demo
 
-Scene flow:
+Canonical working scene:
 
 ```text
-Bootstrap -> MainMenu -> Sandbox
+Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
 ```
 
-Sandbox requirements:
+Only `Sandbox.unity` is required for the playable demo. Old scenes such as `Sand Box` and `RicochetTanks_*` are legacy and should not exist in the active flow.
 
-- 10x10 greybox arena.
-- Four boundary walls.
-- Center square obstacle.
-- Player tank in the bottom-left.
-- Enemy dummy tank in the top-right.
-- Top-down / light-isometric camera.
-- HUD with player HP, enemy HP, last hit result, round result, controls hint, and restart.
-- Fast readable projectile.
-- Projectile ricochets from walls and the center obstacle.
-- Projectile can hit enemy.
-- Enemy death ends the round.
-- Restart returns Sandbox to a playable state.
+Scene content at runtime:
 
----
+- 10x10 dark greybox arena.
+- Visible grid on the arena floor.
+- Four dark ricochet walls.
+- Center square cover / ricochet block.
+- Green player tank at bottom-left.
+- Red enemy dummy tank at top-right.
+- Orthographic top-down camera.
+- HUD with HP, last hit, round result, controls, restart.
 
-## 4. Out of Scope for Milestone 1
-
-To protect the first playable from feature creep, Milestone 1 does **not** include:
-
-- multiplayer;
-- progression, currency, shop, upgrades;
-- multiple tank classes;
-- multiple maps;
-- complex enemy AI;
-- destructible environment;
-- different projectile types;
-- dash/shield/active abilities;
-- campaign/story;
-- online leaderboards;
-- cosmetics/skins;
-- advanced VFX/SFX pass;
-- monetization experiments.
-
-These ideas belong to backlog and must not block the first playable.
-
----
-
-## 5. Initial Balance Values
-
-These values are not final balance. They are the starting point for implementation and tuning. Do not invent new numbers inside code; use configs.
+The scene is built by `SandboxBootstrapper` and `SandboxSceneBuilder`, so the Unity scene file can stay almost empty.
 
 | Parameter | Start Value |
 |---|---:|
@@ -153,17 +126,17 @@ A light-isometric camera is allowed later only if projectile readability remains
 
 ## 7. Controls
 
-Desktop is first priority:
+Desktop controls:
 
 ```text
-W / S or Up / Down     Move forward / backward relative to the hull
-A / D or Left / Right  Rotate hull
-Mouse                  Aim turret independently
-Left Mouse / Space     Fire
-R                      Restart Sandbox
+W / S or Up / Down      move forward / backward relative to hull
+A / D or Left / Right   rotate hull
+Mouse                   rotate turret
+Left Mouse / Space      fire
+R                       restart match
 ```
 
-Mobile controls are deferred until after the desktop first playable is stable.
+Movement rule: W/S never means world up/down. It means forward/backward along the tank body direction.
 
 Future mobile layer:
 
@@ -180,21 +153,62 @@ Mobile input must be a separate input layer, not hardcoded inside tank logic.
 
 ## 8. Combat Rules
 
-Current Milestone 1 rules:
+Milestone 1:
 
 - Tanks start with 100 HP.
-- Projectile damage is fixed.
-- Projectile speed is fast but readable.
-- Projectile has a visible material and trail.
+- Projectile speed is 22 units/sec.
+- Projectile damage is 35.
+- Projectile penetration is 100.
+- Projectile is a bright visible sphere with TrailRenderer.
+- Projectile spawns in front of the muzzle.
 - Projectile ignores its owner briefly after firing.
 - After safe time, a returning projectile can hit its owner.
-- Projectile ricochets from walls and the center obstacle using `Vector3.Reflect` or equivalent reflection math.
-- Each ricochet multiplies speed by `0.78`.
-- Projectile can ricochet 3 times; the next contact destroys it.
-- Enemy death ends the round with `Player Wins`.
-- Player death ends the round with `Enemy Wins`.
+- Projectile movement is deterministic custom movement with `SphereCast` checks per physics tick.
+- Projectile ricochets manually from the hit normal using `Vector3.Reflect`.
+- Ricochets work against arena walls and the center block.
+- Glancing tank hits can ricochet from armor instead of dealing damage.
+- Max ricochets: 3.
+- After 3 ricochets, the next contact destroys the projectile.
+- Each ricochet multiplies speed by `0.85`.
+- Projectile speed is clamped to minimum `5`.
+- Reload time is `0.8` seconds.
+- Safe owner time is `0.15` seconds.
+- Basic armor values are front `100`, side `70`, rear `40`.
+- Auto ricochet angle is `70` degrees.
+- Enemy death shows `Player Wins`.
+- Player death shows `Enemy Wins`.
+- Restart resets the match.
 
-Debug feedback during development:
+Gameplay event contracts:
+
+- `HealthChanged`
+- `Died`
+- `ProjectileSpawned`
+- `ProjectileHit`
+- `ProjectileBounced`
+- `HitResolved`
+- `MatchStarted`
+- `MatchFinished`
+- `RestartRequested`
+
+Gameplay systems raise these events. UI listens through presenters, VFX should listen through visual event handlers, and gameplay systems must not directly call UI views.
+
+Debug visualization for First Playable:
+
+- Toggle through `DebugVisualizationConfig`.
+- Projectile direction.
+- Predicted next projectile segment.
+- Collision normal.
+- Bounce count.
+- Armor zone hit: Front / Side / Rear / Unknown.
+- Hit angle.
+- Current penetration.
+- Effective armor.
+- Enemy FSM state, currently `DummyIdle` / `Disabled`.
+- Player/enemy spawn points.
+- Arena bounds.
+
+Debug logs:
 
 ```text
 [SHOT]
@@ -312,28 +326,52 @@ Rules:
 
 ## 12. Technical Direction
 
-Current implementation keeps the prototype isolated in:
+Active prototype root:
 
 ```text
 Assets/_Project/RicochetTanks/
 ```
 
-Important runtime pieces:
+Important pieces:
 
-- `ProjectBootstrapper` starts the canonical scene flow.
-- `MainMenuView` and `MainMenuPresenter` keep UI display and button logic separate.
-- `SandboxBootstrapper` wires scene-level dependencies.
-- `SandboxSceneBuilder` procedurally creates the greybox demo scene.
-- `SandboxMatchController` owns match state, restart, and win/loss.
-- `DesktopInputReader` reads desktop controls.
-- `TankFacade` exposes tank subsystems.
+- `SandboxBootstrapper` creates and wires the playable scene.
+- `SandboxSceneBuilder` creates arena, tanks, camera, HUD, input, projectile factory.
+- `SandboxMatchController` owns round state and restart.
+- `SandboxGameplayEvents` exposes the core gameplay event contracts.
+- `SandboxDebugVisualizer` listens to gameplay events and draws debug data.
+- `DesktopInputReader` reads keyboard/mouse input.
+- `TankFacade` connects movement, turret, shooter, health, controller.
+- `TankMovement` owns hull movement.
+- `TurretAiming` owns turret rotation.
+- `TankShooter` delegates projectile creation.
 - `ProjectileFactory` creates visible projectiles.
-- `HitResolver` applies damage and reports hit results.
-- `ArenaConfig`, `TankConfig`, and `ProjectileConfig` hold gameplay numbers.
+- `Projectile` owns movement, safe time, lifetime, ricochet count.
+- `HitResolver` applies damage and publishes hit events.
+- `TankArmor` resolves front / side / rear armor and auto ricochet angle.
+- `TankHealth` owns HP and death.
 
 Architecture rules:
 
 - No Singleton.
+- No giant GameManager.
+- UI view only displays data and raises events.
+- Presenter/controller wires systems.
+- Projectile logic stays separate.
+- Health logic stays separate.
+- Round logic stays separate.
+- Entry point only composes dependencies.
+- No lambdas for event subscriptions that need unsubscribe.
+- Private fields use `_camelCase`.
+
+## 6. Future GDD Features
+
+Not part of Milestone 1:
+
+- Kinetic penetration and speed-based damage falloff.
+- More detailed armor/damage model beyond the current basic armor checks.
+- Enemy AI and enemy shooting.
+- Mobile controls.
+- Muzzle flash, sparks, impact marks, floating combat text.
 - No huge all-in-one MonoBehaviour.
 - UI views display data and raise events.
 - Presenters/controllers wire UI to services/gameplay.

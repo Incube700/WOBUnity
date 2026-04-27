@@ -10,12 +10,12 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         private static void Initialize()
         {
             var activeSceneName = SceneManager.GetActiveScene().name;
-            if (activeSceneName == SceneLoaderService.MainMenuSceneName || activeSceneName == SceneLoaderService.SandboxSceneName)
+            if (activeSceneName == SceneLoaderService.SandboxSceneName)
             {
                 return;
             }
 
-            SceneManager.LoadScene(SceneLoaderService.MainMenuSceneName);
+            SceneManager.LoadScene(SceneLoaderService.SandboxSceneName);
         }
     }
 }

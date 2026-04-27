@@ -8,15 +8,15 @@ Purpose: reduce token usage for Codex/AI tools. Read this file before scanning t
 - Owner/brand: **BurnHeartGames**
 - Repository: `Incube700/WOBLearnUnity`
 - Engine target: **Unity 6**
-- Prototype genre: top-down / light-isometric tank duel with ricochets
+- Prototype genre: strict top-down tank duel with ricochets
 - Current branch for gameplay work: `feature/ricochet-tanks-prototype`
 
 ## Current prototype direction
 
-Milestone 1 is a first playable tank duel:
+Milestone 1 is a first playable tank duel with one canonical scene:
 
 ```text
-Bootstrap -> MainMenu -> Sandbox -> move/aim/shoot -> ricochet -> damage/destroy enemy -> restart
+Open Sandbox.unity -> Play -> move/aim/shoot -> ricochet -> damage/destroy enemy -> restart
 ```
 
 The active prototype is isolated under:
@@ -28,18 +28,6 @@ Assets/_Project/RicochetTanks/
 ## Scene graph
 
 ```text
-Bootstrap.unity
-  ProjectBootstrapper (runtime static)
-  SceneLoaderService
-  loads -> MainMenu
-
-MainMenu.unity
-  MainMenuBootstrapper (runtime-created)
-  MainMenuView
-  MainMenuPresenter
-  Play Sandbox -> loads Sandbox
-  Quit -> quits/editor-safe
-
 Sandbox.unity
   SandboxBootstrapper (runtime-created)
   SandboxSceneBuilder
@@ -52,21 +40,25 @@ Sandbox.unity
   SandboxMatchController
 ```
 
-Legacy scene names such as `Sand Box` and `RicochetTanks_Sandbox` are not part of the canonical flow.
+Legacy scene names such as `Sand Box`, `Bootstrap`, `MainMenu`, and `RicochetTanks_*` are not part of the canonical playable flow.
 
 ## Folder graph
 
 ```text
 Assets/_Project/RicochetTanks/
   Scenes/
-    Bootstrap.unity
-    MainMenu.unity
     Sandbox.unity
   Scripts/
     Configs/
       ArenaConfig.cs
       TankConfig.cs
       ProjectileConfig.cs
+      DebugVisualizationConfig.cs
+    Gameplay/
+      Debug/
+        SandboxDebugVisualizer.cs
+      Events/
+        SandboxGameplayEvents.cs
     Infrastructure/
       Bootstrap/
       SceneLoading/
@@ -86,11 +78,14 @@ Assets/_Project/RicochetTanks/
 ```text
 SandboxBootstrapper
   -> calls SandboxSceneBuilder
+  -> owns SandboxGameplayEvents for this scene instance
   -> wires SandboxHudPresenter
   -> wires SandboxMatchController
+  -> wires SandboxDebugVisualizer when debug visualization is enabled
 
 SandboxSceneBuilder
-  -> creates 10x10 arena, walls, center obstacle
+  -> creates strict top-down camera
+  -> creates 10x10 dark arena, grid, walls, center obstacle
   -> creates camera/light/HUD/EventSystem
   -> creates DesktopInputReader
   -> creates ProjectileFactory
@@ -98,6 +93,7 @@ SandboxSceneBuilder
 
 TankFacade
   -> TankHealth
+  -> TankArmor
   -> TankMovement
   -> TurretAiming
   -> TankShooter
@@ -109,14 +105,38 @@ TankShooter
 
 Projectile
   -> ignores owner during safe time
-  -> moves via Rigidbody
+  -> moves deterministically via SphereCast per physics tick
+  -> raises ProjectileHit and ProjectileBounced
   -> reflects via RicochetCalculator
   -> asks HitResolver for tank hits
 
 SandboxMatchController
-  -> listens to health deaths, restart, and hit events
-  -> sets last hit / round result HUD text
+  -> listens to health deaths and restart events
+  -> raises MatchStarted and MatchFinished
   -> disables gameplay after match end
+
+SandboxHudPresenter
+  -> listens to HealthChanged, HitResolved, MatchStarted, MatchFinished
+  -> listens to SandboxHudView.RestartClicked and raises RestartRequested
+  -> updates SandboxHudView
+
+SandboxDebugVisualizer
+  -> listens to ProjectileSpawned / ProjectileHit / ProjectileBounced / HitResolved / Match events
+  -> draws projectile direction, predicted segment, collision normal, bounce count
+  -> labels armor zone, hit angle, penetration, effective armor, enemy FSM state
+  -> draws spawn points and arena bounds
+```
+
+## Event contracts
+
+```text
+TankHealth: HealthChanged, Died
+ProjectileFactory: ProjectileSpawned
+Projectile: ProjectileHit, ProjectileBounced
+HitResolver: HitResolved
+SandboxMatchController: MatchStarted, MatchFinished, RestartRequested handling
+SandboxHudPresenter: UI listener/writer, no gameplay logic
+SandboxDebugVisualizer: optional debug listener, no gameplay logic
 ```
 
 ## Input graph
@@ -142,18 +162,24 @@ Milestone 1:
 Projectile speed: fast but visible
 Projectile visual: bright sphere + TrailRenderer
 Max ricochets: 3
-Bounce speed multiplier: 0.78
-Owner safe time: short initial collision ignore
+Projectile damage: 35
+Projectile penetration: 100
+Reload time: 0.8 sec
+Bounce speed multiplier: 0.85
+Min projectile speed: 5
+Owner safe time: 0.15 sec
 After safe time: projectile may hit shooter
 Hit wall/obstacle: reflect by collision normal
+Glancing tank hit: reflect by tank contact normal at auto ricochet angle 70 degrees
+Projectile collision source: manual SphereCast, not Unity collision callbacks
 After ricochet count exceeded: destroy projectile on next contact
-Hit tank: apply fixed damage first
+Hit tank: resolve basic armor, then apply fixed damage on penetration
 ```
 
 Future extension:
 
 ```text
-Armor zones: front / side / rear
+Armor zones: front 100 / side 70 / rear 40
 Hit results: penetrated / ricochet / no penetration / wall ricochet
 Kinetic damage based on projectile speed
 Enemy AI with line of sight and lead aiming
@@ -181,7 +207,7 @@ Enemy AI with line of sight and lead aiming
 ## Milestone priority
 
 1. Compile in Unity.
-2. Bootstrap -> MainMenu -> Sandbox flow.
+2. Sandbox opens and builds itself through Play.
 3. Player movement and turret aim.
 4. Visible shooting.
 5. Ricochet.
@@ -196,7 +222,7 @@ Do not spend time on:
 
 - polished art;
 - complex AI before Milestone 1;
-- full armor/penetration before first playable;
+- full kinetic armor/penetration simulation before first playable;
 - multiplayer;
 - advanced save system;
 - monetization;

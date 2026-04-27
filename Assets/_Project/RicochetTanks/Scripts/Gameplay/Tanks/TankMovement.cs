@@ -46,7 +46,7 @@ namespace RicochetTanks.Gameplay.Tanks
             }
         }
 
-        private void FixedUpdate()
+       private void FixedUpdate()
         {
             if (_rigidbody == null)
             {
@@ -62,7 +62,7 @@ namespace RicochetTanks.Gameplay.Tanks
             var rotationDelta = Quaternion.Euler(0f, _turn * _turnSpeed * Time.fixedDeltaTime, 0f);
             _rigidbody.MoveRotation(_rigidbody.rotation * rotationDelta);
             _rigidbody.linearVelocity = transform.forward * (_throttle * _moveSpeed);
-        }
+        } 
 
         private void StopRigidbody()
         {

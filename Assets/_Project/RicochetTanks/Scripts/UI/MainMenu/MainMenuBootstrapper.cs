@@ -30,7 +30,7 @@ namespace RicochetTanks.UI.MainMenu
 
         private static void TryCreateForScene(string sceneName)
         {
-            if (sceneName != SceneLoaderService.MainMenuSceneName)
+            if (sceneName != "MainMenu")
             {
                 return;
             }

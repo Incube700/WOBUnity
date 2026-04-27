@@ -4,7 +4,7 @@ namespace RicochetTanks.Gameplay.Combat
 {
     public readonly struct HitResolvedEvent
     {
-        public HitResolvedEvent(TankFacade source, TankFacade target, HitResult result, int damage, int currentHp, int maxHp)
+        public HitResolvedEvent(TankFacade source, TankFacade target, HitResult result, int damage, int currentHp, int maxHp, ArmorHitInfo armorHit)
         {
             Source = source;
             Target = target;
@@ -12,6 +12,7 @@ namespace RicochetTanks.Gameplay.Combat
             Damage = damage;
             CurrentHp = currentHp;
             MaxHp = maxHp;
+            ArmorHit = armorHit;
         }
 
         public TankFacade Source { get; }
@@ -20,5 +21,6 @@ namespace RicochetTanks.Gameplay.Combat
         public int Damage { get; }
         public int CurrentHp { get; }
         public int MaxHp { get; }
+        public ArmorHitInfo ArmorHit { get; }
     }
 }
