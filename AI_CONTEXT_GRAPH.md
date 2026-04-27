@@ -196,11 +196,13 @@ Milestone 1:
 Projectile speed: fast but visible
 Projectile visual: bright sphere + TrailRenderer
 Max ricochets: 3
-Projectile damage: 35
-Projectile penetration: 100
+Projectile damage cap: 110
+Projectile penetration: 45
+Projectile kinetic factor: 1.0
+Projectile speed multiplier per bounce: 0.78
 Projectile damage multiplier per bounce: 0.75
 Reload time: 0.8 sec
-Bounce speed multiplier: 0.85
+Bounce speed multiplier: 0.78
 Min projectile speed: 5
 Owner safe time: 0.15 sec
 After safe time: projectile may hit shooter
@@ -215,7 +217,7 @@ Hit tank: resolve basic armor, then apply fixed damage on penetration
 Future extension:
 
 ```text
-Armor zones: front 100 / side 70 / rear 40
+Armor zones: front 50 / side 40 / rear 10
 Hit results: penetrated / ricochet / no penetration / wall ricochet
 Kinetic damage based on projectile speed
 Enemy AI with line of sight and lead aiming

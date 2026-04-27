@@ -27,7 +27,7 @@ namespace RicochetTanks.Gameplay.Projectiles
             PreviousPosition = new PreviousPositionComponent(transform.position);
             MoveDirection = new MoveDirectionComponent(Vector3.forward);
             MoveSpeed = new MoveSpeedComponent(config.Speed);
-            Damage = new DamageComponent(config.Damage, config.Penetration);
+            Damage = new DamageComponent(config.BaseDamage, config.BasePenetration, config.KineticFactor);
             Lifetime = new LifetimeComponent(Time.time, config.Lifetime, config.SafeTime);
             Ricochet = new RicochetComponent(
                 config.MaxRicochets,

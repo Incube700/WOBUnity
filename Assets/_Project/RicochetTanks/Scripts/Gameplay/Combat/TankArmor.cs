@@ -5,12 +5,15 @@ namespace RicochetTanks.Gameplay.Combat
 {
     public sealed class TankArmor : MonoBehaviour
     {
-        [SerializeField] private int _frontArmor = 100;
-        [SerializeField] private int _sideArmor = 70;
-        [SerializeField] private int _rearArmor = 40;
+        private const float CornerNormalMinAxis = 0.6f;
+
+        [SerializeField] private int _frontArmor = 50;
+        [SerializeField] private int _sideArmor = 40;
+        [SerializeField] private int _rearArmor = 10;
         [SerializeField] private float _autoRicochetAngle = 70f;
 
         public float AutoRicochetAngle => _autoRicochetAngle;
+        public float CriticalRicochetAngle => _autoRicochetAngle;
 
         public void Configure(TankConfig config)
         {
@@ -25,9 +28,13 @@ namespace RicochetTanks.Gameplay.Combat
             _autoRicochetAngle = config.AutoRicochetAngle;
         }
 
-        public ArmorHitInfo ResolveHitInfo(Vector3 projectileDirection, Vector3 contactNormal, int penetration)
+        public ArmorHitInfo ResolveHitInfo(Vector3 projectileDirection, Vector3 contactNormal, float currentPenetration, float kineticFactor)
         {
-            return new ArmorHitInfo(ResolveZone(contactNormal), ResolveArmor(contactNormal), CalculateHitAngle(projectileDirection, contactNormal), penetration);
+            var zone = ResolveZone(contactNormal);
+            var armor = ResolveArmor(zone);
+            var hitAngle = CalculateHitAngle(projectileDirection, contactNormal);
+            var effectiveArmor = CalculateEffectiveArmor(armor, hitAngle);
+            return new ArmorHitInfo(zone, armor, effectiveArmor, hitAngle, currentPenetration, kineticFactor);
         }
 
         public int ResolveArmor(Vector3 contactNormal)
@@ -45,6 +52,8 @@ namespace RicochetTanks.Gameplay.Combat
                     return _rearArmor;
                 case ArmorZone.Side:
                     return _sideArmor;
+                case ArmorZone.Corner:
+                    return _sideArmor;
                 default:
                     return _sideArmor;
             }
@@ -57,6 +66,11 @@ namespace RicochetTanks.Gameplay.Combat
             if (contactNormal.sqrMagnitude < 0.001f)
             {
                 return ArmorZone.Unknown;
+            }
+
+            if (IsCornerNormal(contactNormal))
+            {
+                return ArmorZone.Corner;
             }
 
             var forwardDot = Vector3.Dot(contactNormal.normalized, transform.forward);
@@ -74,6 +88,32 @@ namespace RicochetTanks.Gameplay.Combat
             return ArmorZone.Side;
         }
 
+        public bool IsCornerHit(Vector3 contactNormal)
+        {
+            contactNormal.y = 0f;
+
+            if (contactNormal.sqrMagnitude < 0.001f)
+            {
+                return false;
+            }
+
+            return IsCornerNormal(contactNormal);
+        }
+
+        private bool IsCornerNormal(Vector3 contactNormal)
+        {
+            var localNormal = transform.InverseTransformDirection(contactNormal.normalized);
+            localNormal.y = 0f;
+
+            if (localNormal.sqrMagnitude < 0.001f)
+            {
+                return false;
+            }
+
+            localNormal.Normalize();
+            return Mathf.Abs(localNormal.x) >= CornerNormalMinAxis && Mathf.Abs(localNormal.z) >= CornerNormalMinAxis;
+        }
+
         private static float CalculateHitAngle(Vector3 projectileDirection, Vector3 contactNormal)
         {
             projectileDirection.y = 0f;
@@ -85,6 +125,12 @@ namespace RicochetTanks.Gameplay.Combat
             }
 
             return Vector3.Angle(-projectileDirection.normalized, contactNormal.normalized);
+        }
+
+        private static float CalculateEffectiveArmor(float armor, float hitAngle)
+        {
+            var impactCos = Mathf.Cos(hitAngle * Mathf.Deg2Rad);
+            return armor / Mathf.Max(0.01f, impactCos);
         }
     }
 }

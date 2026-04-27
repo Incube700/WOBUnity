@@ -183,6 +183,7 @@ Tank-armor ricochet may use the same ricochet request data as wall ricochet. Det
 |---|---:|
 | Max bounces | 3 |
 | Position offset | projectile radius + small skin |
+| Speed multiplier per bounce | 0.78 |
 | Damage multiplier per bounce | 0.75 |
 | Example damage | 100 -> 75 -> 56.25 -> 42.1875 |
 
@@ -195,10 +196,22 @@ Armor angle is part of the game identity, but it can stay simple in Milestone 1.
 Current implemented rule:
 
 - `TankArmor` detects front/side/rear from contact normal.
-- `HitResolver` checks auto ricochet angle.
+- `HitResolver` checks auto ricochet angle, current penetration, and effective armor.
 - If the angle is too sharp, the projectile ricochets instead of dealing damage.
 - If penetration is lower than effective armor, the hit becomes `NoPen`.
-- On penetration, fixed projectile damage is applied.
+- On penetration, the current projectile damage cap is applied.
+
+Prototype balance values from the combat GDD:
+
+| Value | Prototype Balance |
+|---|---:|
+| Projectile damage cap | 110 |
+| Projectile penetration | 45 |
+| Projectile kinetic factor | 1.0 |
+| Front armor | 50 |
+| Side armor | 40 |
+| Rear armor | 10 |
+| Auto ricochet angle | 70 degrees |
 
 GDD target rules:
 

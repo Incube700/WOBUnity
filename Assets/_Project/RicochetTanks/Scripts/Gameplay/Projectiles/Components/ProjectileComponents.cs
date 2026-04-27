@@ -38,14 +38,37 @@ namespace RicochetTanks.Gameplay.Projectiles.Components
 
     public struct DamageComponent
     {
-        public DamageComponent(float value, int penetration)
+        private const float DamageKineticExponent = 0.72f;
+
+        public DamageComponent(float baseDamage, int basePenetration, float kineticFactor = 1f)
+            : this(baseDamage, CalculateDamage(baseDamage, kineticFactor), basePenetration, kineticFactor)
         {
-            Value = value;
-            Penetration = penetration;
         }
 
+        private DamageComponent(float baseDamage, float value, int basePenetration, float kineticFactor)
+        {
+            BaseDamage = baseDamage;
+            Value = value;
+            BasePenetration = basePenetration;
+            KineticFactor = Mathf.Max(0f, kineticFactor);
+        }
+
+        public float BaseDamage { get; }
         public float Value { get; set; }
-        public int Penetration { get; }
+        public int BasePenetration { get; }
+        public int Penetration => BasePenetration;
+        public float KineticFactor { get; }
+        public float CurrentPenetration => BasePenetration * KineticFactor;
+
+        public DamageComponent WithResolvedDamage(float value)
+        {
+            return new DamageComponent(BaseDamage, value, BasePenetration, KineticFactor);
+        }
+
+        private static float CalculateDamage(float baseDamage, float kineticFactor)
+        {
+            return baseDamage * Mathf.Pow(Mathf.Max(0f, kineticFactor), DamageKineticExponent);
+        }
     }
 
     public struct LifetimeComponent

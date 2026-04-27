@@ -9,9 +9,9 @@ namespace RicochetTanks.Configs
         [SerializeField] private float _moveSpeed = 4.5f;
         [SerializeField] private float _turnSpeed = 150f;
         [SerializeField] private float _turretRotationSpeed = 220f;
-        [SerializeField] private int _frontArmor = 100;
-        [SerializeField] private int _sideArmor = 70;
-        [SerializeField] private int _rearArmor = 40;
+        [SerializeField] private int _frontArmor = 50;
+        [SerializeField] private int _sideArmor = 40;
+        [SerializeField] private int _rearArmor = 10;
         [SerializeField] private float _autoRicochetAngle = 70f;
 
         public int MaxHp => _maxHp;
@@ -22,5 +22,6 @@ namespace RicochetTanks.Configs
         public int SideArmor => _sideArmor;
         public int RearArmor => _rearArmor;
         public float AutoRicochetAngle => _autoRicochetAngle;
+        public float CriticalRicochetAngle => _autoRicochetAngle;
     }
 }

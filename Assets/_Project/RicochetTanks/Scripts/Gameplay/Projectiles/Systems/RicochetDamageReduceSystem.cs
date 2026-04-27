@@ -12,7 +12,7 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
             }
 
             var damage = entity.Damage.Value * entity.Ricochet.DamageMultiplierPerBounce;
-            entity.Damage = new DamageComponent(damage, entity.Damage.Penetration);
+            entity.Damage = entity.Damage.WithResolvedDamage(damage);
         }
     }
 }

@@ -16,7 +16,7 @@ MonoBehaviour:
   _moveSpeed: 0
   _turnSpeed: 0
   _turretRotationSpeed: 0
-  _frontArmor: 100
-  _sideArmor: 70
-  _rearArmor: 40
+  _frontArmor: 50
+  _sideArmor: 40
+  _rearArmor: 10
   _autoRicochetAngle: 70

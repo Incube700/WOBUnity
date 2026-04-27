@@ -5,6 +5,7 @@ namespace RicochetTanks.Gameplay.Combat
         Unknown,
         Front,
         Side,
-        Rear
+        Rear,
+        Corner
     }
 }

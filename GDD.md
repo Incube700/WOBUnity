@@ -248,8 +248,8 @@ Milestone 1:
 
 - Tanks start with 100 HP.
 - Projectile speed is 22 units/sec.
-- Projectile damage is 35.
-- Projectile penetration is 100.
+- Projectile damage cap is 110.
+- Projectile penetration is 45.
 - Projectile is a bright visible sphere with TrailRenderer.
 - Projectile spawns in front of the muzzle.
 - Projectile ignores its owner briefly after firing.
@@ -261,11 +261,11 @@ Milestone 1:
 - Glancing tank hits can ricochet from armor instead of dealing damage.
 - Max ricochets: 3.
 - After 3 ricochets, the next contact destroys the projectile.
-- Each ricochet multiplies speed by `0.85`.
+- Each ricochet multiplies speed by `0.78`.
 - Projectile speed is clamped to minimum `5`.
 - Reload time is `0.8` seconds.
 - Safe owner time is `0.15` seconds.
-- Basic armor values are front `100`, side `70`, rear `40`.
+- Basic armor values are front `50`, side `40`, rear `10`.
 - Auto ricochet angle is `70` degrees.
 - Enemy death shows `Player Wins`.
 - Player death shows `Enemy Wins`.
