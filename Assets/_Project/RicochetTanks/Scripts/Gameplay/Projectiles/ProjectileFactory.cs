@@ -44,21 +44,29 @@ namespace RicochetTanks.Gameplay.Projectiles
 
             direction.Normalize();
 
-            var projectileObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            var projectileObject = _config.ProjectilePrefab != null
+                ? Instantiate(_config.ProjectilePrefab)
+                : GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
             projectileObject.name = "Projectile";
             projectileObject.transform.position = muzzle.position + direction * _config.SpawnOffset;
+            projectileObject.transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
             projectileObject.transform.localScale = Vector3.one * (_config.Radius * 2f);
 
             TintProjectile(projectileObject);
             AddTrail(projectileObject);
             DisablePhysicsCollider(projectileObject);
 
-            var projectile = projectileObject.AddComponent<Projectile>();
+            if (!projectileObject.TryGetComponent<Projectile>(out var projectile))
+            {
+                projectile = projectileObject.AddComponent<Projectile>();
+            }
+
             projectile.Configure(owner, _config, _gameplayEvents);
             projectile.Initialize(direction);
 
-            _gameplayEvents?.RaiseProjectileSpawned(projectile, owner, projectileObject.transform.position, direction, _config.Speed);
-            Debug.Log($"[SHOT] owner={owner.name} direction={direction} speed={_config.Speed}");
+            _gameplayEvents?.RaiseProjectileSpawned(projectile, owner, projectileObject.transform.position, direction, _config.Speed, _config.Damage, _config.MaxRicochets);
+            Debug.Log($"[SHOT] owner={owner.name} direction={direction} speed={_config.Speed} damage={_config.Damage:0.##}");
             return projectile;
         }
 
@@ -82,7 +90,18 @@ namespace RicochetTanks.Gameplay.Projectiles
 
         private void AddTrail(GameObject projectileObject)
         {
+            if (projectileObject.TryGetComponent<TrailRenderer>(out var existingTrail))
+            {
+                ConfigureTrail(existingTrail);
+                return;
+            }
+
             var trail = projectileObject.AddComponent<TrailRenderer>();
+            ConfigureTrail(trail);
+        }
+
+        private void ConfigureTrail(TrailRenderer trail)
+        {
             trail.time = _config.TrailTime;
             trail.startWidth = _config.Radius * 0.8f;
             trail.endWidth = 0f;

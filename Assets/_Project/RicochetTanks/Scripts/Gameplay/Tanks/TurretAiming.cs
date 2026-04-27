@@ -6,6 +6,7 @@ namespace RicochetTanks.Gameplay.Tanks
     {
         [SerializeField] private Transform _turret;
         [SerializeField] private Camera _camera;
+        [SerializeField] private float _rotationSpeed = 220f;
 
         private void Awake()
         {
@@ -17,8 +18,14 @@ namespace RicochetTanks.Gameplay.Tanks
 
         public void Configure(Transform turret, Camera targetCamera)
         {
+            Configure(turret, targetCamera, _rotationSpeed);
+        }
+
+        public void Configure(Transform turret, Camera targetCamera, float rotationSpeed)
+        {
             _turret = turret;
             _camera = targetCamera;
+            _rotationSpeed = rotationSpeed;
         }
 
         public void AimAtMouse()
@@ -56,7 +63,8 @@ namespace RicochetTanks.Gameplay.Tanks
 
             if (direction.sqrMagnitude > 0.001f)
             {
-                _turret.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+                var targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+                _turret.rotation = Quaternion.RotateTowards(_turret.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
             }
         }
     }

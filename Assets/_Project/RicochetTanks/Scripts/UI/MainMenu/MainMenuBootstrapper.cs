@@ -1,6 +1,5 @@
 using RicochetTanks.Infrastructure.SceneLoading;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace RicochetTanks.UI.MainMenu
 {
@@ -9,40 +8,6 @@ namespace RicochetTanks.UI.MainMenu
         private readonly SceneLoaderService _sceneLoaderService = new SceneLoaderService();
 
         private MainMenuPresenter _presenter;
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void RegisterSceneLoadedCallback()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void EnsureInitialMainMenuObjects()
-        {
-            TryCreateForScene(SceneManager.GetActiveScene().name);
-        }
-
-        private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            TryCreateForScene(scene.name);
-        }
-
-        private static void TryCreateForScene(string sceneName)
-        {
-            if (sceneName != "MainMenu")
-            {
-                return;
-            }
-
-            if (FindAnyObjectByType<MainMenuBootstrapper>() != null)
-            {
-                return;
-            }
-
-            var bootstrapperObject = new GameObject(nameof(MainMenuBootstrapper));
-            bootstrapperObject.AddComponent<MainMenuBootstrapper>();
-        }
 
         private void Start()
         {

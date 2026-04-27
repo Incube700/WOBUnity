@@ -6,7 +6,6 @@ using RicochetTanks.Infrastructure;
 using RicochetTanks.Infrastructure.SceneLoading;
 using RicochetTanks.Input.Desktop;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace RicochetTanks.UI.Sandbox
 {
@@ -27,40 +26,6 @@ namespace RicochetTanks.UI.Sandbox
         private SandboxGameplayEvents _gameplayEvents;
         private SandboxHudPresenter _hudPresenter;
         private SandboxMatchController _matchController;
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void RegisterSceneLoadedCallback()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void EnsureInitialSandboxObjects()
-        {
-            TryCreateForScene(SceneManager.GetActiveScene().name);
-        }
-
-        private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            TryCreateForScene(scene.name);
-        }
-
-        private static void TryCreateForScene(string sceneName)
-        {
-            if (sceneName != SceneLoaderService.SandboxSceneName)
-            {
-                return;
-            }
-
-            if (FindAnyObjectByType<SandboxBootstrapper>() != null)
-            {
-                return;
-            }
-
-            var bootstrapperObject = new GameObject(nameof(SandboxBootstrapper));
-            bootstrapperObject.AddComponent<SandboxBootstrapper>();
-        }
 
         private void Start()
         {

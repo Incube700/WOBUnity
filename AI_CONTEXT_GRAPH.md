@@ -16,7 +16,7 @@ Purpose: reduce token usage for Codex/AI tools. Read this file before scanning t
 Milestone 1 is a first playable tank duel with one canonical scene:
 
 ```text
-Open Sandbox.unity -> Play -> move/aim/shoot -> ricochet -> damage/destroy enemy -> restart
+Open RicochetTanks_Demo.unity -> Play -> move/aim/shoot -> ricochet -> damage/destroy enemy -> restart
 ```
 
 The active prototype is isolated under:
@@ -28,8 +28,18 @@ Assets/_Project/RicochetTanks/
 ## Scene graph
 
 ```text
+RicochetTanks_Demo.unity
+  SceneContext / GameplayEntryPoint
+  ArenaRoot/Floor/Walls/Obstacles
+  SpawnPoints/PlayerSpawnPoint
+  SpawnPoints/EnemySpawnPoint
+  PlayerTank
+  EnemyDummyTank
+  CameraRig
+  GameplayCanvas
+
 Sandbox.unity
-  SandboxBootstrapper (runtime-created)
+  SandboxBootstrapper (legacy fallback, scene object required)
   SandboxSceneBuilder
   DesktopInputReader
   ProjectileFactory
@@ -40,19 +50,35 @@ Sandbox.unity
   SandboxMatchController
 ```
 
-Legacy scene names such as `Sand Box`, `Bootstrap`, `MainMenu`, and `RicochetTanks_*` are not part of the canonical playable flow.
+`Sandbox.unity` is now a procedural fallback. Runtime auto-load/auto-create is disabled. `RicochetTanks_Demo.unity` is the primary editable scene; regenerate editor-friendly assets manually through `Tools/Ricochet Tanks/Generate Editor-Friendly Demo` when needed.
 
 ## Folder graph
 
 ```text
 Assets/_Project/RicochetTanks/
   Scenes/
+    RicochetTanks_Demo.unity
     Sandbox.unity
+  Prefabs/
+    PlayerTankPrefab
+    EnemyDummyTankPrefab
+    ProjectilePrefab
+    WallSegmentPrefab
+    ArenaBlockPrefab
+    GameplayCanvasPrefab
+  Configs/
+    PlayerTankConfig
+    EnemyTankConfig
+    ProjectileConfig
+    MatchConfig
+    CameraConfig
   Scripts/
     Configs/
       ArenaConfig.cs
       TankConfig.cs
       ProjectileConfig.cs
+      MatchConfig.cs
+      CameraConfig.cs
       DebugVisualizationConfig.cs
     Gameplay/
       Debug/
@@ -91,6 +117,12 @@ SandboxSceneBuilder
   -> creates ProjectileFactory
   -> creates Player and Enemy TankFacade
 
+GameplayEntryPoint
+  -> reads SceneContext references from RicochetTanks_Demo
+  -> applies TankConfig/ProjectileConfig/MatchConfig/CameraConfig
+  -> configures DesktopInputReader, ProjectileFactory, tanks, HUD presenter, match controller
+  -> does not contain gameplay rules
+
 TankFacade
   -> TankHealth
   -> TankArmor
@@ -105,6 +137,8 @@ TankShooter
 
 Projectile
   -> ignores owner during safe time
+  -> is a Unity runner/facade for ProjectileEntity
+  -> calls ProjectileSystemPipeline in FixedUpdate
   -> moves deterministically via SphereCast per physics tick
   -> raises ProjectileHit and ProjectileBounced
   -> reflects via RicochetCalculator
@@ -164,12 +198,14 @@ Projectile visual: bright sphere + TrailRenderer
 Max ricochets: 3
 Projectile damage: 35
 Projectile penetration: 100
+Projectile damage multiplier per bounce: 0.75
 Reload time: 0.8 sec
 Bounce speed multiplier: 0.85
 Min projectile speed: 5
 Owner safe time: 0.15 sec
 After safe time: projectile may hit shooter
 Hit wall/obstacle: reflect by collision normal
+Each ricochet reduces damage by 25%
 Glancing tank hit: reflect by tank contact normal at auto ricochet angle 70 degrees
 Projectile collision source: manual SphereCast, not Unity collision callbacks
 After ricochet count exceeded: destroy projectile on next contact
@@ -207,7 +243,8 @@ Enemy AI with line of sight and lead aiming
 ## Milestone priority
 
 1. Compile in Unity.
-2. Sandbox opens and builds itself through Play.
+2. RicochetTanks_Demo opens directly and uses scene references/configs.
+2b. RicochetTanks_Demo opens as editable editor-friendly scene.
 3. Player movement and turret aim.
 4. Visible shooting.
 5. Ricochet.

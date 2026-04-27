@@ -23,6 +23,8 @@ namespace RicochetTanks.Gameplay.DebugTools
         private Vector3 _lastHitPoint;
         private Vector3 _lastHitNormal;
         private int _lastBounceCount;
+        private int _lastBouncesLeft;
+        private float _lastProjectileDamage;
         private ArmorHitInfo _lastArmorHit;
         private string _lastHitLabel = "Hit: none";
         private string _enemyFsmState = "DummyIdle";
@@ -91,7 +93,7 @@ namespace RicochetTanks.Gameplay.DebugTools
 
             if (_hasProjectile)
             {
-                DrawLabel(_lastProjectilePosition + Vector3.up * 0.55f, $"Bounce: {_lastBounceCount}");
+                DrawLabel(_lastProjectilePosition + Vector3.up * 0.55f, $"Bounce: {_lastBounceCount}  Left: {_lastBouncesLeft}  Damage: {_lastProjectileDamage:0.##}");
             }
 
             if (_hasHit)
@@ -214,6 +216,8 @@ namespace RicochetTanks.Gameplay.DebugTools
             _lastProjectilePosition = projectile.Position;
             _lastProjectileDirection = projectile.Direction.normalized;
             _lastBounceCount = 0;
+            _lastBouncesLeft = projectile.BouncesLeft;
+            _lastProjectileDamage = projectile.Damage;
         }
 
         private void OnProjectileHit(ProjectileHitEvent projectileHit)
@@ -228,6 +232,8 @@ namespace RicochetTanks.Gameplay.DebugTools
         private void OnProjectileBounced(ProjectileBouncedEvent projectileBounce)
         {
             _lastBounceCount = projectileBounce.RicochetCount;
+            _lastBouncesLeft = projectileBounce.BouncesLeft;
+            _lastProjectileDamage = projectileBounce.Damage;
 
             if (projectileBounce.Projectile != null)
             {
@@ -248,6 +254,8 @@ namespace RicochetTanks.Gameplay.DebugTools
             _hasProjectile = false;
             _hasHit = false;
             _lastBounceCount = 0;
+            _lastBouncesLeft = 0;
+            _lastProjectileDamage = 0f;
         }
 
         private void OnMatchFinished(MatchFinishedEvent match)

@@ -240,7 +240,7 @@ namespace RicochetTanks.Infrastructure
             muzzle.localPosition = new Vector3(0f, 0f, 1.25f);
 
             movement.Configure(rigidbody, tankConfig.MoveSpeed, tankConfig.TurnSpeed);
-            aiming.Configure(turret.transform, camera);
+            aiming.Configure(turret.transform, camera, tankConfig.TurretRotationSpeed);
             shooter.Configure(muzzle, facade, projectileFactory, projectileConfig);
             health.Configure(tankConfig.MaxHp);
             armor.Configure(tankConfig);

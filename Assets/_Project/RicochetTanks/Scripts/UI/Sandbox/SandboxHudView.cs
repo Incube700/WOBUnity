@@ -45,19 +45,19 @@ namespace RicochetTanks.UI.Sandbox
             Subscribe();
         }
 
-        public void SetPlayerHp(int currentHp, int maxHp)
+        public void SetPlayerHp(float currentHp, float maxHp)
         {
             if (_playerHpText != null)
             {
-                _playerHpText.text = $"Player HP: {currentHp}/{maxHp}";
+                _playerHpText.text = $"Player HP: {Format(currentHp)}/{Format(maxHp)}";
             }
         }
 
-        public void SetEnemyHp(int currentHp, int maxHp)
+        public void SetEnemyHp(float currentHp, float maxHp)
         {
             if (_enemyHpText != null)
             {
-                _enemyHpText.text = $"Enemy HP: {currentHp}/{maxHp}";
+                _enemyHpText.text = $"Enemy HP: {Format(currentHp)}/{Format(maxHp)}";
             }
         }
 
@@ -110,6 +110,11 @@ namespace RicochetTanks.UI.Sandbox
         private void OnRestartButtonClicked()
         {
             RestartClicked?.Invoke();
+        }
+
+        private static string Format(float value)
+        {
+            return value.ToString("0.##");
         }
     }
 }

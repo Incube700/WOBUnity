@@ -1,104 +1,111 @@
 # World of Balance / Ricochet Tanks
 
-**by Sergo Burnheart / BurnHeartGames**
+Unity 6 prototype: top-down tank duel with visible ricochet projectiles.
 
-Unity 6 prototype: top-down tank duel with ricochet projectiles.
+## Main Scene
 
-## Как запускать сейчас
+Open:
 
-Открывать и запускать нужно только одну сцену:
+```text
+Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity
+```
+
+If the scene/prefabs/configs need to be regenerated, run this editor menu item:
+
+```text
+Tools/Ricochet Tanks/Generate Editor-Friendly Demo
+```
+
+The generator creates the demo scene, prefabs, configs, and adds the demo scene to Build Settings. It does not run automatically on editor load.
+
+Legacy fallback scene:
 
 ```text
 Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
 ```
 
-Шаги:
+## Editor Workflow
 
-1. Открой проект в Unity `6000.4.3f1`.
-2. Открой `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity`.
-3. Нажми Play.
+Main editable objects in `RicochetTanks_Demo`:
 
-Ничего вручную в сцену добавлять не нужно. `SandboxBootstrapper` создаётся автоматически и сам собирает арену, камеру, HUD, танки, input и projectile factory.
+- `SceneContext / GameplayEntryPoint`
+- `ArenaRoot`
+- `Floor`
+- `Walls`
+- `Obstacles`
+- `SpawnPoints/PlayerSpawnPoint`
+- `SpawnPoints/EnemySpawnPoint`
+- `PlayerTank`
+- `EnemyDummyTank`
+- `CameraRig`
+- `GameplayCanvas`
 
-## Что должно быть видно в Play Mode
+Move spawn points, tanks, walls, and obstacles in the scene. Do not change code for layout tests.
+At runtime `GameplayEntryPoint` places tanks from `PlayerSpawnPoint` and `EnemySpawnPoint`, so spawn positions are scene data, not hardcoded code values.
 
-- Тёмная 10x10 арена с сеткой.
-- Чёрные стены по периметру для рикошетов.
-- Серый центральный квадратный блок / укрытие.
-- Зелёный `Player Tank` внизу-слева.
-- Красный `Enemy Dummy Tank` вверху-справа.
-- Камера строго сверху, без вращения вокруг танка.
-- HUD: HP игрока, HP врага, Last Hit, Round Result, Restart, подсказка управления.
+## Configs
 
-## Управление
-
-```text
-W / S или Up / Down      вперёд / назад относительно корпуса
-A / D или Left / Right   поворот корпуса
-Mouse                    поворот башни
-Left Mouse / Space       выстрел
-R                        рестарт матча
-Restart button           рестарт матча
-```
-
-## Если нужно собрать сцену вручную
-
-Это запасной вариант. Обычно он не нужен.
-
-1. Создай пустую сцену и назови её `Sandbox`.
-2. Сохрани её в `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity`.
-3. Добавь пустой GameObject `SandboxBootstrapper`.
-4. Повесь на него компонент:
+Generated configs live in:
 
 ```text
-RicochetTanks.UI.Sandbox.SandboxBootstrapper
+Assets/_Project/RicochetTanks/Configs/
 ```
 
-5. Нажми Play. Bootstrapper сам создаст всё остальное.
+Important assets:
 
-Не добавляй вручную player, enemy, стены, камеру или HUD, если используешь текущий procedural setup. Иначе можно получить дубли.
+- `PlayerTankConfig`
+- `EnemyTankConfig`
+- `ProjectileConfig`
+- `MatchConfig`
+- `CameraConfig`
 
-## Что уже работает
+Tune projectile speed, damage, lifetime, max ricochets, damage multiplier per bounce, ricochet offset, layer masks, tank HP, movement, turret speed, and camera values there.
 
-- Одна основная рабочая сцена `Sandbox`.
-- Top-down камера.
-- Procedural arena builder.
-- Player movement и turret aiming.
-- Shooting через LMB / Space.
-- Visible projectile с TrailRenderer.
-- Projectile летит через deterministic custom movement + SphereCast per tick, а не через Unity collision callbacks.
-- Ricochet от стен, центрального блока и скользящих попаданий по броне танка.
-- Debug visualization включён через `DebugVisualizationConfig`: projectile direction, predicted next segment, collision normal, bounce count, armor zone, hit angle, penetration, effective armor, enemy FSM state, spawn points, arena bounds.
-- Core gameplay events: `HealthChanged`, `Died`, `ProjectileSpawned`, `ProjectileHit`, `ProjectileBounced`, `HitResolved`, `MatchStarted`, `MatchFinished`, `RestartRequested`.
-- HUD обновляется через `SandboxHudPresenter`; gameplay controllers не вызывают UI view напрямую.
-- Initial balance: arena 10x10, HP 100/100, projectile speed 22, damage 35, penetration 100, reload 0.8 sec, bounce multiplier 0.85, min projectile speed 5, safe owner time 0.15 sec.
-- Armor balance: front 100, side 70, rear 40, auto ricochet angle 70 degrees.
-- Damage по enemy dummy.
-- HP HUD.
-- Player Wins / Enemy Wins.
-- Restart по `R` и кнопке.
-- Debug logs: `[SHOT]`, `[BOUNCE]`, `[HIT]`, `[ROUND]`.
+## Prefabs
 
-## Что ещё не реализовано
+Generated prefabs live in:
 
-- Kinetic penetration и damage falloff.
-- Подробная damage model поверх текущей базовой брони.
-- Enemy AI.
-- Mobile controls.
-- Muzzle flash, sparks, impact marks, floating text.
+```text
+Assets/_Project/RicochetTanks/Prefabs/
+```
 
-## Основные файлы
+Use:
 
-- `Assets/_Project/RicochetTanks/Scenes/Sandbox.unity`
-- `Assets/_Project/RicochetTanks/Scripts/Infrastructure/SandboxSceneBuilder.cs`
-- `Assets/_Project/RicochetTanks/Scripts/UI/Sandbox/SandboxBootstrapper.cs`
-- `Assets/_Project/RicochetTanks/Scripts/UI/Sandbox/SandboxMatchController.cs`
-- `Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectiles/Projectile.cs`
-- `Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectiles/ProjectileFactory.cs`
-- `Assets/_Project/RicochetTanks/Scripts/Gameplay/Debug/SandboxDebugVisualizer.cs`
-- `Assets/_Project/RicochetTanks/Scripts/Configs/DebugVisualizationConfig.cs`
+- `PlayerTankPrefab`
+- `EnemyDummyTankPrefab`
+- `ProjectilePrefab`
+- `WallSegmentPrefab`
+- `ArenaBlockPrefab`
+- `GameplayCanvasPrefab`
 
-## Design Docs
+## Required Layers
 
-- [GDD.md](GDD.md)
-- [AI_CONTEXT_GRAPH.md](AI_CONTEXT_GRAPH.md)
+- `RicochetReflectable` for walls/ricochet surfaces.
+- `Tank` for player/enemy hitboxes.
+- `Projectile` for projectile views.
+- `Obstacle` for optional obstacle masks.
+
+`ProjectileConfig.ReflectableMask` should include ricochet surfaces. `ProjectileConfig.HittableMask` should include tanks.
+
+## Quick Ricochet Test
+
+1. Open `RicochetTanks_Demo`.
+2. Select `ProjectileConfig` and confirm max ricochets is `3` and damage multiplier is `0.75`.
+3. Press Play.
+4. Move with `W/S`, rotate hull with `A/D`, aim with mouse, fire with LMB or `Space`.
+5. Shoot a wall at an angle.
+6. Expected: projectile checks previous position to current position, bounces, rotates to the new direction, loses 25% damage, and disappears after ricochets are exhausted.
+
+## Documentation
+
+Main GDD:
+
+```text
+docs/GDD.md
+```
+
+Compact AI map:
+
+```text
+AI_CONTEXT_GRAPH.md
+```

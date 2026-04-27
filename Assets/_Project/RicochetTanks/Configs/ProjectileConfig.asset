@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c32f7cdfcb4c80b3a2fc38380dd848, type: 3}
+  m_Name: ProjectileConfig
+  m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.Configs.ProjectileConfig
+  _projectilePrefab: {fileID: 2768913020350325106, guid: c589f65c263e24ae5bb2b19c930a8d8c, type: 3}
+  _speed: 22
+  _bounceSpeedMultiplier: 0.85
+  _cooldown: 0.8
+  _safeTime: 0.15
+  _lifetime: 8
+  _minSpeed: 5
+  _radius: 0.18
+  _spawnOffset: 0.35
+  _positionCorrectionSkin: 0.01
+  _trailTime: 0.25
+  _damage: 35
+  _damageMultiplierPerBounce: 0.75
+  _maxRicochets: 3
+  _penetration: 100
+  _reflectableMask:
+    serializedVersion: 2
+    m_Bits: 2304
+  _hittableMask:
+    serializedVersion: 2
+    m_Bits: 512

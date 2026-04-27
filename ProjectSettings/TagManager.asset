@@ -13,10 +13,10 @@ TagManager:
   - UI
   - Bullet
   - Enemy
-  - Enry
-  - 
-  - 
-  - 
+  - RicochetReflectable
+  - Tank
+  - Projectile
+  - Obstacle
   - 
   - 
   - 

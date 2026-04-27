@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # GDD — World of Balance / Ricochet Tanks
 
 **Версия:** 0.5 — русская редакция, правила рикошетов, брони и пробития  
@@ -112,11 +113,17 @@ Scene View in Unity may be angled for editing convenience, but Game View must sh
 ## 3. Первый играбельный демо
 
 Каноничная рабочая сцена:
+=======
+# GDD Redirect
+
+The current source of truth is:
+>>>>>>> Stashed changes
 
 ```text
-Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
+docs/GDD.md
 ```
 
+<<<<<<< Updated upstream
 Для первого демо нужна только `Sandbox.unity`.
 
 Старые сцены типа `Sand Box` и `RicochetTanks_*` считаются legacy и не должны быть частью активного игрового потока.
@@ -930,3 +937,6 @@ HUD не должен:
 - сцена запускается после чистого клона;
 - README/GDD обновлены;
 - ручной чек-лист проходит.
+=======
+This root file is kept only as a compatibility pointer for old links.
+>>>>>>> Stashed changes
