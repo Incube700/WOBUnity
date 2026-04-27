@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b49b0284-51bb-4d38-8aec-6820f32b673c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.WOBLearnUnity/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.WOBLearnUnity/.idea/workspace.xml" afterDir="false" />
+<<<<<<< Updated upstream
       <change beforePath="$PROJECT_DIR$/AI_CONTEXT_GRAPH.md" beforeDir="false" afterPath="$PROJECT_DIR$/AI_CONTEXT_GRAPH.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scenes/Bootstrap.unity" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/_Project/RicochetTanks/Scenes/Bootstrap.unity.meta" beforeDir="false" />
@@ -39,6 +40,8 @@
       <change beforePath="$PROJECT_DIR$/GDD.md" beforeDir="false" afterPath="$PROJECT_DIR$/GDD.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+=======
+>>>>>>> Stashed changes
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,10 +93,17 @@
 }</component>
   <component name="RecapSpentCounter">
     <option name="endsOfQuotaMs" value="1777892432993" />
+<<<<<<< Updated upstream
     <option name="spentUsd" value="0.1947935" />
   </component>
   <component name="RecapUselessUpdatesCounter">
     <option name="suspendCountdown" value="2" />
+=======
+    <option name="spentUsd" value="0.347776" />
+  </component>
+  <component name="RecapUselessUpdatesCounter">
+    <option name="suspendCountdown" value="0" />
+>>>>>>> Stashed changes
   </component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
@@ -145,7 +155,11 @@
       <workItem from="1777230757305" duration="1794000" />
       <workItem from="1777232777691" duration="2991000" />
       <workItem from="1777273088944" duration="811000" />
+<<<<<<< Updated upstream
       <workItem from="1777279866941" duration="411000" />
+=======
+      <workItem from="1777279866941" duration="1599000" />
+>>>>>>> Stashed changes
     </task>
     <servers />
   </component>
