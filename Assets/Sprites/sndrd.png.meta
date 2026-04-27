@@ -103,13 +103,13 @@ TextureImporter:
       name: sndrd_0
       rect:
         serializedVersion: 2
-        x: 107
+        x: 286
         y: 47
-        width: 899
+        width: 487
         height: 972
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 53, w: 0}
       customData: 
       outline: []
       physicsShape: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 2ec7f714af63041f0b3ed5c695db4e0a
     internalID: 0
     vertices: []
     indices: 
