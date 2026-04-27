@@ -11,7 +11,50 @@
 
 Ricochet Tanks is a compact top-down tank duel prototype. The first playable must be readable immediately: one arena, two tanks, one central obstacle, visible projectiles, ricochets, HP, win/loss, restart.
 
-The camera style for Milestone 1 is **strict top-down**, not side view and not cinematic orbit. The player should understand the arena like a board.
+The camera style for Milestone 1 is **strict top-down**, not side view, not isometric, not tilted, and not cinematic orbit. The player should understand the arena like a board.
+
+## 1.1. Camera and Coordinate System
+
+The MVP demo uses a **strict top-down camera**, not an isometric or tilted camera.
+
+### World Coordinate System
+
+The game world is built on the XZ plane:
+
+- `X` — horizontal map axis.
+- `Z` — vertical map axis on the map.
+- `Y` — height only.
+
+Gameplay movement and combat must stay on the XZ plane:
+
+- tanks move on XZ;
+- tank hulls rotate around Y;
+- turrets rotate around Y;
+- projectiles fly on XZ;
+- ricochet reflection must preserve XZ-plane movement;
+- projectile ricochet must not introduce unwanted vertical movement.
+
+### Main Camera
+
+The main gameplay camera must be orthographic and look straight down.
+
+Recommended MVP camera setup:
+
+```text
+Projection: Orthographic
+Position:   (0, 10, 0)
+Rotation:   (90, 0, 0)
+Size:       6-7
+```
+
+The main demo must not use an isometric/tilted camera such as:
+
+```text
+Position: (0, 8, -7)
+Rotation: (55, 0, 0)
+```
+
+Scene View in Unity may be angled for editing convenience, but Game View must show the arena strictly from above.
 
 ## 2. Milestone 1 Scene
 The project must stay small in gameplay scope but clean in architecture. Every new feature should make the prototype more playable, more readable, or more portfolio-ready.
@@ -56,7 +99,7 @@ Scene content at runtime:
 - Center square cover / ricochet block.
 - Green player tank at bottom-left.
 - Red enemy dummy tank at top-right.
-- Orthographic top-down camera.
+- Orthographic strict top-down camera.
 - HUD with HP, last hit, round result, controls, restart.
 
 The scene is built by `SandboxBootstrapper` and `SandboxSceneBuilder`, so the Unity scene file can stay almost empty.
@@ -98,14 +141,15 @@ Required configs:
 Coordinate system:
 
 - gameplay plane: XZ;
-- Y is height;
-- arena center: `(0, 0, 0)`.
+- Y is height only;
+- arena center: `(0, 0, 0)`;
+- Game View must be strict top-down.
 
 | Object | Position | Size / Notes |
 |---|---|---|
 | Arena center | `(0, 0, 0)` | 10x10 |
-| Player spawn | `(-3.5, 0, -3.5)` | faces center |
-| Enemy spawn | `(3.5, 0, 3.5)` | faces center |
+| Player spawn | `(-3.5, 0, -3.5)` | faces center, appears bottom-left in Game View |
+| Enemy spawn | `(3.5, 0, 3.5)` | faces center, appears top-right in Game View |
 | Center obstacle | `(0, 0, 0)` | 2x2 square |
 | North wall | `(0, 0, 5)` | boundary |
 | South wall | `(0, 0, -5)` | boundary |
@@ -117,10 +161,10 @@ Camera:
 - type: Orthographic;
 - first playable position: `(0, 10, 0)`;
 - first playable rotation: `(90, 0, 0)`;
-- orthographic size: around `6`;
-- goal: full arena visibility.
+- orthographic size: around `6-7`;
+- goal: full arena visibility from strict top-down Game View.
 
-A light-isometric camera is allowed later only if projectile readability remains strong.
+Isometric or tilted cameras are not allowed for the MVP demo, because they confuse scene assembly, projectile debugging, ricochet readability, and Codex/AI follow-up tasks.
 
 ---
 
@@ -165,6 +209,7 @@ Milestone 1:
 - After safe time, a returning projectile can hit its owner.
 - Projectile movement is deterministic custom movement with `SphereCast` checks per physics tick.
 - Projectile ricochets manually from the hit normal using `Vector3.Reflect`.
+- Projectile direction must stay on the XZ plane after ricochet.
 - Ricochets work against arena walls and the center block.
 - Glancing tank hits can ricochet from armor instead of dealing damage.
 - Max ricochets: 3.
@@ -362,6 +407,8 @@ Architecture rules:
 - Entry point only composes dependencies.
 - No lambdas for event subscriptions that need unsubscribe.
 - Private fields use `_camelCase`.
+- World/gameplay logic uses XZ as the gameplay plane and Y as height only.
+- The MVP camera is strict orthographic top-down, not isometric/tilted.
 
 ## 6. Future GDD Features
 
