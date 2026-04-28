@@ -13,6 +13,7 @@ namespace RicochetTanks.Gameplay.Events
         public event Action<ProjectileHitEvent> ProjectileHit;
         public event Action<ProjectileBouncedEvent> ProjectileBounced;
         public event Action<HitResolvedEvent> HitResolved;
+        public event Action<CombatFeedbackEvent> CombatFeedbackRequested;
         public event Action MatchStarted;
         public event Action<MatchFinishedEvent> MatchFinished;
         public event Action RestartRequested;
@@ -47,6 +48,47 @@ namespace RicochetTanks.Gameplay.Events
         public void RaiseHitResolved(HitResolvedEvent hit)
         {
             HitResolved?.Invoke(hit);
+        }
+
+        public void RaiseCombatFeedbackRequested(
+            Vector3 worldPoint,
+            Vector3 worldNormal,
+            TankFacade source,
+            TankFacade target,
+            HitResult result,
+            float damage,
+            float currentHp,
+            float maxHp,
+            ArmorHitInfo armorHit)
+        {
+            var feedback = new CombatFeedbackEvent(
+                worldPoint,
+                worldNormal,
+                source,
+                target,
+                result,
+                damage,
+                currentHp,
+                maxHp,
+                armorHit);
+
+            var handlers = CombatFeedbackRequested;
+            if (handlers == null)
+            {
+                return;
+            }
+
+            foreach (Action<CombatFeedbackEvent> handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler(feedback);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
         }
 
         public void RaiseMatchStarted()

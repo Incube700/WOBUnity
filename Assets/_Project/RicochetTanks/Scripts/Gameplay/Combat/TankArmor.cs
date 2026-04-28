@@ -6,6 +6,7 @@ namespace RicochetTanks.Gameplay.Combat
     public sealed class TankArmor : MonoBehaviour
     {
         private const float CornerNormalMinAxis = 0.6f;
+        private const float SafeMinCos = 0.01f;
 
         [SerializeField] private int _frontArmor = 50;
         [SerializeField] private int _sideArmor = 40;
@@ -28,13 +29,18 @@ namespace RicochetTanks.Gameplay.Combat
             _autoRicochetAngle = config.AutoRicochetAngle;
         }
 
-        public ArmorHitInfo ResolveHitInfo(Vector3 projectileDirection, Vector3 contactNormal, float currentPenetration, float kineticFactor)
+        public ArmorHitInfo ResolveHitInfo(
+            Vector3 projectileDirection,
+            Vector3 contactNormal,
+            float currentPenetration,
+            float kineticFactor)
         {
             var zone = ResolveZone(contactNormal);
             var armor = ResolveArmor(zone);
-            var hitAngle = CalculateHitAngle(projectileDirection, contactNormal);
-            var effectiveArmor = CalculateEffectiveArmor(armor, hitAngle);
-            return new ArmorHitInfo(zone, armor, effectiveArmor, hitAngle, currentPenetration, kineticFactor);
+            var impactDot = CalculateImpactDot(projectileDirection, contactNormal);
+            var hitAngle = CalculateHitAngle(impactDot);
+            var effectiveArmor = CalculateEffectiveArmor(armor, impactDot);
+            return new ArmorHitInfo(zone, armor, effectiveArmor, hitAngle, impactDot, currentPenetration, kineticFactor);
         }
 
         public int ResolveArmor(Vector3 contactNormal)
@@ -42,7 +48,7 @@ namespace RicochetTanks.Gameplay.Combat
             return ResolveArmor(ResolveZone(contactNormal));
         }
 
-        private int ResolveArmor(ArmorZone zone)
+        public int ResolveArmor(ArmorZone zone)
         {
             switch (zone)
             {
@@ -52,35 +58,31 @@ namespace RicochetTanks.Gameplay.Combat
                     return _rearArmor;
                 case ArmorZone.Side:
                     return _sideArmor;
-                case ArmorZone.Corner:
-                    return _sideArmor;
                 default:
                     return _sideArmor;
             }
         }
 
-        private ArmorZone ResolveZone(Vector3 contactNormal)
+        public ArmorZone ResolveZone(Vector3 contactNormal)
         {
-            contactNormal.y = 0f;
+            var localNormal = transform.InverseTransformDirection(contactNormal);
+            localNormal.y = 0f;
 
-            if (contactNormal.sqrMagnitude < 0.001f)
+            if (localNormal.sqrMagnitude < 0.001f)
             {
                 return ArmorZone.Unknown;
             }
 
-            if (IsCornerNormal(contactNormal))
-            {
-                return ArmorZone.Corner;
-            }
+            localNormal.Normalize();
+            var absoluteX = Mathf.Abs(localNormal.x);
+            var absoluteZ = Mathf.Abs(localNormal.z);
 
-            var forwardDot = Vector3.Dot(contactNormal.normalized, transform.forward);
-
-            if (forwardDot > 0.5f)
+            if (absoluteZ >= absoluteX && localNormal.z > 0f)
             {
                 return ArmorZone.Front;
             }
 
-            if (forwardDot < -0.5f)
+            if (absoluteZ >= absoluteX && localNormal.z < 0f)
             {
                 return ArmorZone.Rear;
             }
@@ -97,11 +99,6 @@ namespace RicochetTanks.Gameplay.Combat
                 return false;
             }
 
-            return IsCornerNormal(contactNormal);
-        }
-
-        private bool IsCornerNormal(Vector3 contactNormal)
-        {
             var localNormal = transform.InverseTransformDirection(contactNormal.normalized);
             localNormal.y = 0f;
 
@@ -114,23 +111,21 @@ namespace RicochetTanks.Gameplay.Combat
             return Mathf.Abs(localNormal.x) >= CornerNormalMinAxis && Mathf.Abs(localNormal.z) >= CornerNormalMinAxis;
         }
 
-        private static float CalculateHitAngle(Vector3 projectileDirection, Vector3 contactNormal)
+        private static float CalculateImpactDot(Vector3 projectileDirection, Vector3 contactNormal)
         {
-            projectileDirection.y = 0f;
-            contactNormal.y = 0f;
-
-            if (projectileDirection.sqrMagnitude < 0.001f || contactNormal.sqrMagnitude < 0.001f)
-            {
-                return 0f;
-            }
-
-            return Vector3.Angle(-projectileDirection.normalized, contactNormal.normalized);
+            return projectileDirection.sqrMagnitude < 0.001f || contactNormal.sqrMagnitude < 0.001f
+                ? 1f
+                : Vector3.Dot(-projectileDirection.normalized, contactNormal.normalized);
         }
 
-        private static float CalculateEffectiveArmor(float armor, float hitAngle)
+        private static float CalculateHitAngle(float impactDot)
         {
-            var impactCos = Mathf.Cos(hitAngle * Mathf.Deg2Rad);
-            return armor / Mathf.Max(0.01f, impactCos);
+            return Mathf.Acos(Mathf.Clamp(impactDot, -1f, 1f)) * Mathf.Rad2Deg;
+        }
+
+        private static float CalculateEffectiveArmor(float armor, float impactDot)
+        {
+            return armor / Mathf.Max(Mathf.Clamp01(impactDot), SafeMinCos);
         }
     }
 }

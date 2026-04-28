@@ -1,269 +1,230 @@
-# AI_CONTEXT_GRAPH.md — compact project map
+# AI_CONTEXT_GRAPH.md - compact project map
 
-Purpose: reduce token usage for Codex/AI tools. Read this file before scanning the whole repository.
+Purpose: give future Codex/AI sessions a short, current map before scanning the whole repository.
 
-## Project identity
+## Current Snapshot
 
-- Project: **World of Balance / Мир баланса / Ricochet Tanks**
-- Owner/brand: **BurnHeartGames**
-- Repository: `Incube700/WOBLearnUnity`
-- Engine target: **Unity 6**
-- Prototype genre: strict top-down tank duel with ricochets
-- Current branch for gameplay work: `feature/ricochet-tanks-prototype`
+- Project: **World of Balance / Ricochet Tanks**
+- Repository branch: `main`
+- Engine: Unity 6
+- Main scene: `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity`
+- Prototype root: `Assets/_Project/RicochetTanks/`
+- Current source of truth: `docs/GDD_RU.md`
+- Root `GDD.md` is only a redirect.
+- `docs/GDD.md` is only a compatibility pointer.
+- `graphify-out/GRAPH_REPORT.md` is stale; prefer this file, `docs/GDD_RU.md`, and `docs/TECH_STATUS.md`.
 
-## Current prototype direction
+## Current Playable Goal
 
-Milestone 1 is a first playable tank duel with one canonical scene:
+Open `RicochetTanks_Demo.unity`, press Play, control the player tank, aim/shoot, bounce projectiles from walls, resolve armor hits against the enemy dummy, show HP/combat feedback, trigger win/lose, and restart.
 
-```text
-Open RicochetTanks_Demo.unity -> Play -> move/aim/shoot -> ricochet -> damage/destroy enemy -> restart
-```
+Anything not verified inside Unity should be marked **Needs Manual Unity Check**.
 
-The active prototype is isolated under:
-
-```text
-Assets/_Project/RicochetTanks/
-```
-
-## Scene graph
+## Scene Graph
 
 ```text
 RicochetTanks_Demo.unity
   SceneContext / GameplayEntryPoint
-  ArenaRoot/Floor/Walls/Obstacles
-  SpawnPoints/PlayerSpawnPoint
-  SpawnPoints/EnemySpawnPoint
+  ArenaRoot
+    Floor
+    Walls
+    Obstacles
+  SpawnPoints
+    PlayerSpawnPoint
+    EnemySpawnPoint
   PlayerTank
   EnemyDummyTank
   CameraRig
   GameplayCanvas
-
-Sandbox.unity
-  SandboxBootstrapper (legacy fallback, scene object required)
-  SandboxSceneBuilder
-  DesktopInputReader
-  ProjectileFactory
-  Player TankFacade
-  Enemy Dummy TankFacade
-  SandboxHudView
-  SandboxHudPresenter
-  SandboxMatchController
+  CombatFeedbackRoot (resolved/created by GameplayEntryPoint when needed)
 ```
 
-`Sandbox.unity` is now a procedural fallback. Runtime auto-load/auto-create is disabled. `RicochetTanks_Demo.unity` is the primary editable scene; regenerate editor-friendly assets manually through `Tools/Ricochet Tanks/Generate Editor-Friendly Demo` when needed.
+`RicochetTanks_Demo` is the primary editable/playable scene. `Sandbox.unity` remains a legacy/procedural fallback and is disabled in Build Settings.
 
-## Folder graph
+## Architecture Map
 
-```text
-Assets/_Project/RicochetTanks/
-  Scenes/
-    RicochetTanks_Demo.unity
-    Sandbox.unity
-  Prefabs/
-    PlayerTankPrefab
-    EnemyDummyTankPrefab
-    ProjectilePrefab
-    WallSegmentPrefab
-    ArenaBlockPrefab
-    GameplayCanvasPrefab
-  Configs/
-    PlayerTankConfig
-    EnemyTankConfig
-    ProjectileConfig
-    MatchConfig
-    CameraConfig
-  Scripts/
-    Configs/
-      ArenaConfig.cs
-      TankConfig.cs
-      ProjectileConfig.cs
-      MatchConfig.cs
-      CameraConfig.cs
-      DebugVisualizationConfig.cs
-    Gameplay/
-      Debug/
-        SandboxDebugVisualizer.cs
-      Events/
-        SandboxGameplayEvents.cs
-    Infrastructure/
-      Bootstrap/
-      SceneLoading/
-    Gameplay/
-      Tanks/
-      Projectiles/
-      Combat/
-    Input/
-      Desktop/
-    UI/
-      MainMenu/
-      Sandbox/
-```
-
-## Gameplay object graph
+The project is not DOTS/Entitas. It uses feature-based MonoBehaviours, plain C# presenters/services, and a lightweight ECS-style projectile data/system pipeline.
 
 ```text
-SandboxBootstrapper
-  -> calls SandboxSceneBuilder
-  -> owns SandboxGameplayEvents for this scene instance
-  -> wires SandboxHudPresenter
-  -> wires SandboxMatchController
-  -> wires SandboxDebugVisualizer when debug visualization is enabled
-
-SandboxSceneBuilder
-  -> creates strict top-down camera
-  -> creates 10x10 dark arena, grid, walls, center obstacle
-  -> creates camera/light/HUD/EventSystem
-  -> creates DesktopInputReader
-  -> creates ProjectileFactory
-  -> creates Player and Enemy TankFacade
-
 GameplayEntryPoint
-  -> reads SceneContext references from RicochetTanks_Demo
-  -> applies TankConfig/ProjectileConfig/MatchConfig/CameraConfig
-  -> configures DesktopInputReader, ProjectileFactory, tanks, HUD presenter, match controller
-  -> does not contain gameplay rules
+  -> composition root for RicochetTanks_Demo
+  -> resolves scene refs/configs
+  -> configures ProjectileFactory, tanks, HUD, match controller, combat feedback
+  -> should stay thin; no gameplay rules or animation logic
 
 TankFacade
-  -> TankHealth
-  -> TankArmor
   -> TankMovement
   -> TurretAiming
   -> TankShooter
+  -> TankHealth
+  -> TankArmor
   -> PlayerTankController (enabled only for player)
 
-TankShooter
-  -> ProjectileFactory
-  -> spawns Projectile from muzzle
+PlayerTankController
+  -> reads DesktopInputReader
+  -> passes throttle/turn/aim/fire commands
 
 Projectile
-  -> ignores owner during safe time
-  -> is a Unity runner/facade for ProjectileEntity
-  -> calls ProjectileSystemPipeline in FixedUpdate
-  -> moves deterministically via SphereCast per physics tick
-  -> raises ProjectileHit and ProjectileBounced
-  -> reflects via RicochetCalculator
-  -> asks HitResolver for tank hits
+  -> thin MonoBehaviour runner
+  -> owns ProjectileEntity
+  -> ticks ProjectileSystemPipeline in FixedUpdate
 
-SandboxMatchController
-  -> listens to health deaths and restart events
-  -> raises MatchStarted and MatchFinished
-  -> disables gameplay after match end
+ProjectileSystemPipeline
+  -> SavePreviousProjectilePositionSystem
+  -> ProjectileMovementSystem
+  -> RicochetDetectionSystem
+  -> ProjectileHitDetectionSystem
+  -> RicochetPositionCorrectionSystem
+  -> RicochetMoveDirectionReflectSystem
+  -> RicochetRotationReflectSystem
+  -> RicochetSpendBounceSystem
+  -> RicochetSpeedReduceSystem
+  -> RicochetDamageReduceSystem
+  -> RicochetEventPublishSystem
+  -> RicochetCleanupSystem
+  -> ProjectileLifetimeSystem
+  -> ProjectileDestroySystem
 
-SandboxHudPresenter
-  -> listens to HealthChanged, HitResolved, MatchStarted, MatchFinished
-  -> listens to SandboxHudView.RestartClicked and raises RestartRequested
-  -> updates SandboxHudView
+HitResolver / TankArmor
+  -> armor zone, angle, effective armor, penetration/no-penetration/ricochet
 
-SandboxDebugVisualizer
-  -> listens to ProjectileSpawned / ProjectileHit / ProjectileBounced / HitResolved / Match events
-  -> draws projectile direction, predicted segment, collision normal, bounce count
-  -> labels armor zone, hit angle, penetration, effective armor, enemy FSM state
-  -> draws spawn points and arena bounds
+SandboxGameplayEvents
+  -> ProjectileSpawned
+  -> ProjectileHit
+  -> ProjectileBounced
+  -> HitResolved
+  -> CombatFeedbackRequested
+  -> MatchStarted
+  -> MatchFinished
+  -> RestartRequested
+
+UI/Sandbox
+  -> SandboxHudView
+  -> SandboxHudPresenter
+  -> SandboxMatchController
+
+UI/CombatFeedback
+  -> CombatFeedbackFactory
+  -> CombatFeedbackPresenter
+  -> TankHealthBarView
+  -> TankHealthBarPresenter
+  -> FloatingHitTextView
 ```
 
-## Event contracts
+## Current Implemented Features
 
-```text
-TankHealth: HealthChanged, Died
-ProjectileFactory: ProjectileSpawned
-Projectile: ProjectileHit, ProjectileBounced
-HitResolver: HitResolved
-SandboxMatchController: MatchStarted, MatchFinished, RestartRequested handling
-SandboxHudPresenter: UI listener/writer, no gameplay logic
-SandboxDebugVisualizer: optional debug listener, no gameplay logic
-```
+- Main playable scene asset exists.
+- Player tank and enemy dummy tank exist in scene asset.
+- Arena, walls, obstacles, spawn points, camera rig, and gameplay canvas exist in scene asset.
+- Desktop controls: W/S or arrows for throttle/brake/reverse, A/D or arrows for hull turning, mouse aim, LMB/Space fire, R restart.
+- Tank movement has acceleration, braking/coasting, reverse, controlled Y-only hull turning.
+- Turret aim is independent and projected to the ground plane.
+- Projectile shooting uses muzzle forward direction.
+- Projectiles use previous-position sphere cast for hits.
+- Wall/obstacle ricochet uses reflection by hit normal.
+- Tank armor uses front/side/rear zones from local hit normal.
+- Effective armor uses `armor / max(cos(angle), safeMinCos)`.
+- No-penetration and armor ricochet produce no damage.
+- HP and death are handled by `TankHealth`.
+- Win/lose is handled by `SandboxMatchController`.
+- Combat feedback uses event-driven world HP bars and floating hit text.
 
-## Input graph
+## Current Config Numbers
 
-Desktop first:
+From `Assets/_Project/RicochetTanks/Configs/ProjectileConfig.asset`:
 
-```text
-DesktopInputReader
-  movement: W/S or Up/Down forward/back relative to hull
-  turn: A/D or Left/Right hull rotation
-  aim: mouse world position
-  fire: Left Mouse Button or Space
-  restart: R
-```
+- Projectile speed: `22`
+- Bounce speed multiplier: `0.78`
+- Cooldown: `0.8`
+- Owner safe time: `0.15`
+- Lifetime: `8`
+- Min speed: `5`
+- Radius: `0.18`
+- Flight height: `0.6`
+- Spawn offset: `0.35`
+- Damage: `110`
+- Damage multiplier per bounce: `0.75`
+- Max ricochets: `3`
+- Penetration: `45`
 
-Mobile controls are deferred until after Milestone 1.
+From tank configs:
 
-## Ricochet rules
+- Player HP: `100`
+- Enemy HP: `300`
+- Armor: front `50`, side `40`, rear `10`
+- Player auto ricochet angle: `50.3`
+- Enemy auto ricochet angle: `60`
+- Player max forward speed: `5`
+- Player max reverse speed: `2.5`
+- Player acceleration: `10`
+- Player brake deceleration: `14`
+- Player coast deceleration: `6`
+- Player hull turn speed: `140`
+- Player low-velocity turn speed: `80`
+- Player turret rotation speed: `360`
+- Player input dead zone: `0.05`
 
-Milestone 1:
+From camera/match configs:
 
-```text
-Projectile speed: fast but visible
-Projectile visual: bright sphere + TrailRenderer
-Max ricochets: 3
-Projectile damage cap: 110
-Projectile penetration: 45
-Projectile kinetic factor: 1.0
-Projectile speed multiplier per bounce: 0.78
-Projectile damage multiplier per bounce: 0.75
-Reload time: 0.8 sec
-Bounce speed multiplier: 0.78
-Min projectile speed: 5
-Owner safe time: 0.15 sec
-After safe time: projectile may hit shooter
-Hit wall/obstacle: reflect by collision normal
-Each ricochet reduces damage by 25%
-Glancing tank hit: reflect by tank contact normal at auto ricochet angle 70 degrees
-Projectile collision source: manual SphereCast, not Unity collision callbacks
-After ricochet count exceeded: destroy projectile on next contact
-Hit tank: resolve basic armor, then apply fixed damage on penetration
-```
+- Camera local position: `(0, 14, 0)`
+- Camera local euler angles: `(90, 0, 0)`
+- Camera orthographic size: `10.08`
+- Match labels: `Round: Playing`, `Player Wins`, `Enemy Wins`
 
-Future extension:
+## Do Not Touch Without Reason
 
-```text
-Armor zones: front 50 / side 40 / rear 10
-Hit results: penetrated / ricochet / no penetration / wall ricochet
-Kinetic damage based on projectile speed
-Enemy AI with line of sight and lead aiming
-```
+- Ricochet math and projectile movement systems.
+- Armor balance and hit resolution math.
+- Tank movement/controls.
+- Combat feedback UI behavior.
+- Scene layout and scene generator.
+- Materials/prefabs unless a serialized reference is broken.
+- GDD/README unless the task is documentation sync.
 
-## Coding conventions
+## Important Coding Rules
 
+- Keep systems small and feature-based.
+- Do not put UI logic in gameplay systems.
+- Do not put gameplay logic in views.
+- `GameplayEntryPoint` is a composition root, not a gameplay logic holder.
+- Use named methods for event subscription when unsubscribe is needed.
+- No lambdas for event subscriptions unless stored/disposed safely.
 - Private fields use `_camelCase`.
-- No giant MonoBehaviour.
 - No Singleton.
-- No `FindObjectOfType` spam.
-- Use named event handlers, not disposable anonymous lambdas, when unsubscribe is needed.
-- Views expose events and display methods.
-- Presenters/controllers own wiring.
-- Bootstrap owns scene-level composition.
+- Avoid broad refactors.
+- Do not instantiate UI from `HitResolver` or projectile gameplay math.
+- `SandboxDebugVisualizer` remains debug-only.
 
-## Files AI should read first
+## Known Risks
 
-1. `AGENTS.md` — strict AI rules.
-2. `README.md` — public project description and how to test.
-3. `GDD.md` — design direction.
-4. This file — compact graph.
-5. GitHub issue `#9` if accessible.
+- Manual Unity Play Mode verification is still required.
+- HP bars/floating hit text/restart duplication need manual check.
+- Debug logs can spam Console if enabled in `DebugLogConfig`: `[SHOT]`, `[HIT]`, `[BOUNCE]`, `[ARMOR]`.
+- Materials may need visual polish if Unity shows broken/magenta visuals.
+- Scene/prefab/config edits made in Unity must be saved and committed.
+- Enemy AI is not implemented; enemy is a dummy target.
+- Main menu/bootstrap scene flow is not the current reliable launch path; open `RicochetTanks_Demo` directly.
+- There were accidental `.zip` archive assets under `Assets`; they should stay removed.
 
-## Milestone priority
+## Next Safe Tasks
 
-1. Compile in Unity.
-2. RicochetTanks_Demo opens directly and uses scene references/configs.
-2b. RicochetTanks_Demo opens as editable editor-friendly scene.
-3. Player movement and turret aim.
-4. Visible shooting.
-5. Ricochet.
-6. Enemy damage/death.
-7. HUD and restart.
-8. Mobile controls.
-9. Enemy shooting/AI.
+1. Manually verify HP bars, floating hit text, and restart in Unity.
+2. Tune/use `DebugLogConfig` so logs stay useful without flooding the Console.
+3. Clean visual/material readability.
+4. Stabilize arena size/layout only if the scene is wrong.
+5. Improve simple 3D tank visual prefabs.
+6. Add simple enemy behavior as a separate feature.
+7. Polish main menu/restart flow.
+8. Add mobile controls later.
 
-## Anti-goals
+## Files To Read First
 
-Do not spend time on:
-
-- polished art;
-- complex AI before Milestone 1;
-- full kinetic armor/penetration simulation before first playable;
-- multiplayer;
-- advanced save system;
-- monetization;
-- over-engineered DI container;
-- rewriting unrelated homework/course code.
+1. `AGENTS.md`
+2. `README.md`
+3. `docs/GDD_RU.md`
+4. `docs/TECH_STATUS.md`
+5. `AI_CONTEXT_GRAPH.md`
+6. `Assets/_Project/RicochetTanks/Scripts/Infrastructure/Bootstrap/GameplayEntryPoint.cs`
+7. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectiles/Systems/ProjectileSystemPipeline.cs`
+8. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Combat/HitResolver.cs`
+9. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Combat/TankArmor.cs`

@@ -1,5 +1,7 @@
 # Graph Report - .  (2026-04-26)
 
+> Status note, 2026-04-28: this generated graph report is stale and predates the current playable `RicochetTanks_Demo` status sync. Use `AI_CONTEXT_GRAPH.md` and `docs/GDD.md` as the current project map until Graphify is regenerated.
+
 ## Corpus Check
 - 43 files · ~320,362 words
 - Verdict: corpus is large enough that graph structure adds value.

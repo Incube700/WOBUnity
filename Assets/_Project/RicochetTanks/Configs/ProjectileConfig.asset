@@ -20,6 +20,7 @@ MonoBehaviour:
   _lifetime: 8
   _minSpeed: 5
   _radius: 0.18
+  _flightHeight: 0.6
   _spawnOffset: 0.35
   _positionCorrectionSkin: 0.01
   _trailTime: 0.25
@@ -30,7 +31,7 @@ MonoBehaviour:
   _kineticFactor: 1
   _reflectableMask:
     serializedVersion: 2
-    m_Bits: 2304
+    m_Bits: 2305
   _hittableMask:
     serializedVersion: 2
     m_Bits: 512

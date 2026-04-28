@@ -20,13 +20,11 @@ namespace RicochetTanks.Gameplay.Combat
             SandboxGameplayEvents gameplayEvents,
             out TankFacade target,
             out HitResult result,
-            out float appliedDamage,
-            out ArmorHitInfo armorHit)
+            out HitResolvedEvent resolvedHit)
         {
             target = collider.GetComponentInParent<TankFacade>();
             result = HitResult.NoPen;
-            appliedDamage = 0f;
-            armorHit = new ArmorHitInfo(ArmorZone.Unknown, 0, 0, 0, currentPenetration, kineticFactor);
+            resolvedHit = default;
 
             if (target == null || target.Health == null || !target.Health.IsAlive)
             {
@@ -39,28 +37,30 @@ namespace RicochetTanks.Gameplay.Combat
             }
 
             var armor = target.GetComponent<TankArmor>();
-            armorHit = armor != null
+            var armorHit = armor != null
                 ? armor.ResolveHitInfo(projectileDirection, contactNormal, currentPenetration, kineticFactor)
-                : new ArmorHitInfo(ArmorZone.Unknown, 0, 0, CalculateHitAngle(projectileDirection, contactNormal), currentPenetration, kineticFactor);
+                : CreateUnarmoredHitInfo(projectileDirection, contactNormal, currentPenetration, kineticFactor);
 
             if (IsRicochet(armorHit, contactNormal, armor))
             {
                 result = HitResult.Ricochet;
-                gameplayEvents?.RaiseHitResolved(new HitResolvedEvent(source, target, result, 0, target.Health.CurrentHp, target.Health.MaxHp, armorHit));
+                resolvedHit = new HitResolvedEvent(source, target, result, 0f, target.Health.CurrentHp, target.Health.MaxHp, armorHit);
+                gameplayEvents?.RaiseHitResolved(resolvedHit);
                 return true;
             }
 
             if (armor != null && currentPenetration < armorHit.EffectiveArmor)
             {
                 result = HitResult.NoPen;
-                gameplayEvents?.RaiseHitResolved(new HitResolvedEvent(source, target, result, 0, target.Health.CurrentHp, target.Health.MaxHp, armorHit));
+                resolvedHit = new HitResolvedEvent(source, target, result, 0f, target.Health.CurrentHp, target.Health.MaxHp, armorHit);
+                gameplayEvents?.RaiseHitResolved(resolvedHit);
                 return true;
             }
 
             result = HitResult.Penetrated;
-            appliedDamage = damage;
-            target.Health.ApplyDamage(appliedDamage);
-            gameplayEvents?.RaiseHitResolved(new HitResolvedEvent(source, target, result, appliedDamage, target.Health.CurrentHp, target.Health.MaxHp, armorHit));
+            target.Health.ApplyDamage(damage);
+            resolvedHit = new HitResolvedEvent(source, target, result, damage, target.Health.CurrentHp, target.Health.MaxHp, armorHit);
+            gameplayEvents?.RaiseHitResolved(resolvedHit);
             return true;
         }
 
@@ -71,7 +71,7 @@ namespace RicochetTanks.Gameplay.Combat
                 return true;
             }
 
-            return armorHit.HitAngle >= ResolveAutoRicochetAngle(armor);
+            return armorHit.ImpactDot > 0f && armorHit.HitAngle >= ResolveAutoRicochetAngle(armor);
         }
 
         private static float ResolveAutoRicochetAngle(TankArmor armor)
@@ -79,17 +79,17 @@ namespace RicochetTanks.Gameplay.Combat
             return armor != null ? armor.AutoRicochetAngle : DefaultAutoRicochetAngle;
         }
 
-        private static float CalculateHitAngle(Vector3 projectileDirection, Vector3 contactNormal)
+        private static ArmorHitInfo CreateUnarmoredHitInfo(
+            Vector3 projectileDirection,
+            Vector3 contactNormal,
+            float currentPenetration,
+            float kineticFactor)
         {
-            projectileDirection.y = 0f;
-            contactNormal.y = 0f;
-
-            if (projectileDirection.sqrMagnitude < 0.001f || contactNormal.sqrMagnitude < 0.001f)
-            {
-                return 0f;
-            }
-
-            return Vector3.Angle(-projectileDirection.normalized, contactNormal.normalized);
+            var impactDot = projectileDirection.sqrMagnitude < 0.001f || contactNormal.sqrMagnitude < 0.001f
+                ? 1f
+                : Vector3.Dot(-projectileDirection.normalized, contactNormal.normalized);
+            var hitAngle = Mathf.Acos(Mathf.Clamp(impactDot, -1f, 1f)) * Mathf.Rad2Deg;
+            return new ArmorHitInfo(ArmorZone.Unknown, 0f, 0f, hitAngle, impactDot, currentPenetration, kineticFactor);
         }
     }
 }

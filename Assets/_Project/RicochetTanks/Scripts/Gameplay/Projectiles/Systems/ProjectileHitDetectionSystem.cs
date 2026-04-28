@@ -1,10 +1,14 @@
 using RicochetTanks.Gameplay.Combat;
+using RicochetTanks.Gameplay.Tanks;
 using UnityEngine;
 
 namespace RicochetTanks.Gameplay.Projectiles.Systems
 {
     public sealed class ProjectileHitDetectionSystem : IProjectileFixedSystem
     {
+        private const float DebugRayDuration = 1.25f;
+        private const float DebugRayLength = 1.5f;
+
         public void Tick(ProjectileEntity entity, float deltaTime)
         {
             if (entity.IsDestroyRequested || !entity.RicochetRequest.IsActive)
@@ -26,18 +30,27 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
                     entity.GameplayEvents,
                     out var target,
                     out var hitResult,
-                    out var appliedDamage,
-                    out var armorHit))
+                    out var resolvedHit))
             {
-                if (hitResult == HitResult.Ricochet || hitResult == HitResult.NoPen)
-                {
-                    if (entity.GameplayEvents != null && entity.GameplayEvents.ShouldLogHits)
-                    {
-                        Debug.Log(hitResult == HitResult.Ricochet
-                            ? $"[HIT] target={target.name} result=Ricochet angle={Format(armorHit.HitAngle)}"
-                            : FormatNoDamageHit(target.name, armorHit));
-                    }
+                entity.GameplayEvents?.RaiseCombatFeedbackRequested(
+                    request.HitPoint,
+                    request.HitNormal,
+                    resolvedHit.Source,
+                    resolvedHit.Target,
+                    resolvedHit.Result,
+                    resolvedHit.Damage,
+                    resolvedHit.CurrentHp,
+                    resolvedHit.MaxHp,
+                    resolvedHit.ArmorHit);
 
+                if (entity.GameplayEvents != null && entity.GameplayEvents.ShouldLogHits)
+                {
+                    LogArmorHit(target, hitResult, resolvedHit, request.HitPoint, request.HitNormal, request.IncomingDirection);
+                    Debug.Log(FormatHit(target.name, hitResult, resolvedHit));
+                }
+
+                if (hitResult == HitResult.Ricochet)
+                {
                     if (!entity.HasBouncesLeft)
                     {
                         entity.RequestDestroy();
@@ -46,11 +59,6 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
                     }
 
                     return;
-                }
-
-                if (entity.GameplayEvents != null && entity.GameplayEvents.ShouldLogHits)
-                {
-                    Debug.Log(FormatDamageHit(target.name, hitResult, appliedDamage, armorHit, target.Health.CurrentHp, target.Health.MaxHp));
                 }
 
                 entity.RequestDestroy();
@@ -77,6 +85,12 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
             return value.ToString("0.##");
         }
 
+        private static string FormatHit(string targetName, HitResult hitResult, HitResolvedEvent resolvedHit)
+        {
+            var armorHit = resolvedHit.ArmorHit;
+            return $"[HIT] target={targetName} zone={armorHit.Zone} result={FormatHitResult(hitResult)} penetration={Format(armorHit.Penetration)} armor={Format(armorHit.Armor)} effectiveArmor={Format(armorHit.EffectiveArmor)} damage={Format(resolvedHit.Damage)} hp={Format(resolvedHit.CurrentHp)}/{Format(resolvedHit.MaxHp)}";
+        }
+
         private static string FormatHitResult(HitResult hitResult)
         {
             if (hitResult == HitResult.ReducedDamage)
@@ -87,14 +101,51 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
             return hitResult == HitResult.NoPen ? "NoPenetration" : hitResult.ToString();
         }
 
-        private static string FormatNoDamageHit(string targetName, ArmorHitInfo armorHit)
+        private static void LogArmorHit(
+            TankFacade target,
+            HitResult result,
+            HitResolvedEvent resolvedHit,
+            Vector3 hitPoint,
+            Vector3 hitNormal,
+            Vector3 incomingDirection)
         {
-            return $"[HIT] target={targetName} zone={armorHit.Zone} result=NoPenetration penetration={Format(armorHit.Penetration)} armor={Format(armorHit.Armor)} effectiveArmor={Format(armorHit.EffectiveArmor)} damage=0";
+            var armorHit = resolvedHit.ArmorHit;
+            var localNormal = target != null ? target.transform.InverseTransformDirection(hitNormal) : hitNormal;
+            var targetName = target != null ? target.name : "null";
+
+            Debug.Log(
+                $"[ARMOR] target={targetName} zone={armorHit.Zone} result={result} angle={Format(armorHit.HitAngle)} dot={Format(armorHit.ImpactDot)} " +
+                $"penetration={Format(armorHit.Penetration)} armor={Format(armorHit.Armor)} effectiveArmor={Format(armorHit.EffectiveArmor)} damage={Format(resolvedHit.Damage)} " +
+                $"incoming={FormatVector(incomingDirection)} normal={FormatVector(hitNormal)} localNormal={FormatVector(localNormal)}");
+
+            DrawArmorDebugRays(hitPoint, hitNormal, incomingDirection);
         }
 
-        private static string FormatDamageHit(string targetName, HitResult hitResult, float appliedDamage, ArmorHitInfo armorHit, float currentHp, float maxHp)
+        private static void DrawArmorDebugRays(Vector3 hitPoint, Vector3 hitNormal, Vector3 incomingDirection)
         {
-            return $"[HIT] target={targetName} zone={armorHit.Zone} result={FormatHitResult(hitResult)} penetration={Format(armorHit.Penetration)} armor={Format(armorHit.Armor)} effectiveArmor={Format(armorHit.EffectiveArmor)} damage={Format(appliedDamage)} hp={Format(currentHp)}/{Format(maxHp)}";
+            if (hitNormal.sqrMagnitude >= 0.001f)
+            {
+                Debug.DrawRay(hitPoint, hitNormal.normalized * DebugRayLength, Color.blue, DebugRayDuration);
+            }
+
+            if (incomingDirection.sqrMagnitude < 0.001f)
+            {
+                return;
+            }
+
+            var incoming = incomingDirection.normalized;
+            Debug.DrawRay(hitPoint, incoming * DebugRayLength, Color.red, DebugRayDuration);
+
+            if (hitNormal.sqrMagnitude >= 0.001f)
+            {
+                var reflected = Vector3.Reflect(incoming, hitNormal.normalized);
+                Debug.DrawRay(hitPoint, reflected * DebugRayLength, Color.green, DebugRayDuration);
+            }
+        }
+
+        private static string FormatVector(Vector3 value)
+        {
+            return $"({Format(value.x)},{Format(value.y)},{Format(value.z)})";
         }
     }
 }

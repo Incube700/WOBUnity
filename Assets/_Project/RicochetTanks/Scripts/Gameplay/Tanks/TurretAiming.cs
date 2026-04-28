@@ -8,6 +8,8 @@ namespace RicochetTanks.Gameplay.Tanks
         [SerializeField] private Camera _camera;
         [SerializeField] private float _rotationSpeed = 220f;
 
+        private bool _didWarnMissingTurret;
+
         private void Awake()
         {
             if (_camera == null)
@@ -26,6 +28,7 @@ namespace RicochetTanks.Gameplay.Tanks
             _turret = turret;
             _camera = targetCamera;
             _rotationSpeed = rotationSpeed;
+            _didWarnMissingTurret = false;
         }
 
         public void AimAtMouse()
@@ -55,6 +58,7 @@ namespace RicochetTanks.Gameplay.Tanks
         {
             if (_turret == null)
             {
+                WarnMissingTurret();
                 return;
             }
 
@@ -66,6 +70,17 @@ namespace RicochetTanks.Gameplay.Tanks
                 var targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
                 _turret.rotation = Quaternion.RotateTowards(_turret.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
             }
+        }
+
+        private void WarnMissingTurret()
+        {
+            if (_didWarnMissingTurret)
+            {
+                return;
+            }
+
+            Debug.LogWarning($"{nameof(TurretAiming)} on {name} has no turret pivot assigned.");
+            _didWarnMissingTurret = true;
         }
     }
 }
