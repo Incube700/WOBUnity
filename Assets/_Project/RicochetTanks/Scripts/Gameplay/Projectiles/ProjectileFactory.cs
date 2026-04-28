@@ -66,7 +66,11 @@ namespace RicochetTanks.Gameplay.Projectiles
             projectile.Initialize(direction);
 
             _gameplayEvents?.RaiseProjectileSpawned(projectile, owner, projectileObject.transform.position, direction, _config.Speed, _config.Damage, _config.MaxRicochets);
-            Debug.Log($"[SHOT] owner={owner.name} direction={direction} speed={_config.Speed} damage={_config.Damage:0.##}");
+            if (_gameplayEvents != null && _gameplayEvents.ShouldLogShots)
+            {
+                Debug.Log($"[SHOT] owner={owner.name} direction={direction} speed={_config.Speed} damage={_config.Damage:0.##}");
+            }
+
             return projectile;
         }
 
@@ -107,7 +111,11 @@ namespace RicochetTanks.Gameplay.Projectiles
             trail.endWidth = 0f;
             trail.startColor = new Color(1f, 0.95f, 0.25f, 1f);
             trail.endColor = new Color(1f, 0.25f, 0.05f, 0f);
-            trail.material = new Material(Shader.Find("Sprites/Default"));
+            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color");
+            if (shader != null)
+            {
+                trail.material = new Material(shader);
+            }
         }
     }
 }

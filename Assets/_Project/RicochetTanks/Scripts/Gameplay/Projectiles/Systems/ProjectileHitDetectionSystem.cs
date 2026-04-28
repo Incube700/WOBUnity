@@ -31,9 +31,12 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
             {
                 if (hitResult == HitResult.Ricochet || hitResult == HitResult.NoPen)
                 {
-                    Debug.Log(hitResult == HitResult.Ricochet
-                        ? $"[HIT] target={target.name} result=Ricochet angle={Format(armorHit.HitAngle)}"
-                        : FormatNoDamageHit(target.name, armorHit));
+                    if (entity.GameplayEvents != null && entity.GameplayEvents.ShouldLogHits)
+                    {
+                        Debug.Log(hitResult == HitResult.Ricochet
+                            ? $"[HIT] target={target.name} result=Ricochet angle={Format(armorHit.HitAngle)}"
+                            : FormatNoDamageHit(target.name, armorHit));
+                    }
 
                     if (!entity.HasBouncesLeft)
                     {
@@ -45,7 +48,11 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
                     return;
                 }
 
-                Debug.Log(FormatDamageHit(target.name, hitResult, appliedDamage, armorHit, target.Health.CurrentHp, target.Health.MaxHp));
+                if (entity.GameplayEvents != null && entity.GameplayEvents.ShouldLogHits)
+                {
+                    Debug.Log(FormatDamageHit(target.name, hitResult, appliedDamage, armorHit, target.Health.CurrentHp, target.Health.MaxHp));
+                }
+
                 entity.RequestDestroy();
                 ClearRicochetRequest(entity);
                 return;

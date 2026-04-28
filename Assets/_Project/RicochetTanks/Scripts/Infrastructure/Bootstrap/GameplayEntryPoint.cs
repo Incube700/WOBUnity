@@ -21,6 +21,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         [SerializeField] private TankConfig _playerTankConfig;
         [SerializeField] private TankConfig _enemyTankConfig;
         [SerializeField] private ProjectileConfig _projectileConfig;
+        [SerializeField] private DebugLogConfig _debugLogConfig;
 
         [Header("Scene References")]
         [SerializeField] private Transform _arenaRoot;
@@ -60,7 +61,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             ResolveSceneReferences();
             ApplyCameraConfig();
 
-            _gameplayEvents = new SandboxGameplayEvents();
+            _gameplayEvents = new SandboxGameplayEvents(_debugLogConfig);
             EnsureInputReader();
             EnsureProjectileFactory();
             ConfigureTank(_playerTank, _playerSpawnPoint, _playerTankConfig, true);

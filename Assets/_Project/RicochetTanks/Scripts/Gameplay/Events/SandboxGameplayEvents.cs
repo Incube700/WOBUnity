@@ -1,7 +1,8 @@
+using System;
+using RicochetTanks.Configs;
 using RicochetTanks.Gameplay.Combat;
 using RicochetTanks.Gameplay.Projectiles;
 using RicochetTanks.Gameplay.Tanks;
-using System;
 using UnityEngine;
 
 namespace RicochetTanks.Gameplay.Events
@@ -15,6 +16,18 @@ namespace RicochetTanks.Gameplay.Events
         public event Action MatchStarted;
         public event Action<MatchFinishedEvent> MatchFinished;
         public event Action RestartRequested;
+
+        private readonly DebugLogConfig _debugLogConfig;
+
+        public SandboxGameplayEvents(DebugLogConfig debugLogConfig = null)
+        {
+            _debugLogConfig = debugLogConfig;
+        }
+
+        public bool ShouldLogShots => _debugLogConfig != null && _debugLogConfig.LogShots;
+        public bool ShouldLogHits => _debugLogConfig != null && _debugLogConfig.LogHits;
+        public bool ShouldLogBounces => _debugLogConfig != null && _debugLogConfig.LogBounces;
+        public bool ShouldLogRounds => _debugLogConfig == null || _debugLogConfig.LogRounds;
 
         public void RaiseProjectileSpawned(Projectile projectile, TankFacade owner, Vector3 position, Vector3 direction, float speed, float damage, int bouncesLeft)
         {

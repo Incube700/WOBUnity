@@ -145,7 +145,10 @@ namespace RicochetTanks.UI.Sandbox
 
             var label = ResolveResultLabel(result);
             _gameplayEvents?.RaiseMatchFinished(result, label);
-            Debug.Log($"[ROUND] result={label}");
+            if (_gameplayEvents == null || _gameplayEvents.ShouldLogRounds)
+            {
+                Debug.Log($"[ROUND] result={label}");
+            }
         }
 
         private string ResolveResultLabel(MatchResult result)
