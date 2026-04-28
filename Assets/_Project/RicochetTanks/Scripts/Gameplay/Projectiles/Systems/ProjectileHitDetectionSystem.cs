@@ -24,8 +24,20 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
                     request.HitNormal,
                     entity.GameplayEvents,
                     out var target,
-                    out var hitResult))
+                    out var hitResult,
+                    out var resolvedHit))
             {
+                entity.GameplayEvents?.RaiseCombatFeedbackRequested(
+                    request.HitPoint,
+                    request.HitNormal,
+                    resolvedHit.Source,
+                    resolvedHit.Target,
+                    resolvedHit.Result,
+                    resolvedHit.Damage,
+                    resolvedHit.CurrentHp,
+                    resolvedHit.MaxHp,
+                    resolvedHit.ArmorHit);
+
                 if (hitResult == HitResult.Ricochet)
                 {
                     if (!entity.HasBouncesLeft)

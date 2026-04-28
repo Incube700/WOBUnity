@@ -18,10 +18,12 @@ namespace RicochetTanks.Gameplay.Combat
             Vector3 contactNormal,
             SandboxGameplayEvents gameplayEvents,
             out TankFacade target,
-            out HitResult result)
+            out HitResult result,
+            out HitResolvedEvent resolvedHit)
         {
             target = collider.GetComponentInParent<TankFacade>();
             result = HitResult.NoPen;
+            resolvedHit = default;
 
             if (target == null || target.Health == null || !target.Health.IsAlive)
             {
@@ -41,20 +43,23 @@ namespace RicochetTanks.Gameplay.Combat
             if (IsRicochet(projectileDirection, contactNormal, armor))
             {
                 result = HitResult.Ricochet;
-                gameplayEvents?.RaiseHitResolved(new HitResolvedEvent(source, target, result, 0, target.Health.CurrentHp, target.Health.MaxHp, armorHit));
+                resolvedHit = new HitResolvedEvent(source, target, result, 0, target.Health.CurrentHp, target.Health.MaxHp, armorHit);
+                gameplayEvents?.RaiseHitResolved(resolvedHit);
                 return true;
             }
 
             if (armor != null && penetration < armorHit.EffectiveArmor)
             {
                 result = HitResult.NoPen;
-                gameplayEvents?.RaiseHitResolved(new HitResolvedEvent(source, target, result, 0, target.Health.CurrentHp, target.Health.MaxHp, armorHit));
+                resolvedHit = new HitResolvedEvent(source, target, result, 0, target.Health.CurrentHp, target.Health.MaxHp, armorHit);
+                gameplayEvents?.RaiseHitResolved(resolvedHit);
                 return true;
             }
 
             result = HitResult.Penetrated;
             target.Health.ApplyDamage(damage);
-            gameplayEvents?.RaiseHitResolved(new HitResolvedEvent(source, target, result, damage, target.Health.CurrentHp, target.Health.MaxHp, armorHit));
+            resolvedHit = new HitResolvedEvent(source, target, result, damage, target.Health.CurrentHp, target.Health.MaxHp, armorHit);
+            gameplayEvents?.RaiseHitResolved(resolvedHit);
             return true;
         }
 

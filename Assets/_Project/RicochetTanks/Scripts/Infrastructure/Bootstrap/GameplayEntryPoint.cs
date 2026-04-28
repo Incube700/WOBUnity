@@ -7,6 +7,7 @@ using RicochetTanks.Gameplay.Tanks;
 using RicochetTanks.Infrastructure.SceneLoading;
 using RicochetTanks.Input.Desktop;
 using RicochetTanks.UI;
+using RicochetTanks.UI.CombatFeedback;
 using RicochetTanks.UI.Sandbox;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,6 +34,11 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         [SerializeField] private Canvas _gameplayCanvas;
         [SerializeField] private SandboxHudView _hudView;
 
+        [Header("Combat Feedback")]
+        [SerializeField] private GameObject _worldHealthBarPrefab;
+        [SerializeField] private GameObject _floatingHitTextPrefab;
+        [SerializeField] private Transform _combatFeedbackRoot;
+
         [Header("Runtime Services")]
         [SerializeField] private DesktopInputReader _inputReader;
         [SerializeField] private ProjectileFactory _projectileFactory;
@@ -42,6 +48,10 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         private SandboxGameplayEvents _gameplayEvents;
         private SandboxHudPresenter _hudPresenter;
         private SandboxMatchController _matchController;
+        private CombatFeedbackFactory _combatFeedbackFactory;
+        private CombatFeedbackPresenter _combatFeedbackPresenter;
+        private TankHealthBarPresenter _playerHealthBarPresenter;
+        private TankHealthBarPresenter _enemyHealthBarPresenter;
 
         private void Start()
         {
@@ -50,6 +60,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
 
         private void OnDestroy()
         {
+            DisposeCombatFeedback();
             _hudPresenter?.Dispose();
             _hudPresenter = null;
         }
@@ -65,6 +76,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             EnsureProjectileFactory();
             ConfigureTank(_playerTank, _playerSpawnPoint, _playerTankConfig, true);
             ConfigureTank(_enemyDummyTank, _enemySpawnPoint, _enemyTankConfig, false);
+            BindCombatFeedback();
             BindHud();
             BindMatch();
             UiFactory.EnsureEventSystem("Gameplay EventSystem");
@@ -90,6 +102,8 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             _camera = _camera != null ? _camera : GetComponentInChildren<Camera>(true);
             _gameplayCanvas = _gameplayCanvas != null ? _gameplayCanvas : GetComponentInChildren<Canvas>(true);
             _hudView = _hudView != null ? _hudView : GetComponentInChildren<SandboxHudView>(true);
+            _combatFeedbackRoot = _combatFeedbackRoot != null ? _combatFeedbackRoot : FindDescendant(transform, "CombatFeedbackRoot");
+            ResolveCombatFeedbackPrefabFallbacks();
         }
 
         private void ApplyCameraConfig()
@@ -208,6 +222,64 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 _gameplayEvents,
                 RequestRestart,
                 _matchConfig);
+        }
+
+        private void BindCombatFeedback()
+        {
+            DisposeCombatFeedback();
+            EnsureCombatFeedbackRoot();
+
+            _combatFeedbackFactory = new CombatFeedbackFactory(_worldHealthBarPrefab, _floatingHitTextPrefab, _combatFeedbackRoot, _camera);
+
+            var playerHealthBar = _combatFeedbackFactory.CreateHealthBar(_playerTank);
+            if (playerHealthBar != null)
+            {
+                _playerHealthBarPresenter = new TankHealthBarPresenter(playerHealthBar, _playerTank.Health);
+            }
+
+            var enemyHealthBar = _combatFeedbackFactory.CreateHealthBar(_enemyDummyTank);
+            if (enemyHealthBar != null)
+            {
+                _enemyHealthBarPresenter = new TankHealthBarPresenter(enemyHealthBar, _enemyDummyTank.Health);
+            }
+
+            _combatFeedbackPresenter = new CombatFeedbackPresenter(_gameplayEvents, _combatFeedbackFactory);
+        }
+
+        private void DisposeCombatFeedback()
+        {
+            _combatFeedbackPresenter?.Dispose();
+            _playerHealthBarPresenter?.Dispose();
+            _enemyHealthBarPresenter?.Dispose();
+            _combatFeedbackPresenter = null;
+            _playerHealthBarPresenter = null;
+            _enemyHealthBarPresenter = null;
+            _combatFeedbackFactory = null;
+        }
+
+        private void EnsureCombatFeedbackRoot()
+        {
+            if (_combatFeedbackRoot != null)
+            {
+                return;
+            }
+
+            _combatFeedbackRoot = CreateChild(transform, "CombatFeedbackRoot", Vector3.zero);
+        }
+
+        private void ResolveCombatFeedbackPrefabFallbacks()
+        {
+#if UNITY_EDITOR
+            if (_worldHealthBarPrefab == null)
+            {
+                _worldHealthBarPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/RicochetTanks/Prefabs/UI/WorldHealthBarPrefab.prefab");
+            }
+
+            if (_floatingHitTextPrefab == null)
+            {
+                _floatingHitTextPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/RicochetTanks/Prefabs/UI/FloatingHitTextPrefab.prefab");
+            }
+#endif
         }
 
         private SandboxHudView CreateHudView()
