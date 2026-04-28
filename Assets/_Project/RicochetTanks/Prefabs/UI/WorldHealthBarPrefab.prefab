@@ -121,6 +121,7 @@ MonoBehaviour:
   _target: {fileID: 0}
   _worldOffset: {x: 0, y: 1.35, z: 0}
   _canvas: {fileID: 4660516858776478957}
+  _fillRect: {fileID: 5149798597308626126}
   _fillImage: {fileID: 1712967585996061699}
   _hpText: {fileID: 4263558880688543627}
 --- !u!1 &5045077666271142856
@@ -313,7 +314,7 @@ RectTransform:
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1677946284475896354
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -343,7 +344,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 0}
-  m_Type: 3
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0

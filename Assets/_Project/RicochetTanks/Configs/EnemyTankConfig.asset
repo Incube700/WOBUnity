@@ -19,4 +19,4 @@ MonoBehaviour:
   _frontArmor: 50
   _sideArmor: 40
   _rearArmor: 10
-  _autoRicochetAngle: 70
+  _autoRicochetAngle: 60

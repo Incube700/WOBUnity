@@ -15,7 +15,7 @@ MonoBehaviour:
   _orthographic: 1
   _localPosition: {x: 0, y: 14, z: 0}
   _localEulerAngles: {x: 90, y: 0, z: 0}
-  _orthographicSize: 10.08
+  _orthographicSize: 8.59
   _nearClipPlane: 0.1
   _farClipPlane: 50
   _backgroundColor: {r: 0.04, g: 0.05, b: 0.055, a: 1}

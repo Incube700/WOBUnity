@@ -49,7 +49,9 @@ namespace RicochetTanks.Gameplay.Projectiles
                 : GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
             projectileObject.name = "Projectile";
-            projectileObject.transform.position = muzzle.position + direction * _config.SpawnOffset;
+            var spawnPosition = muzzle.position + direction * _config.SpawnOffset;
+            spawnPosition.y = _config.FlightHeight;
+            projectileObject.transform.position = spawnPosition;
             projectileObject.transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
             projectileObject.transform.localScale = Vector3.one * (_config.Radius * 2f);
 

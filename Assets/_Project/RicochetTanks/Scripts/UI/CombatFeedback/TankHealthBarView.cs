@@ -9,15 +9,17 @@ namespace RicochetTanks.UI.CombatFeedback
         [SerializeField] private Transform _target;
         [SerializeField] private Vector3 _worldOffset = new Vector3(0f, 1.35f, 0f);
         [SerializeField] private Canvas _canvas;
+        [SerializeField] private RectTransform _fillRect;
         [SerializeField] private Image _fillImage;
         [SerializeField] private Text _hpText;
 
         private Camera _camera;
+        private bool _didWarnMissingFill;
 
         private void Awake()
         {
             ResolveReferences();
-            PrepareFillImage();
+            PrepareFill();
         }
 
         private void LateUpdate()
@@ -29,9 +31,10 @@ namespace RicochetTanks.UI.CombatFeedback
         public void Configure(Image fillImage, Text hpText, Canvas canvas)
         {
             _fillImage = fillImage;
+            _fillRect = fillImage != null ? fillImage.rectTransform : null;
             _hpText = hpText;
             _canvas = canvas;
-            PrepareFillImage();
+            PrepareFill();
         }
 
         public void SetCamera(Camera camera)
@@ -56,8 +59,23 @@ namespace RicochetTanks.UI.CombatFeedback
             var safeMaxHp = Mathf.Max(1f, maxHp);
             var normalizedHp = Mathf.Clamp01(currentHp / safeMaxHp);
 
+            if (_fillRect == null && _fillImage != null)
+            {
+                _fillRect = _fillImage.rectTransform;
+            }
+
+            if (_fillRect != null)
+            {
+                _fillRect.anchorMax = new Vector2(normalizedHp, 1f);
+            }
+            else
+            {
+                WarnMissingFill();
+            }
+
             if (_fillImage != null)
             {
+                _fillImage.type = Image.Type.Simple;
                 _fillImage.fillAmount = normalizedHp;
             }
 
@@ -99,22 +117,54 @@ namespace RicochetTanks.UI.CombatFeedback
                 _fillImage = FindImage("Fill");
             }
 
+            if (_fillRect == null && _fillImage != null)
+            {
+                _fillRect = _fillImage.rectTransform;
+            }
+
             if (_hpText == null)
             {
                 _hpText = GetComponentInChildren<Text>(true);
             }
         }
 
-        private void PrepareFillImage()
+        private void PrepareFill()
         {
-            if (_fillImage == null)
+            if (_fillRect == null && _fillImage != null)
+            {
+                _fillRect = _fillImage.rectTransform;
+            }
+
+            if (_fillRect != null)
+            {
+                _fillRect.anchorMin = new Vector2(0f, 0f);
+                _fillRect.anchorMax = new Vector2(1f, 1f);
+                _fillRect.offsetMin = Vector2.zero;
+                _fillRect.offsetMax = Vector2.zero;
+                _fillRect.pivot = new Vector2(0f, 0.5f);
+            }
+
+            if (_fillRect == null && _fillImage == null)
+            {
+                WarnMissingFill();
+                return;
+            }
+
+            if (_fillImage != null)
+            {
+                _fillImage.type = Image.Type.Simple;
+            }
+        }
+
+        private void WarnMissingFill()
+        {
+            if (_didWarnMissingFill)
             {
                 return;
             }
 
-            _fillImage.type = Image.Type.Filled;
-            _fillImage.fillMethod = Image.FillMethod.Horizontal;
-            _fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+            Debug.LogWarning("[HP_BAR] Missing fill reference on WorldHealthBarPrefab");
+            _didWarnMissingFill = true;
         }
 
         private Image FindImage(string objectName)
@@ -128,7 +178,7 @@ namespace RicochetTanks.UI.CombatFeedback
                 }
             }
 
-            return images.Length > 0 ? images[0] : null;
+            return null;
         }
 
         private static string Format(float value)

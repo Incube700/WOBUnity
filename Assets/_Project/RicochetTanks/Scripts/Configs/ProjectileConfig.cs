@@ -13,6 +13,7 @@ namespace RicochetTanks.Configs
         [SerializeField] private float _lifetime = 8f;
         [SerializeField] private float _minSpeed = 5f;
         [SerializeField] private float _radius = 0.18f;
+        [SerializeField] private float _flightHeight = 0.6f;
         [SerializeField] private float _spawnOffset = 0.35f;
         [SerializeField] private float _positionCorrectionSkin = 0.01f;
         [SerializeField] private float _trailTime = 0.25f;
@@ -31,6 +32,7 @@ namespace RicochetTanks.Configs
         public float Lifetime => _lifetime;
         public float MinSpeed => _minSpeed;
         public float Radius => _radius;
+        public float FlightHeight => _flightHeight;
         public float SpawnOffset => _spawnOffset;
         public float PositionCorrectionSkin => _positionCorrectionSkin;
         public float TrailTime => _trailTime;

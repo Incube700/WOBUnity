@@ -1,111 +1,99 @@
 # World of Balance / Ricochet Tanks
 
-Unity 6 prototype: top-down tank duel with visible ricochet projectiles.
+Unity 6 prototype for a top-down 1v1 tank duel built around ricochet shots, armor angles, and readable arena positioning.
 
-## Main Scene
+## Current Prototype Status
 
-Open:
+The current playable target is the editor-friendly demo scene:
 
 ```text
 Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity
 ```
 
-If the scene/prefabs/configs need to be regenerated, run this editor menu item:
+Implemented in code/assets:
 
-```text
-Tools/Ricochet Tanks/Generate Editor-Friendly Demo
-```
+- Player tank and enemy dummy tank.
+- Editable greybox arena with walls/obstacles.
+- Strict top-down orthographic camera.
+- Desktop tank controls with acceleration, braking/coasting, reverse, hull turning, and independent turret aim.
+- Projectile shooting, wall ricochet, speed reduction, damage reduction, and limited bounce count.
+- Tank armor zones: front, side, rear.
+- Armor penetration/no-penetration/ricochet resolution.
+- HP, death, win/lose, HUD, restart request flow.
+- Combat feedback: world-space HP bars and floating hit text.
 
-The generator creates the demo scene, prefabs, configs, and adds the demo scene to Build Settings. It does not run automatically on editor load.
+Many items still need manual Unity verification after scene/prefab changes. See `docs/TECH_STATUS.md`.
 
-Legacy fallback scene:
+## How To Run
 
-```text
-Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
-```
+1. Open the project in Unity.
+2. Open `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity`.
+3. Press Play.
+4. Test movement, aiming, shooting, ricochet, armor hits, HP bars, floating text, win/lose, and restart.
 
-## Editor Workflow
+## Controls
 
-Main editable objects in `RicochetTanks_Demo`:
+| Input | Action |
+|---|---|
+| `W` / `Up Arrow` | Accelerate forward |
+| `S` / `Down Arrow` | Brake, then reverse |
+| `A` / `Left Arrow` | Rotate hull left |
+| `D` / `Right Arrow` | Rotate hull right |
+| Mouse | Aim turret |
+| Left Mouse Button / `Space` | Fire |
+| `R` | Restart |
 
-- `SceneContext / GameplayEntryPoint`
-- `ArenaRoot`
-- `Floor`
-- `Walls`
-- `Obstacles`
-- `SpawnPoints/PlayerSpawnPoint`
-- `SpawnPoints/EnemySpawnPoint`
-- `PlayerTank`
-- `EnemyDummyTank`
-- `CameraRig`
-- `GameplayCanvas`
+## Important Configs
 
-Move spawn points, tanks, walls, and obstacles in the scene. Do not change code for layout tests.
-At runtime `GameplayEntryPoint` places tanks from `PlayerSpawnPoint` and `EnemySpawnPoint`, so spawn positions are scene data, not hardcoded code values.
-
-## Configs
-
-Generated configs live in:
+Configs live in:
 
 ```text
 Assets/_Project/RicochetTanks/Configs/
 ```
 
-Important assets:
+Current key assets:
 
+- `ProjectileConfig`
 - `PlayerTankConfig`
 - `EnemyTankConfig`
-- `ProjectileConfig`
-- `MatchConfig`
 - `CameraConfig`
+- `MatchConfig`
 
-Tune projectile speed, damage, lifetime, max ricochets, damage multiplier per bounce, ricochet offset, layer masks, tank HP, movement, turret speed, and camera values there.
+Current balance highlights:
 
-## Prefabs
-
-Generated prefabs live in:
-
-```text
-Assets/_Project/RicochetTanks/Prefabs/
-```
-
-Use:
-
-- `PlayerTankPrefab`
-- `EnemyDummyTankPrefab`
-- `ProjectilePrefab`
-- `WallSegmentPrefab`
-- `ArenaBlockPrefab`
-- `GameplayCanvasPrefab`
-
-## Required Layers
-
-- `RicochetReflectable` for walls/ricochet surfaces.
-- `Tank` for player/enemy hitboxes.
-- `Projectile` for projectile views.
-- `Obstacle` for optional obstacle masks.
-
-`ProjectileConfig.ReflectableMask` should include ricochet surfaces. `ProjectileConfig.HittableMask` should include tanks.
-
-## Quick Ricochet Test
-
-1. Open `RicochetTanks_Demo`.
-2. Select `ProjectileConfig` and confirm max ricochets is `3` and damage multiplier is `0.75`.
-3. Press Play.
-4. Move with `W/S`, rotate hull with `A/D`, aim with mouse, fire with LMB or `Space`.
-5. Shoot a wall at an angle.
-6. Expected: projectile checks previous position to current position, bounces, rotates to the new direction, loses 25% damage, and disappears after ricochets are exhausted.
+- Projectile damage: `110`
+- Projectile penetration: `45`
+- Max ricochets: `3`
+- Bounce speed multiplier: `0.78`
+- Damage multiplier per bounce: `0.75`
+- Player HP: `100`
+- Enemy HP: `300`
+- Armor: front `50`, side `40`, rear `10`
 
 ## Documentation
 
-Main GDD:
+Documentation is split by purpose:
 
-```text
-docs/GDD.md
-```
+- `docs/GDD_RU.md` - main Russian GDD and design source of truth.
+- `docs/GDD_EN.md` - English translation/adaptation.
+- `docs/TECH_STATUS.md` - current implemented code/assets status.
+- `docs/ROADMAP.md` - next tasks and milestone plan.
+- `docs/GDD.md` - compatibility pointer for older links.
 
-Compact AI map:
+Compact AI/project map:
 
 ```text
 AI_CONTEXT_GRAPH.md
 ```
+
+## Known Manual Checks
+
+- Confirm `RicochetTanks_Demo` launches cleanly in Play Mode.
+- Confirm HP bars shrink after damage and reset on restart.
+- Confirm floating hit text appears for damage, `NO PEN`, and `RICOCHET`.
+- Confirm restart does not duplicate HP bars or event subscriptions.
+- Inspect materials in Unity for any broken/magenta visuals.
+
+## Notes
+
+`Tools/Ricochet Tanks/Generate Editor-Friendly Demo` exists for regeneration, but do not run it casually. The current workflow is to edit and test `RicochetTanks_Demo` directly.

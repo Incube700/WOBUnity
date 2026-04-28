@@ -52,6 +52,8 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         private CombatFeedbackPresenter _combatFeedbackPresenter;
         private TankHealthBarPresenter _playerHealthBarPresenter;
         private TankHealthBarPresenter _enemyHealthBarPresenter;
+        private TankHealthBarView _playerHealthBarView;
+        private TankHealthBarView _enemyHealthBarView;
 
         private void Start()
         {
@@ -197,7 +199,16 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 muzzle = CreateChild(turret, "Muzzle", new Vector3(0f, 0f, 1.25f));
             }
 
-            movement.Configure(rigidbody, tankConfig.MoveSpeed, tankConfig.TurnSpeed);
+            movement.Configure(
+                rigidbody,
+                tankConfig.MaxForwardSpeed,
+                tankConfig.MaxReverseSpeed,
+                tankConfig.Acceleration,
+                tankConfig.BrakeDeceleration,
+                tankConfig.CoastDeceleration,
+                tankConfig.TurnSpeed,
+                tankConfig.TurnSpeedAtLowVelocity,
+                tankConfig.InputDeadZone);
             aiming.Configure(turret, _camera, tankConfig.TurretRotationSpeed);
             shooter.Configure(muzzle, tank, _projectileFactory, _projectileConfig);
             health.Configure(tankConfig.MaxHp);
@@ -234,12 +245,14 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             var playerHealthBar = _combatFeedbackFactory.CreateHealthBar(_playerTank);
             if (playerHealthBar != null)
             {
+                _playerHealthBarView = playerHealthBar;
                 _playerHealthBarPresenter = new TankHealthBarPresenter(playerHealthBar, _playerTank.Health);
             }
 
             var enemyHealthBar = _combatFeedbackFactory.CreateHealthBar(_enemyDummyTank);
             if (enemyHealthBar != null)
             {
+                _enemyHealthBarView = enemyHealthBar;
                 _enemyHealthBarPresenter = new TankHealthBarPresenter(enemyHealthBar, _enemyDummyTank.Health);
             }
 
@@ -251,10 +264,24 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             _combatFeedbackPresenter?.Dispose();
             _playerHealthBarPresenter?.Dispose();
             _enemyHealthBarPresenter?.Dispose();
+            DestroyHealthBar(_playerHealthBarView);
+            DestroyHealthBar(_enemyHealthBarView);
             _combatFeedbackPresenter = null;
             _playerHealthBarPresenter = null;
             _enemyHealthBarPresenter = null;
+            _playerHealthBarView = null;
+            _enemyHealthBarView = null;
             _combatFeedbackFactory = null;
+        }
+
+        private static void DestroyHealthBar(TankHealthBarView healthBarView)
+        {
+            if (healthBarView == null)
+            {
+                return;
+            }
+
+            Destroy(healthBarView.gameObject);
         }
 
         private void EnsureCombatFeedbackRoot()
