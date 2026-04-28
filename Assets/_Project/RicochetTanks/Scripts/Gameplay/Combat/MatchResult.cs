@@ -4,6 +4,7 @@ namespace RicochetTanks.Gameplay.Combat
     {
         Playing,
         PlayerWins,
-        EnemyWins
+        EnemyWins,
+        Draw
     }
 }

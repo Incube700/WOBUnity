@@ -79,6 +79,42 @@ Demo goals:
 
 Anything that cannot be verified from code/assets is listed in `docs/TECH_STATUS.md` as **Needs Manual Unity Check**.
 
+## Current Implemented State
+
+Implemented in code/assets:
+
+- main playable scene asset `RicochetTanks_Demo.unity`;
+- player tank and enemy dummy tank;
+- desktop hull movement, turret aiming, and shooting;
+- visible projectiles with trail;
+- wall/obstacle ricochet;
+- armor zones `Front`, `Side`, `Rear`;
+- penetration check through effective armor;
+- no-penetration / ricochet with zero damage;
+- HP, death, win/lose, and restart flow;
+- screen HUD;
+- combat feedback through world-space HP bars and floating hit text.
+
+Needs Manual Unity Check:
+
+- Play Mode without blocking errors;
+- HP bars visually shrink after damage;
+- floating damage / `NO PEN` / `RICOCHET`;
+- restart does not duplicate subscriptions or UI;
+- current arena size, materials, and readability.
+
+## Latest Game Designer Feedback
+
+- HP bars are a good direction. The player must clearly see current HP and how much damage each shell deals.
+- Damage, penetration, armor, ricochet, and speed-loss formulas must be concrete and documented.
+- Mobile landscape layout is the next important direction.
+- Mobile controls need a left virtual joystick for hull movement, a right virtual joystick for turret/cannon aim, and tap or fire button for shooting.
+- Minimal prototype VFX is enough: projectile trail, small hit/explosion effect, visible impact feedback, smoke/wreck marker after a destroyed tank.
+- Shot recoil/knockback feeling should be added later.
+- Current projectile speed loss after ricochet may be too small visually and needs review/tuning.
+- The game designer prefers answering guiding questions. Keep those in `docs/GD_QUESTIONS.md`.
+- Network/multiplayer is a future direction, not an immediate implementation task.
+
 ## Launch Instructions
 
 1. Open the project in Unity.
@@ -99,6 +135,18 @@ Anything that cannot be verified from code/assets is listed in `docs/TECH_STATUS
 | `R` | Restart |
 
 Mobile controls are future work and should be implemented as a separate input layer.
+
+### Mobile Controls Direction
+
+Mobile controls are not implemented yet. The design-only document is `docs/MOBILE_CONTROLS.md`.
+
+Baseline direction:
+
+- landscape orientation;
+- left virtual joystick controls tank movement / hull;
+- right virtual joystick controls turret/cannon aim;
+- shooting uses either tap or a fire button, still open;
+- do not rewrite PC controls until the mobile control scheme is approved.
 
 ## Projectile And Armor Model
 
@@ -131,6 +179,63 @@ projectilePenetration >= effectiveArmor
 
 If penetration is lower than effective armor, the result is `NoPenetration` or `Ricochet` with no damage. If penetration is equal or higher, the result is `Penetrated` and damage is applied.
 
+### Concrete Combat Formulas
+
+Current config values:
+
+```text
+ProjectileDamage = 110
+ProjectilePenetration = 45
+FrontArmor = 50
+SideArmor = 40
+RearArmor = 10
+MaxRicochets = 3
+BounceSpeedMultiplier = 0.78
+DamageMultiplierPerBounce = 0.75
+MinProjectileSpeed = 5
+```
+
+Effective armor:
+
+```text
+impactDot = Dot(-incomingDirection.normalized, hitNormal.normalized)
+angle = Acos(Clamp(impactDot, -1, 1))
+effectiveArmor = armor / Max(Clamp01(impactDot), safeMinCos)
+```
+
+Penetration:
+
+```text
+if penetration < effectiveArmor:
+    result = NoPenetration
+    damage = 0
+else:
+    result = Penetrated
+    damage = currentDamage
+```
+
+Auto ricochet:
+
+```text
+if hitAngle >= AutoRicochetAngle:
+    result = Ricochet
+    damage = 0
+```
+
+Damage after ricochet:
+
+```text
+currentDamage = currentDamage * DamageMultiplierPerBounce
+```
+
+Speed after ricochet:
+
+```text
+currentSpeed = Max(MinProjectileSpeed, currentSpeed * BounceSpeedMultiplier)
+```
+
+The current `BounceSpeedMultiplier = 0.78` may be too subtle visually. This needs a manual Unity review and a separate tuning task.
+
 ## Ricochet Model
 
 Projectiles can bounce from walls, obstacles, and tank armor when armor is not penetrated or auto-ricochet is triggered.
@@ -159,6 +264,47 @@ Critical ammo rack / `AmmoRack` is future work:
 
 Future hull shapes may use armor plates instead of only Front/Side/Rear zones.
 
+## Combat Feedback And VFX
+
+Combat feedback should make every hit understandable:
+
+- current HP must be readable;
+- shell damage must be visible;
+- zero-damage results should explain why: `NO PEN` or `RICOCHET`;
+- HP bars and floating hit text remain visual feedback, not gameplay logic.
+
+Minimal prototype VFX direction:
+
+- projectile trail - implemented in code/assets, Needs Manual Unity Check;
+- small hit/explosion effect - TODO;
+- visible impact feedback - TODO;
+- smoke/wreck marker after destroyed tank - TODO;
+- shot recoil/knockback feeling - TODO.
+
+Recoil is not implemented yet. Preferred first pass is visual-only recoil so it does not accidentally change movement, armor, or ricochet behavior.
+
+## Open Design Questions
+
+Guiding questions for the game designer live in `docs/GD_QUESTIONS.md`.
+
+Main topics:
+
+- mobile button count;
+- tap fire vs fire button;
+- hold-drag aim vs floating joystick;
+- stronger ricochet speed loss;
+- visual-only recoil vs physical knockback;
+- wreck/smoke duration;
+- enough damage feedback;
+- acceptable match length;
+- draw/self-kill outcome.
+
+## Network / Multiplayer
+
+Network and multiplayer are future direction only.
+
+Do not implement network yet. First stabilize the PC demo, then design/prototype mobile controls, then do separate network architecture research.
+
 ## Architecture Rules
 
 - No Singleton.
@@ -177,4 +323,6 @@ Future hull shapes may use armor plates instead of only Front/Side/Rear zones.
 
 - Current code/assets status: `docs/TECH_STATUS.md`
 - Next tasks: `docs/ROADMAP.md`
+- Mobile controls design: `docs/MOBILE_CONTROLS.md`
+- Game designer questions: `docs/GD_QUESTIONS.md`
 - Compact AI context: `AI_CONTEXT_GRAPH.md`

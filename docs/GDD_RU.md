@@ -111,6 +111,42 @@ Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity
 
 Все пункты, которые нельзя проверить автоматически из файлов, отмечены в `docs/TECH_STATUS.md` как **Needs Manual Unity Check**.
 
+### 4.1. Текущее реализованное состояние
+
+На уровне кода и ассетов сейчас есть:
+
+- основной playable scene asset `RicochetTanks_Demo.unity`;
+- танк игрока и enemy dummy tank;
+- desktop-управление корпусом, башней и стрельбой;
+- видимые снаряды с trail;
+- рикошеты от стен/препятствий;
+- armor zones `Front`, `Side`, `Rear`;
+- проверка пробития через effective armor;
+- no-penetration / ricochet без урона;
+- HP, смерть, win/lose и restart flow;
+- экранный HUD;
+- Combat Feedback через world-space HP bars и floating hit text.
+
+Needs Manual Unity Check:
+
+- Play Mode без ошибок;
+- визуальное уменьшение HP bars;
+- floating damage / `NO PEN` / `RICOCHET`;
+- restart без дублей подписок и UI;
+- текущий размер арены, материалы и читаемость сцены.
+
+### 4.2. Последний фидбек геймдизайнера
+
+- HP bars - хорошая идея. Игрок должен ясно видеть текущий HP и сколько урона наносит каждый снаряд.
+- Формулы damage, penetration, armor, ricochet и speed loss должны быть конкретизированы и записаны.
+- Mobile landscape - следующий важный UX-направление.
+- Для mobile нужны left virtual joystick для корпуса, right virtual joystick для башни/пушки, tap или fire button для выстрела.
+- Для прототипа достаточно минимального VFX: projectile trail, небольшой hit/explosion effect, видимый impact feedback, smoke/wreck marker после уничтожения танка.
+- Нужен recoil/knockback feeling на выстреле.
+- Текущая потеря скорости после рикошета может визуально быть слишком маленькой. Нужно проверить и настроить.
+- Геймдизайнеру удобнее отвечать на направляющие вопросы. Список вопросов ведется в `docs/GD_QUESTIONS.md`.
+- Network/multiplayer - будущая перспектива, не ближайшая реализация.
+
 ## 5. Как запустить демо
 
 1. Открыть проект в Unity.
@@ -144,6 +180,18 @@ Restart               перезапуск
 ```
 
 Мобильный ввод должен быть отдельным слоем, не зашитым в логику танка.
+
+### 6.1. Mobile controls direction
+
+Mobile controls пока не реализованы. Это следующий дизайн и prototype direction, описанный отдельно в `docs/MOBILE_CONTROLS.md`.
+
+Базовое направление:
+
+- landscape orientation;
+- левый virtual joystick - движение танка и управление корпусом;
+- правый virtual joystick - наведение башни/пушки;
+- выстрел - tap или отдельная fire button, решение открыто;
+- mobile controls не должны переписывать PC controls до утверждения схемы.
 
 ## 7. Снаряд
 
@@ -203,6 +251,65 @@ effectiveArmor = armor / max(cos(angle), safeMinCos)
 Дизайн-принцип:
 
 > Чем более скользящее попадание, тем выше effectiveArmor.
+
+## 9.1. Конкретные формулы боя
+
+Текущие формулы реализации должны оставаться явно задокументированными. Если формула меняется в коде, этот раздел и `docs/TECH_STATUS.md` нужно обновить.
+
+Текущие входные значения из конфигов:
+
+```text
+ProjectileDamage = 110
+ProjectilePenetration = 45
+FrontArmor = 50
+SideArmor = 40
+RearArmor = 10
+MaxRicochets = 3
+BounceSpeedMultiplier = 0.78
+DamageMultiplierPerBounce = 0.75
+MinProjectileSpeed = 5
+```
+
+Текущая effective armor formula:
+
+```text
+impactDot = Dot(-incomingDirection.normalized, hitNormal.normalized)
+angle = Acos(Clamp(impactDot, -1, 1))
+effectiveArmor = armor / Max(Clamp01(impactDot), safeMinCos)
+```
+
+Пробитие:
+
+```text
+if penetration < effectiveArmor:
+    result = NoPenetration
+    damage = 0
+else:
+    result = Penetrated
+    damage = currentDamage
+```
+
+Auto ricochet:
+
+```text
+if hitAngle >= AutoRicochetAngle:
+    result = Ricochet
+    damage = 0
+```
+
+Damage после рикошета:
+
+```text
+currentDamage = currentDamage * DamageMultiplierPerBounce
+```
+
+Speed после рикошета:
+
+```text
+currentSpeed = Max(MinProjectileSpeed, currentSpeed * BounceSpeedMultiplier)
+```
+
+При текущем `BounceSpeedMultiplier = 0.78` визуальная потеря скорости может быть недостаточно заметной. Это не меняется автоматически: нужна ручная проверка в Unity и отдельная tuning-задача.
 
 ## 10. Проверка пробития
 
@@ -392,12 +499,37 @@ Combat Feedback должен показывать:
 - floating hit text над точкой попадания;
 - damage / `NO PEN` / `RICOCHET`.
 
+Геймдизайн-требование:
+
+- игрок должен сразу видеть текущий HP;
+- игрок должен понимать, сколько урона нанес конкретный снаряд;
+- если урона нет, feedback должен объяснять почему: `NO PEN` или `RICOCHET`;
+- HP bars и floating text остаются визуальным слоем, не gameplay logic.
+
 HUD и Combat Feedback не должны:
 
 - наносить урон;
 - создавать снаряды;
 - решать исход раунда;
 - рассчитывать броню.
+
+## 16.1. VFX feedback direction
+
+Минимальный VFX для прототипа:
+
+- projectile trail - текущий код/ассеты уже поддерживают trail, Needs Manual Unity Check;
+- small hit/explosion effect - TODO;
+- visible impact feedback при попадании/рикошете - TODO;
+- smoke/wreck marker после destroyed tank - TODO;
+- recoil/knockback feeling на выстреле - TODO.
+
+Recoil пока не считается реализованной механикой. Нужно отдельно решить, будет ли он:
+
+- только визуальным откатом корпуса/башни/камеры;
+- физическим импульсом, влияющим на позицию;
+- смешанным вариантом.
+
+Для MVP безопаснее сначала проверить visual-only recoil, чтобы не ломать движение, броню и рикошеты.
 
 ## 17. Отладка
 
@@ -428,6 +560,31 @@ HUD и Combat Feedback не должны:
 [ARMOR] zone=Side baseArmor=40 angle=45 effectiveArmor=60 penetration=45 result=NoPenetration
 [BOUNCE] count=1 speed=17.1 damageCap=82.5
 ```
+
+## 17.1. Открытые вопросы геймдизайна
+
+Короткий список направляющих вопросов ведется отдельно: `docs/GD_QUESTIONS.md`.
+
+Главные темы:
+
+- мобильная схема управления;
+- tap или fire button;
+- насколько сильной должна быть потеря скорости после рикошета;
+- должен ли recoil быть только визуальным;
+- сколько должен жить wreck/smoke marker;
+- какой объем damage feedback достаточен;
+- желаемая длина матча;
+- правила draw/self-kill.
+
+## 17.2. Network / Multiplayer
+
+Network и multiplayer - будущая перспектива, но не ближайшая реализация.
+
+Правило для следующих итераций:
+
+- не начинать network implementation до стабилизации PC demo и mobile controls prototype;
+- сначала провести отдельное network architecture research;
+- multiplayer prototype делать отдельной milestone-задачей.
 
 ## 18. Техническое направление
 

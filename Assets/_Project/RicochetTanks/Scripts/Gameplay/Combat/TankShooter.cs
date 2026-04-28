@@ -40,7 +40,9 @@ namespace RicochetTanks.Gameplay.Combat
             }
 
             _nextShotTime = Time.time + _cooldown;
+            var shotDirection = _muzzle.forward;
             _projectileFactory.Spawn(_owner, _muzzle);
+            _owner?.Movement?.ApplyRecoil(shotDirection);
         }
     }
 }

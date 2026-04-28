@@ -17,6 +17,9 @@ namespace RicochetTanks.Configs
         [SerializeField] private float _turnSpeedAtLowVelocity = 80f;
         [SerializeField] private float _turretRotationSpeed = 360f;
         [SerializeField] private float _inputDeadZone = 0.05f;
+        [SerializeField] private float _shotRecoilImpulse = 0.6f;
+        [SerializeField] private float _shotRecoilDecay = 8f;
+        [SerializeField] private float _maxRecoilVelocity = 1.5f;
         [SerializeField] private int _frontArmor = 50;
         [SerializeField] private int _sideArmor = 40;
         [SerializeField] private int _rearArmor = 10;
@@ -32,6 +35,9 @@ namespace RicochetTanks.Configs
         public float TurnSpeedAtLowVelocity => Mathf.Max(0f, _turnSpeedAtLowVelocity);
         public float TurretRotationSpeed => Mathf.Max(0f, _turretRotationSpeed);
         public float InputDeadZone => Mathf.Clamp01(_inputDeadZone);
+        public float ShotRecoilImpulse => Mathf.Max(0f, _shotRecoilImpulse);
+        public float ShotRecoilDecay => Mathf.Max(0f, _shotRecoilDecay);
+        public float MaxRecoilVelocity => Mathf.Max(0f, _maxRecoilVelocity);
         public float MoveSpeed => MaxForwardSpeed;
         public int FrontArmor => _frontArmor;
         public int SideArmor => _sideArmor;

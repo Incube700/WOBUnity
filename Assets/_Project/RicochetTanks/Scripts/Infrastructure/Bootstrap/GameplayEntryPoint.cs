@@ -5,7 +5,9 @@ using RicochetTanks.Gameplay.Events;
 using RicochetTanks.Gameplay.Projectiles;
 using RicochetTanks.Gameplay.Tanks;
 using RicochetTanks.Infrastructure.SceneLoading;
+using RicochetTanks.Input;
 using RicochetTanks.Input.Desktop;
+using RicochetTanks.Input.Mobile;
 using RicochetTanks.UI;
 using RicochetTanks.UI.CombatFeedback;
 using RicochetTanks.UI.Sandbox;
@@ -24,6 +26,10 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         [SerializeField] private ProjectileConfig _projectileConfig;
         [SerializeField] private DebugLogConfig _debugLogConfig;
 
+        [Header("Input")]
+        [SerializeField] private TankInputMode _inputMode = TankInputMode.Auto;
+        [SerializeField] private GameObject _mobileControlsPrefab;
+
         [Header("Scene References")]
         [SerializeField] private Transform _arenaRoot;
         [SerializeField] private Transform _playerSpawnPoint;
@@ -38,6 +44,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         [Header("Combat Feedback")]
         [SerializeField] private GameObject _worldHealthBarPrefab;
         [SerializeField] private GameObject _floatingHitTextPrefab;
+        [SerializeField] private CombatVfxConfig _combatVfxConfig;
         [SerializeField] private Transform _combatFeedbackRoot;
 
         [Header("Runtime Services")]
@@ -51,10 +58,14 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         private SandboxMatchController _matchController;
         private CombatFeedbackFactory _combatFeedbackFactory;
         private CombatFeedbackPresenter _combatFeedbackPresenter;
+        private CombatVfxPresenter _combatVfxPresenter;
         private TankHealthBarPresenter _playerHealthBarPresenter;
         private TankHealthBarPresenter _enemyHealthBarPresenter;
         private TankHealthBarView _playerHealthBarView;
         private TankHealthBarView _enemyHealthBarView;
+        private ITankInputReader _activeInputReader;
+        private MobileInputReader _mobileInputReader;
+        private MobileControlsView _mobileControlsView;
 
         private void Start()
         {
@@ -92,6 +103,18 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             _playerTankConfig = _playerTankConfig != null ? _playerTankConfig : ScriptableObject.CreateInstance<TankConfig>();
             _enemyTankConfig = _enemyTankConfig != null ? _enemyTankConfig : _playerTankConfig;
             _projectileConfig = _projectileConfig != null ? _projectileConfig : ScriptableObject.CreateInstance<ProjectileConfig>();
+            ResolveCombatVfxConfigFallback();
+            _combatVfxConfig = _combatVfxConfig != null ? _combatVfxConfig : ScriptableObject.CreateInstance<CombatVfxConfig>();
+        }
+
+        private void ResolveCombatVfxConfigFallback()
+        {
+#if UNITY_EDITOR
+            if (_combatVfxConfig == null)
+            {
+                _combatVfxConfig = UnityEditor.AssetDatabase.LoadAssetAtPath<CombatVfxConfig>("Assets/_Project/RicochetTanks/Configs/CombatVfxConfig.asset");
+            }
+#endif
         }
 
         private void ResolveSceneReferences()
@@ -133,6 +156,20 @@ namespace RicochetTanks.Infrastructure.Bootstrap
 
         private void EnsureInputReader()
         {
+            EnsureDesktopInputReader();
+
+            if (ResolveInputMode() == TankInputMode.Mobile)
+            {
+                EnsureMobileInputReader();
+                return;
+            }
+
+            SetMobileControlsVisible(false);
+            _activeInputReader = _inputReader;
+        }
+
+        private void EnsureDesktopInputReader()
+        {
             if (_inputReader == null)
             {
                 _inputReader = GetComponent<DesktopInputReader>();
@@ -141,6 +178,71 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             if (_inputReader == null)
             {
                 _inputReader = gameObject.AddComponent<DesktopInputReader>();
+            }
+        }
+
+        private void EnsureMobileInputReader()
+        {
+            if (_mobileInputReader == null)
+            {
+                _mobileInputReader = GetComponent<MobileInputReader>();
+            }
+
+            if (_mobileInputReader == null)
+            {
+                _mobileInputReader = gameObject.AddComponent<MobileInputReader>();
+            }
+
+            if (_mobileControlsView == null)
+            {
+                _mobileControlsView = CreateMobileControlsView();
+            }
+
+            SetMobileControlsVisible(true);
+            _mobileInputReader.Configure(_mobileControlsView);
+            _activeInputReader = _mobileInputReader;
+        }
+
+        private TankInputMode ResolveInputMode()
+        {
+            if (_inputMode != TankInputMode.Auto)
+            {
+                return _inputMode;
+            }
+
+            return Application.isMobilePlatform ? TankInputMode.Mobile : TankInputMode.Desktop;
+        }
+
+        private MobileControlsView CreateMobileControlsView()
+        {
+            if (_mobileControlsPrefab != null)
+            {
+                var controlsObject = Instantiate(_mobileControlsPrefab, transform);
+                controlsObject.name = _mobileControlsPrefab.name;
+
+                if (controlsObject.TryGetComponent<MobileControlsView>(out var prefabView))
+                {
+                    return prefabView;
+                }
+
+                var childView = controlsObject.GetComponentInChildren<MobileControlsView>(true);
+                if (childView != null)
+                {
+                    return childView;
+                }
+
+                Debug.LogWarning("[MOBILE_INPUT] Mobile controls prefab has no MobileControlsView. Runtime controls will be created.");
+                Destroy(controlsObject);
+            }
+
+            return MobileControlsView.CreateDefault("MobileControlsCanvas", transform);
+        }
+
+        private void SetMobileControlsVisible(bool isVisible)
+        {
+            if (_mobileControlsView != null)
+            {
+                _mobileControlsView.gameObject.SetActive(isVisible);
             }
         }
 
@@ -210,11 +312,15 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 tankConfig.TurnSpeed,
                 tankConfig.TurnSpeedAtLowVelocity,
                 tankConfig.InputDeadZone);
+            movement.ConfigureRecoil(
+                tankConfig.ShotRecoilImpulse,
+                tankConfig.ShotRecoilDecay,
+                tankConfig.MaxRecoilVelocity);
             aiming.Configure(turret, _camera, tankConfig.TurretRotationSpeed);
             shooter.Configure(muzzle, tank, _projectileFactory, _projectileConfig);
             health.Configure(tankConfig.MaxHp);
             armor.Configure(tankConfig);
-            controller.Configure(tank, _inputReader, _camera);
+            controller.Configure(tank, _activeInputReader, _camera);
             tank.Configure(movement, aiming, shooter, health, controller);
             tank.SetPlayerControlled(isPlayerControlled);
         }
@@ -258,10 +364,16 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             }
 
             _combatFeedbackPresenter = new CombatFeedbackPresenter(_gameplayEvents, _combatFeedbackFactory);
+            _combatVfxPresenter = new CombatVfxPresenter(
+                _gameplayEvents,
+                new CombatVfxFactory(_combatVfxConfig, _combatFeedbackRoot),
+                _playerTank,
+                _enemyDummyTank);
         }
 
         private void DisposeCombatFeedback()
         {
+            _combatVfxPresenter?.Dispose();
             _combatFeedbackPresenter?.Dispose();
             _playerHealthBarPresenter?.Dispose();
             _enemyHealthBarPresenter?.Dispose();
@@ -273,6 +385,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             _playerHealthBarView = null;
             _enemyHealthBarView = null;
             _combatFeedbackFactory = null;
+            _combatVfxPresenter = null;
         }
 
         private static void DestroyHealthBar(TankHealthBarView healthBarView)
@@ -341,7 +454,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 _matchController = gameObject.AddComponent<SandboxMatchController>();
             }
 
-            _matchController.Configure(_playerTank, _enemyDummyTank, _gameplayEvents, _inputReader, _sceneLoaderService, _matchConfig);
+            _matchController.Configure(_playerTank, _enemyDummyTank, _gameplayEvents, _activeInputReader, _sceneLoaderService, _matchConfig);
         }
 
         private void RequestRestart()

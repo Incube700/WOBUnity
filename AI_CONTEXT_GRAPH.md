@@ -128,6 +128,9 @@ UI/CombatFeedback
 - HP and death are handled by `TankHealth`.
 - Win/lose is handled by `SandboxMatchController`.
 - Combat feedback uses event-driven world HP bars and floating hit text.
+- Mobile controls are not implemented; design direction is documented in `docs/MOBILE_CONTROLS.md`.
+- Minimal VFX/recoil ideas are documented as TODO, not implemented.
+- Network/multiplayer is future research only, not an immediate implementation target.
 
 ## Current Config Numbers
 
@@ -180,6 +183,8 @@ From camera/match configs:
 - Scene layout and scene generator.
 - Materials/prefabs unless a serialized reference is broken.
 - GDD/README unless the task is documentation sync.
+- Do not rewrite controls before `docs/MOBILE_CONTROLS.md` is reviewed.
+- Do not implement network/multiplayer yet.
 
 ## Important Coding Rules
 
@@ -199,6 +204,9 @@ From camera/match configs:
 
 - Manual Unity Play Mode verification is still required.
 - HP bars/floating hit text/restart duplication need manual check.
+- Projectile speed loss after ricochet may be too subtle visually and needs manual review/tuning.
+- Mobile landscape controls are required next but are design-only right now.
+- VFX/recoil requirements are documented but not implemented.
 - Debug logs can spam Console if enabled in `DebugLogConfig`: `[SHOT]`, `[HIT]`, `[BOUNCE]`, `[ARMOR]`.
 - Materials may need visual polish if Unity shows broken/magenta visuals.
 - Scene/prefab/config edits made in Unity must be saved and committed.
@@ -209,13 +217,13 @@ From camera/match configs:
 ## Next Safe Tasks
 
 1. Manually verify HP bars, floating hit text, and restart in Unity.
-2. Tune/use `DebugLogConfig` so logs stay useful without flooding the Console.
-3. Clean visual/material readability.
-4. Stabilize arena size/layout only if the scene is wrong.
-5. Improve simple 3D tank visual prefabs.
-6. Add simple enemy behavior as a separate feature.
-7. Polish main menu/restart flow.
-8. Add mobile controls later.
+2. Validate damage, penetration, armor, ricochet, and speed-loss formulas in Play Mode.
+3. Review whether ricochet speed loss is visually strong enough.
+4. Review `docs/MOBILE_CONTROLS.md` and answer `docs/GD_QUESTIONS.md`.
+5. Prototype mobile controls only after the design doc is accepted.
+6. Add minimal hit/impact/wreck VFX after combat readability is verified.
+7. Add visual-first recoil/knockback after the designer decides scope.
+8. Keep network/multiplayer as research only.
 
 ## Files To Read First
 
@@ -223,8 +231,10 @@ From camera/match configs:
 2. `README.md`
 3. `docs/GDD_RU.md`
 4. `docs/TECH_STATUS.md`
-5. `AI_CONTEXT_GRAPH.md`
-6. `Assets/_Project/RicochetTanks/Scripts/Infrastructure/Bootstrap/GameplayEntryPoint.cs`
-7. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectiles/Systems/ProjectileSystemPipeline.cs`
-8. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Combat/HitResolver.cs`
-9. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Combat/TankArmor.cs`
+5. `docs/MOBILE_CONTROLS.md`
+6. `docs/GD_QUESTIONS.md`
+7. `AI_CONTEXT_GRAPH.md`
+8. `Assets/_Project/RicochetTanks/Scripts/Infrastructure/Bootstrap/GameplayEntryPoint.cs`
+9. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Projectiles/Systems/ProjectileSystemPipeline.cs`
+10. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Combat/HitResolver.cs`
+11. `Assets/_Project/RicochetTanks/Scripts/Gameplay/Combat/TankArmor.cs`

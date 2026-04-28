@@ -1,8 +1,9 @@
+using RicochetTanks.Input;
 using UnityEngine;
 
 namespace RicochetTanks.Input.Desktop
 {
-    public sealed class DesktopInputReader : MonoBehaviour
+    public sealed class DesktopInputReader : MonoBehaviour, ITankInputReader
     {
         public void ReadTankInput(out float throttle, out float turn)
         {
@@ -38,6 +39,11 @@ namespace RicochetTanks.Input.Desktop
         public bool IsRestartPressed()
         {
             return UnityEngine.Input.GetKeyDown(KeyCode.R);
+        }
+
+        public bool TryGetAimPoint(Camera camera, Transform aimOrigin, float planeY, out Vector3 aimPoint)
+        {
+            return TryGetAimPoint(camera, planeY, out aimPoint);
         }
 
         public bool TryGetAimPoint(Camera camera, float planeY, out Vector3 aimPoint)

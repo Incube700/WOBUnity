@@ -78,6 +78,8 @@ Documentation is split by purpose:
 - `docs/GDD_EN.md` - English translation/adaptation.
 - `docs/TECH_STATUS.md` - current implemented code/assets status.
 - `docs/ROADMAP.md` - next tasks and milestone plan.
+- `docs/MOBILE_CONTROLS.md` - design-only mobile landscape controls plan.
+- `docs/GD_QUESTIONS.md` - guiding questions for game design decisions.
 - `docs/GDD.md` - compatibility pointer for older links.
 
 Compact AI/project map:

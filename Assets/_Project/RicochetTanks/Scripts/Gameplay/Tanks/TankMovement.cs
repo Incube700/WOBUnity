@@ -14,12 +14,16 @@ namespace RicochetTanks.Gameplay.Tanks
         [SerializeField] private float _turnSpeed = 140f;
         [SerializeField] private float _turnSpeedAtLowVelocity = 80f;
         [SerializeField] private float _inputDeadZone = 0.05f;
+        [SerializeField] private float _shotRecoilImpulse = 0.6f;
+        [SerializeField] private float _shotRecoilDecay = 8f;
+        [SerializeField] private float _maxRecoilVelocity = 1.5f;
 
         private Rigidbody _rigidbody;
         private float _throttle;
         private float _turn;
         private float _currentSpeed;
         private float _currentYaw;
+        private Vector3 _recoilVelocity;
         private bool _isMovementEnabled = true;
 
         private void Awake()
@@ -71,10 +75,37 @@ namespace RicochetTanks.Gameplay.Tanks
             ApplyRigidbodyConstraints();
         }
 
+        public void ConfigureRecoil(float shotRecoilImpulse, float shotRecoilDecay, float maxRecoilVelocity)
+        {
+            _shotRecoilImpulse = Mathf.Max(0f, shotRecoilImpulse);
+            _shotRecoilDecay = Mathf.Max(0f, shotRecoilDecay);
+            _maxRecoilVelocity = Mathf.Max(0f, maxRecoilVelocity);
+        }
+
         public void SetInput(float throttle, float turn)
         {
             _throttle = ApplyDeadZone(Mathf.Clamp(throttle, -1f, 1f));
             _turn = ApplyDeadZone(Mathf.Clamp(turn, -1f, 1f));
+        }
+
+        public void ApplyRecoil(Vector3 shotDirection)
+        {
+            if (!_isMovementEnabled || _shotRecoilImpulse <= 0f || _maxRecoilVelocity <= 0f)
+            {
+                return;
+            }
+
+            var planarDirection = shotDirection;
+            planarDirection.y = 0f;
+
+            if (planarDirection.sqrMagnitude <= _inputDeadZone * _inputDeadZone)
+            {
+                return;
+            }
+
+            var recoilImpulse = -planarDirection.normalized * _shotRecoilImpulse;
+            _recoilVelocity = Vector3.ClampMagnitude(_recoilVelocity + recoilImpulse, _maxRecoilVelocity);
+            _recoilVelocity.y = 0f;
         }
 
         public void SetMovementEnabled(bool isMovementEnabled)
@@ -85,6 +116,7 @@ namespace RicochetTanks.Gameplay.Tanks
             {
                 SetInput(0f, 0f);
                 _currentSpeed = 0f;
+                _recoilVelocity = Vector3.zero;
                 StopRigidbody();
             }
         }
@@ -121,6 +153,8 @@ namespace RicochetTanks.Gameplay.Tanks
         private void MoveBody()
         {
             UpdateCurrentSpeed(Time.fixedDeltaTime);
+            UpdateRecoilVelocity(Time.fixedDeltaTime);
+
             var forward = Quaternion.Euler(0f, _currentYaw, 0f) * Vector3.forward;
             forward.y = 0f;
 
@@ -129,7 +163,7 @@ namespace RicochetTanks.Gameplay.Tanks
                 return;
             }
 
-            var planarVelocity = forward.normalized * _currentSpeed;
+            var planarVelocity = forward.normalized * _currentSpeed + _recoilVelocity;
 
             if (_rigidbody.isKinematic)
             {
@@ -160,6 +194,18 @@ namespace RicochetTanks.Gameplay.Tanks
             }
 
             _currentSpeed = Mathf.MoveTowards(_currentSpeed, 0f, _coastDeceleration * deltaTime);
+        }
+
+        private void UpdateRecoilVelocity(float deltaTime)
+        {
+            if (_recoilVelocity.sqrMagnitude <= 0.0001f)
+            {
+                _recoilVelocity = Vector3.zero;
+                return;
+            }
+
+            _recoilVelocity = Vector3.MoveTowards(_recoilVelocity, Vector3.zero, _shotRecoilDecay * deltaTime);
+            _recoilVelocity.y = 0f;
         }
 
         private void ApplyRigidbodyConstraints()

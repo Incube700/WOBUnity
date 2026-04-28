@@ -15,3 +15,8 @@ MonoBehaviour:
   _playingLabel: 'Round: Playing'
   _playerWinsLabel: Player Wins
   _enemyWinsLabel: Enemy Wins
+  _drawLabel: Draw
+  _resultDelaySeconds: 3
+  _allowWinnerControlDuringResultDelay: 1
+  _disableShootingAfterMatchDecided: 1
+  _keepDeadWreck: 1

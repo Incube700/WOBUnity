@@ -154,6 +154,8 @@ MonoBehaviour:
   _enemyTankConfig: {fileID: 11400000, guid: 4ee738c9e822147109cf6fc3604e1ddf, type: 2}
   _projectileConfig: {fileID: 11400000, guid: 5322aaee670ec4e0b8531d8650a017d3, type: 2}
   _debugLogConfig: {fileID: 11400000, guid: dd1ed0b3b35b4b0f99017cc27da77001, type: 2}
+  _inputMode: 1
+  _mobileControlsPrefab: {fileID: 0}
   _arenaRoot: {fileID: 363391573}
   _playerSpawnPoint: {fileID: 2116587695}
   _enemySpawnPoint: {fileID: 677049409}
@@ -163,6 +165,10 @@ MonoBehaviour:
   _camera: {fileID: 470369697}
   _gameplayCanvas: {fileID: 1510369737}
   _hudView: {fileID: 1510369735}
+  _worldHealthBarPrefab: {fileID: 184528120328968219, guid: 6fd2447da8c6448298ed2f57c424ac67, type: 3}
+  _floatingHitTextPrefab: {fileID: 8857384975912236760, guid: 0b8e4ab98aed04ce8ac341fd1315d6bf, type: 3}
+  _combatVfxConfig: {fileID: 11400000, guid: 7a56f8e452754a0e8b7e7c8ae9514120, type: 2}
+  _combatFeedbackRoot: {fileID: 0}
   _inputReader: {fileID: 0}
   _projectileFactory: {fileID: 0}
 --- !u!4 &72917340
@@ -185,62 +191,6 @@ Transform:
   - {fileID: 1510369736}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!21 &192032636
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Universal Render Pipeline/Unlit
-  m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
-  disabledShaderPasses:
-  - MOTIONVECTORS
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BaseMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _AddPrecomputedVelocity: 0
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
-    - _Blend: 0
-    - _BlendOp: 0
-    - _Cull: 2
-    - _Cutoff: 0.5
-    - _DstBlend: 0
-    - _DstBlendAlpha: 0
-    - _QueueOffset: 0
-    - _SampleGI: 0
-    - _SrcBlend: 1
-    - _SrcBlendAlpha: 1
-    - _Surface: 0
-    - _XRMotionVectorsPass: 1
-    - _ZWrite: 1
-    m_Colors:
-    - _BaseColor: {r: 0.17, g: 0.19, b: 0.2, a: 1}
-    - _Color: {r: 0.16999996, g: 0.18999997, b: 0.19999996, a: 1}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1 &255536722
 GameObject:
   m_ObjectHideFlags: 0
@@ -578,6 +528,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5830799461210717469, guid: 179f5ae27675c4ffd955e394769a143f, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 7252028326109408049, guid: 179f5ae27675c4ffd955e394769a143f, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 1d0c4b78f5a74f0aac889e10d4a1f001, type: 2}
     - target: {fileID: 9214960773021363688, guid: 179f5ae27675c4ffd955e394769a143f, type: 3}
       propertyPath: m_Name
       value: EnemyDummyTank
@@ -1194,6 +1152,10 @@ PrefabInstance:
       propertyPath: m_Size.z
       value: 1.6
       objectReference: {fileID: 0}
+    - target: {fileID: 1177597750002900131, guid: 2f72c1a99d06f402d9f1368510c51586, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 1305197125620929655, guid: 2f72c1a99d06f402d9f1368510c51586, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -1218,6 +1180,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.62
       objectReference: {fileID: 0}
+    - target: {fileID: 2231338216327714135, guid: 2f72c1a99d06f402d9f1368510c51586, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 1d0c4b78f5a74f0aac889e10d4a1f001, type: 2}
     - target: {fileID: 2549782112825557477, guid: 2f72c1a99d06f402d9f1368510c51586, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -1356,7 +1322,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4899650208730346935, guid: 93b462415d35e4e2db2939b851b83f1e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.14
+      value: 1.06
       objectReference: {fileID: 0}
     - target: {fileID: 4899650208730346935, guid: 93b462415d35e4e2db2939b851b83f1e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1364,7 +1330,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4899650208730346935, guid: 93b462415d35e4e2db2939b851b83f1e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.22
+      value: -1.67
       objectReference: {fileID: 0}
     - target: {fileID: 4899650208730346935, guid: 93b462415d35e4e2db2939b851b83f1e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1487,7 +1453,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4899650208730346935, guid: 93b462415d35e4e2db2939b851b83f1e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.65
+      value: -0.74
       objectReference: {fileID: 0}
     - target: {fileID: 4899650208730346935, guid: 93b462415d35e4e2db2939b851b83f1e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1495,7 +1461,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4899650208730346935, guid: 93b462415d35e4e2db2939b851b83f1e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.33
+      value: 1.52
       objectReference: {fileID: 0}
     - target: {fileID: 4899650208730346935, guid: 93b462415d35e4e2db2939b851b83f1e, type: 3}
       propertyPath: m_LocalRotation.w

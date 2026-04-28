@@ -26,6 +26,7 @@ Implemented in code/assets:
 - Win/lose/restart request flow is implemented through `SandboxMatchController`.
 - Screen HUD exists through `SandboxHudView` and `SandboxHudPresenter`.
 - Combat feedback exists through world-space HP bars and floating hit text.
+- Projectile trail exists in code/assets.
 
 Needs Manual Unity Check:
 
@@ -42,6 +43,9 @@ Needs Manual Unity Check:
 - Floating hit text appears for damage, `NO PEN`, and `RICOCHET`.
 - Restart does not duplicate event subscriptions, HP bars, or listeners.
 - Unity scene/prefab changes are saved and committed after editor-side changes.
+- Projectile trail, hit readability, and impact feedback are visually clear.
+- Current ricochet speed loss is visible enough.
+- Minimal VFX/recoil/mobile controls are not implemented yet.
 
 ## Current Config Values
 
@@ -205,3 +209,6 @@ Main roles:
 - Menu/bootstrap flow is not final for the current playable demo; direct scene launch is the reliable path.
 - Generated `graphify-out/GRAPH_REPORT.md` is stale and should not override `AI_CONTEXT_GRAPH.md`.
 - Existing uncommitted Unity scene/config changes should be reviewed before commit.
+- Mobile controls are design-only in `docs/MOBILE_CONTROLS.md`.
+- Recoil/knockback feeling is not implemented.
+- Network/multiplayer is future research only.

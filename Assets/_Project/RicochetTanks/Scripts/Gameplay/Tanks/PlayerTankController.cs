@@ -1,3 +1,4 @@
+using RicochetTanks.Input;
 using RicochetTanks.Input.Desktop;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace RicochetTanks.Gameplay.Tanks
         [SerializeField] private DesktopInputReader _inputReader;
         [SerializeField] private Camera _camera;
 
+        private ITankInputReader _activeInputReader;
         private bool _isControlEnabled = true;
 
         public void Configure(TankFacade tank)
@@ -18,8 +20,14 @@ namespace RicochetTanks.Gameplay.Tanks
 
         public void Configure(TankFacade tank, DesktopInputReader inputReader, Camera camera)
         {
-            _tank = tank;
             _inputReader = inputReader;
+            Configure(tank, (ITankInputReader)inputReader, camera);
+        }
+
+        public void Configure(TankFacade tank, ITankInputReader inputReader, Camera camera)
+        {
+            _tank = tank;
+            _activeInputReader = inputReader;
             _camera = camera;
         }
 
@@ -48,20 +56,22 @@ namespace RicochetTanks.Gameplay.Tanks
                 return;
             }
 
-            if (_inputReader == null)
+            var inputReader = _activeInputReader ?? _inputReader;
+
+            if (inputReader == null)
             {
                 return;
             }
 
-            _inputReader.ReadTankInput(out var throttle, out var turn);
+            inputReader.ReadTankInput(out var throttle, out var turn);
             _tank.Movement.SetInput(throttle, turn);
 
-            if (_inputReader.TryGetAimPoint(_camera, 0f, out var aimPoint))
+            if (inputReader.TryGetAimPoint(_camera, _tank.transform, 0f, out var aimPoint))
             {
                 _tank.Aiming.AimAt(aimPoint);
             }
 
-            if (_inputReader.IsFirePressed())
+            if (inputReader.IsFirePressed())
             {
                 _tank.Shooter.TryShoot();
             }
