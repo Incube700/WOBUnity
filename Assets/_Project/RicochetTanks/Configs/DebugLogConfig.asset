@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e5d3a5d0d7a4a27ae73fd7b48e9a124, type: 3}
   m_Name: DebugLogConfig
   m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.Configs.DebugLogConfig
-  _logShots: 0
-  _logHits: 0
-  _logBounces: 0
+  _logShots: 1
+  _logHits: 1
+  _logBounces: 1
   _logRounds: 1

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e0bf07244ab47e880f0248a76e8db0e, type: 3}
   m_Name: EnemyTankConfig
   m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.Configs.TankConfig
-  _maxHp: 100
+  _maxHp: 300
   _moveSpeed: 0
   _turnSpeed: 0
   _turretRotationSpeed: 0
