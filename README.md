@@ -4,9 +4,10 @@ Unity 6 prototype for a top-down 1v1 tank duel built around ricochet shots, armo
 
 ## Current Prototype Status
 
-The current playable target is the editor-friendly demo scene:
+The current playable flow is MainMenu -> RicochetTanks_Demo:
 
 ```text
+Assets/_Project/RicochetTanks/Scenes/MainMenu.unity
 Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity
 ```
 
@@ -21,15 +22,17 @@ Implemented in code/assets:
 - Armor penetration/no-penetration/ricochet resolution.
 - HP, death, win/lose, HUD, restart request flow.
 - Combat feedback: world-space HP bars and floating hit text.
+- Mobile controls prototype, VFX feedback, and recoil prototype.
 
-Many items still need manual Unity verification after scene/prefab changes. See `docs/TECH_STATUS.md`.
+Core Play Mode smoke checks were owner-verified in Unity on 2026-04-29. Android APK/device testing and HP bar prefab polish remain follow-up work. See `docs/TECH_STATUS.md`.
 
 ## How To Run
 
 1. Open the project in Unity.
-2. Open `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity`.
+2. Open `Assets/_Project/RicochetTanks/Scenes/MainMenu.unity` for the full flow, or `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity` for quick combat testing.
 3. Press Play.
-4. Test movement, aiming, shooting, ricochet, armor hits, HP bars, floating text, win/lose, and restart.
+4. If starting from MainMenu, press Play.
+5. Test movement, aiming, shooting, ricochet, armor hits, HP bars, floating text, win/lose, and restart.
 
 ## Controls
 
@@ -78,7 +81,7 @@ Documentation is split by purpose:
 - `docs/GDD_EN.md` - English translation/adaptation.
 - `docs/TECH_STATUS.md` - current implemented code/assets status.
 - `docs/ROADMAP.md` - next tasks and milestone plan.
-- `docs/MOBILE_CONTROLS.md` - design-only mobile landscape controls plan.
+- `docs/MOBILE_CONTROLS.md` - mobile landscape controls design and prototype reference.
 - `docs/GD_QUESTIONS.md` - guiding questions for game design decisions.
 - `docs/GDD.md` - compatibility pointer for older links.
 
@@ -88,12 +91,10 @@ Compact AI/project map:
 AI_CONTEXT_GRAPH.md
 ```
 
-## Known Manual Checks
+## Remaining Manual Checks
 
-- Confirm `RicochetTanks_Demo` launches cleanly in Play Mode.
-- Confirm HP bars shrink after damage and reset on restart.
-- Confirm floating hit text appears for damage, `NO PEN`, and `RICOCHET`.
-- Confirm restart does not duplicate HP bars or event subscriptions.
+- Build and test a local Android APK.
+- Tune HP bar prefab readability if needed.
 - Inspect materials in Unity for any broken/magenta visuals.
 
 ## Notes

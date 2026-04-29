@@ -128,15 +128,16 @@ UI/CombatFeedback
 - HP and death are handled by `TankHealth`.
 - Win/lose is handled by `SandboxMatchController`.
 - Combat feedback uses event-driven world HP bars and floating hit text.
-- Mobile controls are not implemented; design direction is documented in `docs/MOBILE_CONTROLS.md`.
-- Minimal VFX/recoil ideas are documented as TODO, not implemented.
+- Mobile controls prototype is implemented and owner-verified in Mobile mode in the Editor.
+- Minimal VFX/recoil prototypes are implemented; custom art/prefab polish remains future work.
+- MainMenu -> RicochetTanks_Demo flow exists and was owner-verified in Unity.
 - Network/multiplayer is future research only, not an immediate implementation target.
 
 ## Current Config Numbers
 
 From `Assets/_Project/RicochetTanks/Configs/ProjectileConfig.asset`:
 
-- Projectile speed: `22`
+- Projectile speed: `48.8`
 - Bounce speed multiplier: `0.78`
 - Cooldown: `0.8`
 - Owner safe time: `0.15`
@@ -202,28 +203,26 @@ From camera/match configs:
 
 ## Known Risks
 
-- Manual Unity Play Mode verification is still required.
-- HP bars/floating hit text/restart duplication need manual check.
+- Core Unity Play Mode smoke test was owner-verified on 2026-04-29.
+- HP bars/floating hit text/restart duplication were owner-verified in Unity; HP bar prefab readability may still need polish.
 - Projectile speed loss after ricochet may be too subtle visually and needs manual review/tuning.
-- Mobile landscape controls are required next but are design-only right now.
-- VFX/recoil requirements are documented but not implemented.
+- Android APK/device verification is still required.
 - Debug logs can spam Console if enabled in `DebugLogConfig`: `[SHOT]`, `[HIT]`, `[BOUNCE]`, `[ARMOR]`.
 - Materials may need visual polish if Unity shows broken/magenta visuals.
 - Scene/prefab/config edits made in Unity must be saved and committed.
 - Enemy AI is not implemented; enemy is a dummy target.
-- Main menu/bootstrap scene flow is not the current reliable launch path; open `RicochetTanks_Demo` directly.
+- MainMenu -> RicochetTanks_Demo is the intended scene flow; direct `RicochetTanks_Demo` launch is still useful for quick debugging.
 - There were accidental `.zip` archive assets under `Assets`; they should stay removed.
 
 ## Next Safe Tasks
 
-1. Manually verify HP bars, floating hit text, and restart in Unity.
-2. Validate damage, penetration, armor, ricochet, and speed-loss formulas in Play Mode.
-3. Review whether ricochet speed loss is visually strong enough.
-4. Review `docs/MOBILE_CONTROLS.md` and answer `docs/GD_QUESTIONS.md`.
-5. Prototype mobile controls only after the design doc is accepted.
-6. Add minimal hit/impact/wreck VFX after combat readability is verified.
-7. Add visual-first recoil/knockback after the designer decides scope.
-8. Keep network/multiplayer as research only.
+1. Build/test local Android APK with MainMenu -> RicochetTanks_Demo.
+2. Tune HP bar prefab readability if the current prototype bar is too flat or hard to read.
+3. Validate damage, penetration, armor, ricochet, and speed-loss formulas in Play Mode during future balance passes.
+4. Review whether ricochet speed loss is visually strong enough.
+5. Improve mobile layout on an actual device if Editor layout differs.
+6. Add simple enemy behavior only after the mobile/demo flow stays stable.
+7. Keep network/multiplayer as research only.
 
 ## Files To Read First
 

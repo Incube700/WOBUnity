@@ -7,7 +7,10 @@ namespace RicochetTanks.Input.Mobile
     {
         private const float JoystickSize = 164f;
         private const float JoystickRadius = 70f;
-        private const float JoystickMargin = 86f;
+        private const float JoystickHorizontalOffset = 180f;
+        private const float JoystickVerticalOffset = 170f;
+        private const float FireButtonHorizontalOffset = 110f;
+        private const float FireButtonVerticalOffset = 300f;
         private const float FireButtonSize = 92f;
 
         [SerializeField] private MobileJoystick _movementJoystick;
@@ -47,8 +50,16 @@ namespace RicochetTanks.Input.Mobile
             scaler.matchWidthOrHeight = 0.5f;
 
             var view = canvasObject.AddComponent<MobileControlsView>();
-            var movement = CreateJoystick(canvasObject.transform, "MovementJoystick", new Vector2(0f, 0f), new Vector2(JoystickMargin, JoystickMargin));
-            var aim = CreateJoystick(canvasObject.transform, "AimJoystick", new Vector2(1f, 0f), new Vector2(-JoystickMargin, JoystickMargin));
+            var movement = CreateJoystick(
+                canvasObject.transform,
+                "MovementJoystick",
+                new Vector2(0f, 0f),
+                new Vector2(JoystickHorizontalOffset, JoystickVerticalOffset));
+            var aim = CreateJoystick(
+                canvasObject.transform,
+                "AimJoystick",
+                new Vector2(1f, 0f),
+                new Vector2(-JoystickHorizontalOffset, JoystickVerticalOffset));
             var fire = CreateFireButton(canvasObject.transform);
             view.Configure(movement, aim, fire);
             return view;
@@ -93,7 +104,7 @@ namespace RicochetTanks.Input.Mobile
             rectTransform.anchorMin = new Vector2(1f, 0f);
             rectTransform.anchorMax = new Vector2(1f, 0f);
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            rectTransform.anchoredPosition = new Vector2(-96f, 244f);
+            rectTransform.anchoredPosition = new Vector2(-FireButtonHorizontalOffset, FireButtonVerticalOffset);
             rectTransform.sizeDelta = new Vector2(FireButtonSize, FireButtonSize);
 
             var image = buttonObject.GetComponent<Image>();

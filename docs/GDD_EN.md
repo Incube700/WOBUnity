@@ -93,15 +93,22 @@ Implemented in code/assets:
 - no-penetration / ricochet with zero damage;
 - HP, death, win/lose, and restart flow;
 - screen HUD;
-- combat feedback through world-space HP bars and floating hit text.
+- combat feedback through world-space HP bars and floating hit text;
+- MainMenu -> RicochetTanks_Demo flow;
+- desktop controls and mobile controls prototype.
 
-Needs Manual Unity Check:
+Owner-verified in Unity:
 
 - Play Mode without blocking errors;
 - HP bars visually shrink after damage;
 - floating damage / `NO PEN` / `RICOCHET`;
 - restart does not duplicate subscriptions or UI;
 - current arena size, materials, and readability.
+
+Needs Manual Unity Check:
+
+- Android APK/device test;
+- final HP bar prefab readability if the current prototype look is too flat.
 
 ## Latest Game Designer Feedback
 
@@ -118,9 +125,10 @@ Needs Manual Unity Check:
 ## Launch Instructions
 
 1. Open the project in Unity.
-2. Open `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity`.
+2. Open `Assets/_Project/RicochetTanks/Scenes/MainMenu.unity` for the full flow, or `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity` for a quick combat check.
 3. Press Play.
-4. Check movement, aiming, shooting, ricochet, armor hits, HP, floating hit text, win/lose, and restart.
+4. If launching from MainMenu, press Play.
+5. Check movement, aiming, shooting, ricochet, armor hits, HP, floating hit text, win/lose, and restart.
 
 ## Controls
 
@@ -134,11 +142,11 @@ Needs Manual Unity Check:
 | Left Mouse Button / `Space` | Fire |
 | `R` | Restart |
 
-Mobile controls are future work and should be implemented as a separate input layer.
+Mobile controls exist as a prototype input layer and are hidden on desktop unless `Input Mode` is set to `Mobile`.
 
 ### Mobile Controls Direction
 
-Mobile controls are not implemented yet. The design-only document is `docs/MOBILE_CONTROLS.md`.
+Mobile controls are implemented as a first prototype. The design document is `docs/MOBILE_CONTROLS.md`.
 
 Baseline direction:
 
@@ -146,7 +154,7 @@ Baseline direction:
 - left virtual joystick controls tank movement / hull;
 - right virtual joystick controls turret/cannon aim;
 - shooting uses either tap or a fire button, still open;
-- do not rewrite PC controls until the mobile control scheme is approved.
+- keep PC controls intact while tuning mobile layout.
 
 ## Projectile And Armor Model
 
@@ -275,13 +283,13 @@ Combat feedback should make every hit understandable:
 
 Minimal prototype VFX direction:
 
-- projectile trail - implemented in code/assets, Needs Manual Unity Check;
-- small hit/explosion effect - TODO;
-- visible impact feedback - TODO;
-- smoke/wreck marker after destroyed tank - TODO;
-- shot recoil/knockback feeling - TODO.
+- projectile trail - implemented and checked in Unity;
+- small hit/explosion effect - prototype/fallback VFX exists, final art pass later;
+- visible impact feedback - prototype/fallback VFX exists;
+- smoke/wreck marker after destroyed tank - prototype/fallback VFX exists;
+- shot recoil/knockback feeling - prototype implemented.
 
-Recoil is not implemented yet. Preferred first pass is visual-only recoil so it does not accidentally change movement, armor, or ricochet behavior.
+Recoil exists as a prototype, but the final design still needs tuning so it does not make movement or shooting feel unstable.
 
 ## Open Design Questions
 

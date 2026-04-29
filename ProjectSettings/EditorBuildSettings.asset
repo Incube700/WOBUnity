@@ -5,6 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 1
+    path: Assets/_Project/RicochetTanks/Scenes/MainMenu.unity
+    guid: 87b326d9c3284407a6aa51fefc73409b
   - enabled: 0
     path: Assets/_Project/RicochetTanks/Scenes/Sandbox.unity
     guid: f70357431ed54139b23ffe499a1049d6

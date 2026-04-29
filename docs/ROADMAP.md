@@ -1,29 +1,28 @@
 # Ricochet Tanks - Roadmap
 
-**Synced:** 2026-04-28  
+**Synced:** 2026-04-29
 **Design source:** `docs/GDD_RU.md`  
 **Status source:** `docs/TECH_STATUS.md`
 
-This roadmap restores the useful milestone structure from the old root GDD and updates it for the current playable prototype state. Items that were not manually verified in Unity remain unchecked.
+This roadmap restores the useful milestone structure from the old root GDD and updates it for the current playable prototype state. Items verified by the owner in Unity are checked; APK/device checks remain separate.
 
 ## Prioritized Roadmap
 
 ### MVP Current
 
-1. Stabilize the PC demo in `RicochetTanks_Demo` - Needs Manual Unity Check.
-2. Verify HP bars and floating damage feedback - Needs Manual Unity Check.
+1. Stabilize the PC demo in `RicochetTanks_Demo` - owner verified in Unity.
+2. Verify HP bars and floating damage feedback - owner verified in Unity; prefab polish can be tuned later.
 3. Validate armor, penetration, damage, ricochet, and speed-loss formulas against actual gameplay.
 4. Check whether projectile speed loss after ricochet is visually strong enough.
-5. Confirm restart does not duplicate HP bars, floating text presenters, or event subscriptions.
+5. Confirm restart does not duplicate HP bars, floating text presenters, or event subscriptions - owner verified in Unity.
 
 ### Next
 
-1. Finalize mobile controls design in `docs/MOBILE_CONTROLS.md`.
-2. Answer guiding questions in `docs/GD_QUESTIONS.md`.
-3. Prototype mobile controls: left joystick for hull/movement, right joystick for turret aim, tap or fire button for shot.
-4. Test Android landscape build.
-5. Add minimal VFX feedback: small hit/explosion effect, visible impact, smoke/wreck marker.
-6. Add shot recoil/knockback feeling after deciding whether it is visual-only or physics-affecting.
+1. Tune HP bar prefab readability if needed.
+2. Test Android landscape build.
+3. Review/tune projectile speed-loss readability after ricochet.
+4. Improve mobile layout on a real device if Editor layout differs.
+5. Add simple enemy behavior after the prototype flow is stable.
 
 ### Later
 
@@ -34,12 +33,10 @@ This roadmap restores the useful milestone structure from the old root GDD and u
 
 ## Immediate Next Tasks
 
-1. Manually verify PC demo stability in Unity.
-2. Manually verify HP bars, floating hit text, and restart behavior.
-3. Manually verify wall/obstacle ricochet and tank ricochet in `RicochetTanks_Demo`.
-4. Review/tune projectile speed-loss readability after ricochet.
-5. Design mobile landscape control layout before changing controls code.
-6. Keep network/multiplayer as research only.
+1. Build/test local Android APK with MainMenu -> RicochetTanks_Demo.
+2. Tune HP bar prefab readability if the current bar is too flat or hard to read.
+3. Review/tune projectile speed-loss readability after ricochet.
+4. Keep network/multiplayer as research only.
 
 ## Milestone 0 - Documentation And Repository
 
@@ -51,18 +48,18 @@ This roadmap restores the useful milestone structure from the old root GDD and u
 
 ## Milestone 1 - First Playable Sandbox
 
-- [ ] Bootstrap -> MainMenu -> Sandbox flow - Partial / Needs Manual Unity Check.
-- [ ] `RicochetTanks_Demo` launches cleanly - Needs Manual Unity Check.
-- [ ] Arena and central obstacle are correct - Needs Manual Unity Check.
-- [ ] Player movement, turret aim, and shooting work - Needs Manual Unity Check.
-- [ ] Enemy dummy has HP and can die - Needs Manual Unity Check.
-- [ ] Fast visible projectile works - Needs Manual Unity Check.
-- [ ] Projectile ricochets from walls/obstacles up to 3 times - Needs Manual Unity Check.
-- [ ] Damage reduction after ricochet works - Needs Manual Unity Check.
-- [ ] Armor penetration/no-penetration/ricochet works - Needs Manual Unity Check.
-- [ ] HUD updates HP and round result - Needs Manual Unity Check.
-- [ ] World HP bars and floating hit text work - Needs Manual Unity Check.
-- [ ] Restart flow resets without duplicates - Needs Manual Unity Check.
+- [x] Bootstrap -> MainMenu -> RicochetTanks_Demo flow - owner verified in Unity.
+- [x] `RicochetTanks_Demo` launches cleanly - owner verified in Unity.
+- [x] Arena and central obstacle are correct - owner verified in Unity.
+- [x] Player movement, turret aim, and shooting work - owner verified in Unity.
+- [x] Enemy dummy has HP and can die - owner verified in Unity.
+- [x] Fast visible projectile works - owner verified in Unity.
+- [x] Projectile ricochets from walls/obstacles up to 3 times - owner verified in Unity.
+- [x] Damage reduction after ricochet works - owner verified in Unity.
+- [x] Armor penetration/no-penetration/ricochet works - owner verified in Unity.
+- [x] HUD updates HP and round result - owner verified in Unity.
+- [x] World HP bars and floating hit text work - owner verified in Unity; HP bar prefab may need later visual tuning.
+- [x] Restart flow resets without duplicates - owner verified in Unity.
 
 ## Milestone 2 - Combat Feel
 

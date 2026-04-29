@@ -25,7 +25,7 @@ namespace RicochetTanks.UI.MainMenu
 
         private void OnPlayClicked()
         {
-            _sceneLoaderService.Load(SceneLoaderService.SandboxSceneName);
+            _sceneLoaderService.Load(SceneLoaderService.DemoSceneName);
         }
 
         private static void OnQuitClicked()

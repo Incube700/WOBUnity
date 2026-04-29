@@ -1,6 +1,6 @@
 # Ricochet Tanks - Technical Status
 
-**Synced:** 2026-04-28  
+**Synced:** 2026-04-29
 **Branch observed:** `main`
 **Prototype root:** `Assets/_Project/RicochetTanks/`  
 **Main scene:** `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity`
@@ -28,7 +28,7 @@ Implemented in code/assets:
 - Combat feedback exists through world-space HP bars and floating hit text.
 - Projectile trail exists in code/assets.
 
-Needs Manual Unity Check:
+Manually checked in Unity:
 
 - Scene opens and runs cleanly in Play Mode.
 - Current scene size/layout/material state is correct in Unity.
@@ -42,10 +42,16 @@ Needs Manual Unity Check:
 - HP bars shrink after damage.
 - Floating hit text appears for damage, `NO PEN`, and `RICOCHET`.
 - Restart does not duplicate event subscriptions, HP bars, or listeners.
-- Unity scene/prefab changes are saved and committed after editor-side changes.
 - Projectile trail, hit readability, and impact feedback are visually clear.
 - Current ricochet speed loss is visible enough.
-- Minimal VFX/recoil/mobile controls are not implemented yet.
+- Mobile controls are visible and usable when `Input Mode` is set to `Mobile`.
+- MainMenu -> RicochetTanks_Demo flow works in Editor.
+
+Still Needs Manual Unity Check:
+
+- Android APK build/device test.
+- HP bar visual polish through prefab tuning if the current prototype bar needs better readability.
+- Unity scene/prefab changes are saved and committed after editor-side changes.
 
 ## Current Config Values
 
@@ -55,7 +61,7 @@ Values below were read from current config assets. They are status, not new bala
 
 | Value | Current |
 |---|---:|
-| Speed | 22 |
+| Speed | 48.8 |
 | Bounce speed multiplier | 0.78 |
 | Cooldown | 0.8 sec |
 | Safe owner time | 0.15 sec |
@@ -165,50 +171,49 @@ Main roles:
 
 | Feature | Status | Code Status | Main Files | Manual Check | Notes |
 |---|---|---|---|---|---|
-| Demo Scene | Needs Manual Check | Scene asset exists | `RicochetTanks_Demo.unity`, `GameplayEntryPoint` | Open scene and press Play | Main playable scene |
-| Tank Movement | Needs Manual Check | Implemented with inertia/brake/coast/reverse | `TankMovement`, `TankConfig` | Test W/S/A/D | Current feel needs Unity check |
-| Turret Aiming | Needs Manual Check | Implemented mouse ground-plane aim | `PlayerTankController`, `TurretAiming` | Move mouse while hull turns | Turret independent from hull |
-| Shooting | Needs Manual Check | Implemented | `TankShooter`, `ProjectileFactory` | LMB/Space fires from muzzle | Cooldown 0.8 sec |
-| Projectile Movement | Needs Manual Check | Implemented | `Projectile`, `ProjectileEntity`, `ProjectileMovementSystem` | Watch projectile path | XZ plane |
-| Wall/Obstacle Ricochet | Needs Manual Check | Implemented | `RicochetDetectionSystem`, `RicochetMoveDirectionReflectSystem` | Shoot wall/obstacle at angle | Max 3 bounces |
-| Tank Armor / NoPen | Needs Manual Check | Implemented | `HitResolver`, `TankArmor`, `ArmorHitInfo` | Test front and glancing side hits | Uses effective armor |
-| Tank Ricochet | Needs Manual Check | Implemented | `HitResolver`, projectile ricochet systems | Test high-angle tank hit | Uses current ricochet request path |
-| Damage / HP | Needs Manual Check | Implemented | `TankHealth`, `HitResolver` | Penetrating hit changes HP | Player 100, enemy 300 |
-| Win/Lose | Needs Manual Check | Implemented | `SandboxMatchController`, HUD presenter | Kill player/enemy | Restart still needs check |
-| Combat Feedback UI | Needs Manual Check | Implemented | `UI/CombatFeedback/*`, `WorldHealthBarPrefab` | HP bars and hit text | Restart duplication needs check |
+| Demo Scene | Done | Scene asset exists and Play Mode was checked | `RicochetTanks_Demo.unity`, `GameplayEntryPoint` | Owner verified in Unity | Main playable scene |
+| Tank Movement | Done | Implemented with inertia/brake/coast/reverse | `TankMovement`, `TankConfig` | Owner verified in Unity | Desktop controls work |
+| Turret Aiming | Done | Implemented mouse ground-plane aim | `PlayerTankController`, `TurretAiming` | Owner verified in Unity | Turret independent from hull |
+| Shooting | Done | Implemented | `TankShooter`, `ProjectileFactory` | Owner verified in Unity | Cooldown 0.8 sec |
+| Projectile Movement | Done | Implemented | `Projectile`, `ProjectileEntity`, `ProjectileMovementSystem` | Owner verified in Unity | Fast visible projectile |
+| Wall/Obstacle Ricochet | Done | Implemented | `RicochetDetectionSystem`, `RicochetMoveDirectionReflectSystem` | Owner verified in Unity | Max 3 bounces |
+| Tank Armor / NoPen | Done | Implemented | `HitResolver`, `TankArmor`, `ArmorHitInfo` | Owner verified in Unity | Uses effective armor |
+| Tank Ricochet | Done | Implemented | `HitResolver`, projectile ricochet systems | Owner verified in Unity | Uses current ricochet request path |
+| Damage / HP | Done | Implemented | `TankHealth`, `HitResolver` | Owner verified in Unity | Player 100, enemy 300 |
+| Win/Lose | Done | Implemented | `SandboxMatchController`, HUD presenter | Owner verified in Unity | Restart checked |
+| Combat Feedback UI | Done | Implemented | `UI/CombatFeedback/*`, `WorldHealthBarPrefab` | Owner verified in Unity | HP bar prefab polish may be tuned later |
 | Debug Logs | Partial | Implemented with `DebugLogConfig` and debug visualizer | `DebugLogConfig`, `SandboxDebugVisualizer`, projectile systems | Watch console volume | Log tuning still needs Unity check |
 | Materials / Visual Polish | Partial | Greybox materials/prefabs exist | Prefabs, scene materials | Inspect for magenta/broken visuals | Visual polish not final |
-| Main Menu | Partial | UI scripts exist | `UI/MainMenu/*`, `SceneLoaderService` | Check scene availability/build flow | Direct demo scene launch is reliable path |
-| Mobile Controls | Future | Not implemented | None yet | N/A | Desktop first |
+| Main Menu | Done | Scene and UI flow exist | `MainMenu.unity`, `UI/MainMenu/*`, `SceneLoaderService` | Owner verified in Unity | Play loads demo |
+| Mobile Controls | Partial | Prototype implemented | `Input/Mobile/*`, `GameplayEntryPoint` | Owner verified in Mobile mode; Android device check pending | Desktop hidden by default |
 | Enemy AI | Future | Enemy is dummy | `EnemyDummyTank`, `TankFacade` | N/A | No movement/aim/shoot AI |
 
 ## Demo Scene Checklist
 
 - [x] Scene asset exists: `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity`.
-- [ ] Scene launches in Play Mode - Needs Manual Unity Check.
-- [ ] Player and enemy spawn correctly - Needs Manual Unity Check.
-- [ ] Camera top-down framing is correct - Needs Manual Unity Check.
-- [ ] Tank controls feel correct - Needs Manual Unity Check.
-- [ ] Shooting works in Play Mode - Needs Manual Unity Check.
-- [ ] Wall/obstacle ricochet works in Play Mode - Needs Manual Unity Check.
-- [ ] Tank ricochet/no-penetration works in Play Mode - Needs Manual Unity Check.
-- [ ] Damage and HP update in Play Mode - Needs Manual Unity Check.
-- [ ] World HP bars display and shrink - Needs Manual Unity Check.
-- [ ] Floating hit text appears - Needs Manual Unity Check.
-- [ ] Win/lose triggers - Needs Manual Unity Check.
-- [ ] Restart resets round - Needs Manual Unity Check.
-- [ ] Restart does not duplicate subscriptions or HP bars - Needs Manual Unity Check.
+- [x] Scene launches in Play Mode - owner verified in Unity.
+- [x] Player and enemy spawn correctly - owner verified in Unity.
+- [x] Camera top-down framing is correct - owner verified in Unity.
+- [x] Tank controls feel correct - owner verified in Unity.
+- [x] Shooting works in Play Mode - owner verified in Unity.
+- [x] Wall/obstacle ricochet works in Play Mode - owner verified in Unity.
+- [x] Tank ricochet/no-penetration works in Play Mode - owner verified in Unity.
+- [x] Damage and HP update in Play Mode - owner verified in Unity.
+- [x] World HP bars display and shrink - owner verified in Unity.
+- [x] Floating hit text appears - owner verified in Unity.
+- [x] Win/lose triggers - owner verified in Unity.
+- [x] Restart resets round - owner verified in Unity.
+- [x] Restart does not duplicate subscriptions or HP bars - owner verified in Unity.
 
 ## Known Issues / Risks
 
 - Materials may still need visual polish if any magenta/broken materials appear in Unity.
 - Debug logs such as `[SHOT]`, `[HIT]`, `[BOUNCE]`, and `[ARMOR]` can spam the Console when enabled in `DebugLogConfig`.
 - Scene and prefab changes made inside Unity must be saved and committed manually.
-- Combat feedback restart duplication must be manually checked in Unity.
+- HP bar visuals may need later prefab tuning for final readability.
 - Enemy AI is not implemented; enemy is still a dummy target.
-- Menu/bootstrap flow is not final for the current playable demo; direct scene launch is the reliable path.
+- Android APK/device flow is not verified yet.
 - Generated `graphify-out/GRAPH_REPORT.md` is stale and should not override `AI_CONTEXT_GRAPH.md`.
 - Existing uncommitted Unity scene/config changes should be reviewed before commit.
-- Mobile controls are design-only in `docs/MOBILE_CONTROLS.md`.
-- Recoil/knockback feeling is not implemented.
+- Projectile speed is currently `48.8`; keep it as the current tuning unless design asks for a balance pass.
 - Network/multiplayer is future research only.

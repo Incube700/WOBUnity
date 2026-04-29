@@ -110,6 +110,7 @@ Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity
 - перезапуск.
 
 Все пункты, которые нельзя проверить автоматически из файлов, отмечены в `docs/TECH_STATUS.md` как **Needs Manual Unity Check**.
+Основной smoke test в Unity был пройден владельцем проекта 2026-04-29; Android APK/device test остается отдельной проверкой.
 
 ### 4.1. Текущее реализованное состояние
 
@@ -125,15 +126,22 @@ Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity
 - no-penetration / ricochet без урона;
 - HP, смерть, win/lose и restart flow;
 - экранный HUD;
-- Combat Feedback через world-space HP bars и floating hit text.
+- Combat Feedback через world-space HP bars и floating hit text;
+- MainMenu -> RicochetTanks_Demo flow;
+- desktop controls и mobile controls prototype.
 
-Needs Manual Unity Check:
+Проверено владельцем проекта в Unity:
 
 - Play Mode без ошибок;
 - визуальное уменьшение HP bars;
 - floating damage / `NO PEN` / `RICOCHET`;
 - restart без дублей подписок и UI;
 - текущий размер арены, материалы и читаемость сцены.
+
+Needs Manual Unity Check:
+
+- Android APK/device test;
+- финальная читаемость HP bar prefab, если текущий прототипный вид покажется слишком плоским.
 
 ### 4.2. Последний фидбек геймдизайнера
 
@@ -150,9 +158,10 @@ Needs Manual Unity Check:
 ## 5. Как запустить демо
 
 1. Открыть проект в Unity.
-2. Открыть сцену `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity`.
+2. Открыть сцену `Assets/_Project/RicochetTanks/Scenes/MainMenu.unity` для полного flow или `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity` для быстрой проверки боя.
 3. Нажать Play.
-4. Проверить управление, стрельбу, рикошеты, броню, HP, floating text, win/lose и restart.
+4. В MainMenu нажать Play, если запущена menu scene.
+5. Проверить управление, стрельбу, рикошеты, броню, HP, floating text, win/lose и restart.
 
 ## 6. Управление
 
@@ -517,13 +526,13 @@ HUD и Combat Feedback не должны:
 
 Минимальный VFX для прототипа:
 
-- projectile trail - текущий код/ассеты уже поддерживают trail, Needs Manual Unity Check;
-- small hit/explosion effect - TODO;
-- visible impact feedback при попадании/рикошете - TODO;
-- smoke/wreck marker после destroyed tank - TODO;
-- recoil/knockback feeling на выстреле - TODO.
+- projectile trail - реализован и проверен в Unity;
+- small hit/explosion effect - prototype/fallback VFX есть, финальный art pass позже;
+- visible impact feedback при попадании/рикошете - prototype/fallback VFX есть;
+- smoke/wreck marker после destroyed tank - prototype/fallback VFX есть;
+- recoil/knockback feeling на выстреле - прототип реализован.
 
-Recoil пока не считается реализованной механикой. Нужно отдельно решить, будет ли он:
+Recoil уже есть как прототип, но его финальный дизайн все еще нужно уточнить:
 
 - только визуальным откатом корпуса/башни/камеры;
 - физическим импульсом, влияющим на позицию;
