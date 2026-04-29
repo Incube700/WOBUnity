@@ -1,59 +1,59 @@
-# Ricochet Tanks - Game Designer Questions
+# Ricochet Tanks — вопросы к геймдизайнеру
 
-**Status:** active guiding questions
-**Purpose:** help the game designer answer concrete product/gameplay decisions before implementation.
+**Статус:** активный список наводящих вопросов  
+**Цель:** помочь геймдизайнеру принимать конкретные продуктовые и геймплейные решения до реализации.
 
-## Mobile Controls
+## Мобильное управление
 
-1. How many on-screen buttons are acceptable on mobile?
-2. Should shooting use tap-to-fire, a dedicated fire button, or both?
-3. Should turret aim be hold-drag, fixed right joystick, or floating right joystick?
-4. Should the left joystick allow full analog steering, or should it feel closer to W/S/A/D?
-5. Should restart/pause be visible during combat or hidden behind a small menu button?
-6. Should mobile controls show aim direction/trajectory assistance?
+1. Сколько экранных кнопок допустимо на мобильной версии?
+2. Как должна работать стрельба: тап по экрану, отдельная кнопка выстрела или оба варианта?
+3. Как лучше управлять башней: удержание и drag, фиксированный правый джойстик или плавающий правый джойстик?
+4. Левый джойстик должен давать полноценное аналоговое управление или ощущаться ближе к W/S/A/D?
+5. Кнопки рестарта/паузы должны быть видны во время боя или спрятаны за маленькой кнопкой меню?
+6. Нужно ли показывать на мобильном управлении помощь при прицеливании: направление выстрела, траекторию, подсказку рикошета?
 
-## Combat Readability
+## Читаемость боя
 
-1. How much damage feedback is enough: HP bar only, floating number only, or both?
-2. Should `NO PEN` and `RICOCHET` use different colors/sounds/effects?
-3. Should every ricochet show feedback, or only tank hits?
-4. Should the player see enemy HP as exact number, bar only, or both?
-5. Should player HP be larger/more prominent than enemy HP?
+1. Сколько обратной связи по урону достаточно: только HP-бар, только всплывающее число урона или оба варианта?
+2. Должны ли `НЕ ПРОБИЛ` и `РИКОШЕТ` отличаться цветом, звуком или эффектом?
+3. Нужно ли показывать фидбек на каждый рикошет или только на попадания по танкам?
+4. Игрок должен видеть HP врага точным числом, только полоской или и числом, и полоской?
+5. HP игрока должен быть крупнее/заметнее, чем HP врага?
 
-## Damage / Armor / Ricochet
+## Урон / броня / рикошет
 
-1. Should projectile speed loss after ricochet be stronger visually?
-2. Should damage loss after ricochet stay at the current multiplier or become more aggressive?
-3. Should front armor always resist the default projectile, or only at direct/low-angle hits?
-4. Should glancing side hits ricochet often, or mostly no-penetrate and disappear?
-5. Should self-hit after ricochet be common, rare, or mostly a funny edge case?
+1. Нужно ли визуально сильнее снижать скорость снаряда после рикошета?
+2. Потерю урона после рикошета оставить на текущем множителе или сделать более жёсткой?
+3. Лобовая броня всегда должна держать стандартный снаряд или только при прямых/малых углах попадания?
+4. Касательные попадания в борт должны часто рикошетить или чаще давать непробитие и исчезновение снаряда?
+5. Самопопадание после рикошета должно быть частым, редким или в основном смешным edge case?
 
-## Recoil / Knockback
+## Отдача / отбрасывание
 
-1. Should recoil affect only visuals, or should it apply physical movement/knockback?
-2. Should recoil move the hull, turret, camera, or only play a short animation?
-3. Should recoil make aiming harder, or only make shooting feel stronger?
-4. Should recoil depend on projectile damage/speed?
+1. Отдача должна быть только визуальной или должна физически двигать/отбрасывать танк?
+2. Отдача должна двигать корпус, башню, камеру или только проигрывать короткую анимацию?
+3. Отдача должна усложнять прицеливание или только делать выстрел более мощным по ощущению?
+4. Отдача должна зависеть от урона/скорости снаряда?
 
-## VFX / Destroyed Tanks
+## VFX / уничтоженные танки
 
-1. How big should hit/explosion effects be for the prototype?
-2. How long should smoke/wreck markers remain after a tank is destroyed?
-3. Should a destroyed tank stay as a wreck, disappear, or become smoke only?
-4. Should ricochet impacts create sparks/trails/marks?
-5. What is the minimum acceptable visual feedback for a public demo GIF?
+1. Насколько крупными должны быть эффекты попаданий/взрывов для прототипа?
+2. Как долго должны оставаться дым/обломки после уничтожения танка?
+3. Уничтоженный танк должен оставаться как wreck/трупик, исчезать или превращаться только в дым?
+4. Должны ли рикошеты создавать искры, следы, шлейфы или отметки на поверхности?
+5. Какой минимальный визуальный фидбек достаточен для публичной демо-GIF/видео?
 
-## Match Flow
+## Ход матча
 
-1. What is an acceptable match length for the prototype?
-2. Should player/enemy HP be tuned for short rounds or longer tactical duels?
-3. What should happen on draw/self-kill?
-4. Should restart be instant or delayed after win/lose?
-5. Should the demo have a simple menu before the arena, or open directly into the scene?
+1. Какая длительность матча приемлема для прототипа?
+2. HP игрока/врага нужно настраивать под короткие раунды или под более длинные тактические дуэли?
+3. Что должно происходить при ничьей или самоуничтожении?
+4. Рестарт после победы/поражения должен быть мгновенным или с задержкой?
+5. В демо должно быть простое меню перед ареной или игра должна сразу открываться в сцене боя?
 
-## Future Network / Multiplayer
+## Будущая сеть / мультиплеер
 
-1. Is multiplayer a portfolio direction, product direction, or only a future experiment?
-2. Should network research wait until mobile controls are stable?
-3. Is local PvP more valuable before online multiplayer?
-4. What is the minimum multiplayer prototype: two tanks shooting, full armor rules, or simplified combat?
+1. Мультиплеер — это направление для портфолио, продуктовая цель или пока только будущий эксперимент?
+2. Исследование сетевой части нужно отложить до стабилизации мобильного управления?
+3. Локальный PvP ценнее на первом этапе, чем онлайн-мультиплеер?
+4. Какой минимальный мультиплеер-прототип нужен: два танка стреляют друг в друга, полные правила брони или упрощённый бой?
