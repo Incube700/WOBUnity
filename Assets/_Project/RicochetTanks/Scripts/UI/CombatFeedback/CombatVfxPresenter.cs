@@ -2,11 +2,12 @@ using System;
 using RicochetTanks.Gameplay.Combat;
 using RicochetTanks.Gameplay.Events;
 using RicochetTanks.Gameplay.Tanks;
+using RicochetTanks.UI.Core;
 using UnityEngine;
 
 namespace RicochetTanks.UI.CombatFeedback
 {
-    public sealed class CombatVfxPresenter : IDisposable
+    public sealed class CombatVfxPresenter : IPresenter
     {
         private readonly SandboxGameplayEvents _gameplayEvents;
         private readonly CombatVfxFactory _factory;

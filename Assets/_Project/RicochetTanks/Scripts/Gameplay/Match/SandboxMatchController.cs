@@ -8,7 +8,7 @@ using RicochetTanks.Input;
 using RicochetTanks.Input.Desktop;
 using UnityEngine;
 
-namespace RicochetTanks.UI.Sandbox
+namespace RicochetTanks.Gameplay.Match
 {
     public sealed class SandboxMatchController : MonoBehaviour
     {

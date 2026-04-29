@@ -1,9 +1,10 @@
 using System;
 using RicochetTanks.Gameplay.Combat;
+using RicochetTanks.UI.Core;
 
 namespace RicochetTanks.UI.CombatFeedback
 {
-    public sealed class TankHealthBarPresenter : IDisposable
+    public sealed class TankHealthBarPresenter : IPresenter
     {
         private readonly TankHealth _health;
         private readonly TankHealthBarView _view;

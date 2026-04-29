@@ -1,11 +1,12 @@
 using System;
 using RicochetTanks.Gameplay.Combat;
 using RicochetTanks.Gameplay.Events;
+using RicochetTanks.UI.Core;
 using UnityEngine;
 
 namespace RicochetTanks.UI.CombatFeedback
 {
-    public sealed class CombatFeedbackPresenter : IDisposable
+    public sealed class CombatFeedbackPresenter : IPresenter
     {
         private const float NormalOffset = 0.18f;
         private const float VerticalOffset = 0.22f;

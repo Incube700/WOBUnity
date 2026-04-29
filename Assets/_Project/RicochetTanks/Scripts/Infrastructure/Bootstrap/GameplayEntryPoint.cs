@@ -1,18 +1,16 @@
-using System;
 using RicochetTanks.Configs;
-using RicochetTanks.Gameplay.Combat;
 using RicochetTanks.Gameplay.Events;
+using RicochetTanks.Gameplay.Match;
 using RicochetTanks.Gameplay.Projectiles;
 using RicochetTanks.Gameplay.Tanks;
+using RicochetTanks.Infrastructure.Composition;
 using RicochetTanks.Infrastructure.SceneLoading;
 using RicochetTanks.Input;
 using RicochetTanks.Input.Desktop;
 using RicochetTanks.Input.Mobile;
 using RicochetTanks.UI;
-using RicochetTanks.UI.CombatFeedback;
 using RicochetTanks.UI.Sandbox;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace RicochetTanks.Infrastructure.Bootstrap
 {
@@ -56,13 +54,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         private SandboxGameplayEvents _gameplayEvents;
         private SandboxHudPresenter _hudPresenter;
         private SandboxMatchController _matchController;
-        private CombatFeedbackFactory _combatFeedbackFactory;
-        private CombatFeedbackPresenter _combatFeedbackPresenter;
-        private CombatVfxPresenter _combatVfxPresenter;
-        private TankHealthBarPresenter _playerHealthBarPresenter;
-        private TankHealthBarPresenter _enemyHealthBarPresenter;
-        private TankHealthBarView _playerHealthBarView;
-        private TankHealthBarView _enemyHealthBarView;
+        private CombatFeedbackComposition _combatFeedbackComposition;
         private ITankInputReader _activeInputReader;
         private MobileInputReader _mobileInputReader;
         private MobileControlsView _mobileControlsView;
@@ -74,7 +66,8 @@ namespace RicochetTanks.Infrastructure.Bootstrap
 
         private void OnDestroy()
         {
-            DisposeCombatFeedback();
+            _combatFeedbackComposition?.Dispose();
+            _combatFeedbackComposition = null;
             _hudPresenter?.Dispose();
             _hudPresenter = null;
         }
@@ -88,8 +81,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             _gameplayEvents = new SandboxGameplayEvents(_debugLogConfig);
             EnsureInputReader();
             EnsureProjectileFactory();
-            ConfigureTank(_playerTank, _playerSpawnPoint, _playerTankConfig, true);
-            ConfigureTank(_enemyDummyTank, _enemySpawnPoint, _enemyTankConfig, false);
+            ConfigureTanks();
             BindCombatFeedback();
             BindHud();
             BindMatch();
@@ -261,75 +253,19 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             _projectileFactory.Configure(_projectileConfig, _gameplayEvents);
         }
 
-        private void ConfigureTank(TankFacade tank, Transform spawnPoint, TankConfig tankConfig, bool isPlayerControlled)
+        private void ConfigureTanks()
         {
-            if (tank == null)
-            {
-                throw new InvalidOperationException($"Missing {(isPlayerControlled ? "player" : "enemy")} tank scene reference.");
-            }
-
-            if (spawnPoint != null)
-            {
-                tank.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
-            }
-
-            var body = tank.gameObject;
-            var rigidbody = GetOrAdd<Rigidbody>(body);
-            rigidbody.useGravity = false;
-            rigidbody.isKinematic = !isPlayerControlled;
-            rigidbody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-            rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-
-            var hitbox = GetOrAdd<BoxCollider>(body);
-            hitbox.center = new Vector3(0f, 0.5f, 0f);
-            hitbox.size = new Vector3(1.2f, 0.9f, 1.35f);
-
-            var movement = GetOrAdd<TankMovement>(body);
-            var aiming = GetOrAdd<TurretAiming>(body);
-            var shooter = GetOrAdd<TankShooter>(body);
-            var health = GetOrAdd<TankHealth>(body);
-            var armor = GetOrAdd<TankArmor>(body);
-            var controller = GetOrAdd<PlayerTankController>(body);
-            var turret = FindDescendant(tank.transform, "Turret");
-            if (turret == null)
-            {
-                turret = CreateChild(tank.transform, "Turret", new Vector3(0f, 0.62f, 0f));
-            }
-
-            var muzzle = FindDescendant(turret, "Muzzle");
-            if (muzzle == null)
-            {
-                muzzle = CreateChild(turret, "Muzzle", new Vector3(0f, 0f, 1.25f));
-            }
-
-            movement.Configure(
-                rigidbody,
-                tankConfig.MaxForwardSpeed,
-                tankConfig.MaxReverseSpeed,
-                tankConfig.Acceleration,
-                tankConfig.BrakeDeceleration,
-                tankConfig.CoastDeceleration,
-                tankConfig.TurnSpeed,
-                tankConfig.TurnSpeedAtLowVelocity,
-                tankConfig.InputDeadZone);
-            movement.ConfigureRecoil(
-                tankConfig.ShotRecoilImpulse,
-                tankConfig.ShotRecoilDecay,
-                tankConfig.MaxRecoilVelocity);
-            aiming.Configure(turret, _camera, tankConfig.TurretRotationSpeed);
-            shooter.Configure(muzzle, tank, _projectileFactory, _projectileConfig);
-            health.Configure(tankConfig.MaxHp);
-            armor.Configure(tankConfig);
-            controller.Configure(tank, _activeInputReader, _camera);
-            tank.Configure(movement, aiming, shooter, health, controller);
-            tank.SetPlayerControlled(isPlayerControlled);
+            var tankFactory = new TankCompositionFactory(_camera, _activeInputReader, _projectileFactory, _projectileConfig);
+            tankFactory.ConfigureTank(_playerTank, _playerSpawnPoint, _playerTankConfig, true);
+            tankFactory.ConfigureTank(_enemyDummyTank, _enemySpawnPoint, _enemyTankConfig, false);
         }
 
         private void BindHud()
         {
             if (_hudView == null)
             {
-                _hudView = CreateHudView();
+                _hudView = new SandboxHudViewFactory().Create(_gameplayCanvas);
+                _gameplayCanvas = _hudView.GetComponentInParent<Canvas>();
             }
 
             _hudPresenter?.Dispose();
@@ -344,58 +280,18 @@ namespace RicochetTanks.Infrastructure.Bootstrap
 
         private void BindCombatFeedback()
         {
-            DisposeCombatFeedback();
+            _combatFeedbackComposition?.Dispose();
             EnsureCombatFeedbackRoot();
 
-            _combatFeedbackFactory = new CombatFeedbackFactory(_worldHealthBarPrefab, _floatingHitTextPrefab, _combatFeedbackRoot, _camera);
-
-            var playerHealthBar = _combatFeedbackFactory.CreateHealthBar(_playerTank);
-            if (playerHealthBar != null)
-            {
-                _playerHealthBarView = playerHealthBar;
-                _playerHealthBarPresenter = new TankHealthBarPresenter(playerHealthBar, _playerTank.Health);
-            }
-
-            var enemyHealthBar = _combatFeedbackFactory.CreateHealthBar(_enemyDummyTank);
-            if (enemyHealthBar != null)
-            {
-                _enemyHealthBarView = enemyHealthBar;
-                _enemyHealthBarPresenter = new TankHealthBarPresenter(enemyHealthBar, _enemyDummyTank.Health);
-            }
-
-            _combatFeedbackPresenter = new CombatFeedbackPresenter(_gameplayEvents, _combatFeedbackFactory);
-            _combatVfxPresenter = new CombatVfxPresenter(
+            _combatFeedbackComposition = new CombatFeedbackComposition(
+                _worldHealthBarPrefab,
+                _floatingHitTextPrefab,
+                _combatVfxConfig,
+                _combatFeedbackRoot,
+                _camera,
                 _gameplayEvents,
-                new CombatVfxFactory(_combatVfxConfig, _combatFeedbackRoot),
                 _playerTank,
                 _enemyDummyTank);
-        }
-
-        private void DisposeCombatFeedback()
-        {
-            _combatVfxPresenter?.Dispose();
-            _combatFeedbackPresenter?.Dispose();
-            _playerHealthBarPresenter?.Dispose();
-            _enemyHealthBarPresenter?.Dispose();
-            DestroyHealthBar(_playerHealthBarView);
-            DestroyHealthBar(_enemyHealthBarView);
-            _combatFeedbackPresenter = null;
-            _playerHealthBarPresenter = null;
-            _enemyHealthBarPresenter = null;
-            _playerHealthBarView = null;
-            _enemyHealthBarView = null;
-            _combatFeedbackFactory = null;
-            _combatVfxPresenter = null;
-        }
-
-        private static void DestroyHealthBar(TankHealthBarView healthBarView)
-        {
-            if (healthBarView == null)
-            {
-                return;
-            }
-
-            Destroy(healthBarView.gameObject);
         }
 
         private void EnsureCombatFeedbackRoot()
@@ -421,29 +317,6 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 _floatingHitTextPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/RicochetTanks/Prefabs/UI/FloatingHitTextPrefab.prefab");
             }
 #endif
-        }
-
-        private SandboxHudView CreateHudView()
-        {
-            var canvas = _gameplayCanvas != null ? _gameplayCanvas : UiFactory.CreateCanvas("GameplayCanvas");
-            _gameplayCanvas = canvas;
-
-            var playerHpText = UiFactory.CreateText(canvas.transform, "PlayerHpText", new Vector2(20f, -20f), new Vector2(260f, 28f), TextAnchor.MiddleLeft);
-            AnchorTopLeft(playerHpText.rectTransform);
-            var enemyHpText = UiFactory.CreateText(canvas.transform, "EnemyHpText", new Vector2(20f, -52f), new Vector2(260f, 28f), TextAnchor.MiddleLeft);
-            AnchorTopLeft(enemyHpText.rectTransform);
-            var lastHitText = UiFactory.CreateText(canvas.transform, "LastHitText", new Vector2(20f, -84f), new Vector2(520f, 28f), TextAnchor.MiddleLeft);
-            AnchorTopLeft(lastHitText.rectTransform);
-            var roundResultText = UiFactory.CreateText(canvas.transform, "RoundResultText", new Vector2(0f, -18f), new Vector2(360f, 30f), TextAnchor.MiddleCenter);
-            AnchorTopCenter(roundResultText.rectTransform);
-            var controlsHintText = UiFactory.CreateText(canvas.transform, "ControlsHintText", new Vector2(0f, 22f), new Vector2(900f, 30f), TextAnchor.MiddleCenter);
-            AnchorBottomCenter(controlsHintText.rectTransform);
-            var restartButton = UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(-20f, -20f), new Vector2(160f, 42f), null);
-            AnchorTopRight((RectTransform)restartButton.transform);
-
-            var hudView = canvas.gameObject.AddComponent<SandboxHudView>();
-            hudView.Configure(playerHpText, enemyHpText, lastHitText, roundResultText, controlsHintText, restartButton);
-            return hudView;
         }
 
         private void BindMatch()
@@ -510,32 +383,5 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             return child != null ? GetOrAdd<TankFacade>(child.gameObject) : null;
         }
 
-        private static void AnchorTopLeft(RectTransform rectTransform)
-        {
-            rectTransform.anchorMin = new Vector2(0f, 1f);
-            rectTransform.anchorMax = new Vector2(0f, 1f);
-            rectTransform.pivot = new Vector2(0f, 1f);
-        }
-
-        private static void AnchorTopCenter(RectTransform rectTransform)
-        {
-            rectTransform.anchorMin = new Vector2(0.5f, 1f);
-            rectTransform.anchorMax = new Vector2(0.5f, 1f);
-            rectTransform.pivot = new Vector2(0.5f, 1f);
-        }
-
-        private static void AnchorTopRight(RectTransform rectTransform)
-        {
-            rectTransform.anchorMin = new Vector2(1f, 1f);
-            rectTransform.anchorMax = new Vector2(1f, 1f);
-            rectTransform.pivot = new Vector2(1f, 1f);
-        }
-
-        private static void AnchorBottomCenter(RectTransform rectTransform)
-        {
-            rectTransform.anchorMin = new Vector2(0.5f, 0f);
-            rectTransform.anchorMax = new Vector2(0.5f, 0f);
-            rectTransform.pivot = new Vector2(0.5f, 0f);
-        }
     }
 }

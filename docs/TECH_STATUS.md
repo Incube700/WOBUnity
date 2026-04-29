@@ -154,7 +154,10 @@ The prototype is not DOTS/Entitas. It uses feature-based MonoBehaviours, plain C
 Main roles:
 
 - `GameplayEntryPoint` is the composition root for `RicochetTanks_Demo`.
-- `GameplayEntryPoint` wires scene references, configs, tank components, HUD, match controller, projectile factory, and combat feedback.
+- `GameplayEntryPoint` wires scene references, configs, and feature composition.
+- `TankCompositionFactory` configures tank runtime components from scene refs/configs.
+- `SandboxHudViewFactory` creates fallback HUD only when no serialized HUD view exists.
+- `CombatFeedbackComposition` wires HP bars, floating hit text, and VFX presenters.
 - `TankFacade` exposes tank feature components.
 - `PlayerTankController` reads input and passes commands.
 - `TankMovement` handles movement/inertia/hull rotation.
@@ -164,8 +167,11 @@ Main roles:
 - Projectile logic is split into small systems under `Gameplay/Projectiles/Systems`.
 - Combat math lives in `HitResolver` and `TankArmor`.
 - Visual feedback lives in `UI/CombatFeedback`.
+- Combat VFX is split behind `CombatVfxFactory` into trail, impact, death, and shot recoil helpers.
+- Match flow lives under `Gameplay/Match`; UI only displays match state.
 - Screen HUD remains `SandboxHudView` + `SandboxHudPresenter`.
 - `SandboxDebugVisualizer` remains debug-only.
+- `SandboxSceneBuilder` is a dev/procedural fallback only; saved scenes/prefabs are the main path.
 
 ## Feature Map
 
@@ -180,7 +186,7 @@ Main roles:
 | Tank Armor / NoPen | Done | Implemented | `HitResolver`, `TankArmor`, `ArmorHitInfo` | Owner verified in Unity | Uses effective armor |
 | Tank Ricochet | Done | Implemented | `HitResolver`, projectile ricochet systems | Owner verified in Unity | Uses current ricochet request path |
 | Damage / HP | Done | Implemented | `TankHealth`, `HitResolver` | Owner verified in Unity | Player 100, enemy 300 |
-| Win/Lose | Done | Implemented | `SandboxMatchController`, HUD presenter | Owner verified in Unity | Restart checked |
+| Win/Lose | Done | Implemented | `Gameplay/Match/SandboxMatchController`, HUD presenter | Owner verified in Unity | Restart checked |
 | Combat Feedback UI | Done | Implemented | `UI/CombatFeedback/*`, `WorldHealthBarPrefab` | Owner verified in Unity | HP bar prefab polish may be tuned later |
 | Debug Logs | Partial | Implemented with `DebugLogConfig` and debug visualizer | `DebugLogConfig`, `SandboxDebugVisualizer`, projectile systems | Watch console volume | Log tuning still needs Unity check |
 | Materials / Visual Polish | Partial | Greybox materials/prefabs exist | Prefabs, scene materials | Inspect for magenta/broken visuals | Visual polish not final |

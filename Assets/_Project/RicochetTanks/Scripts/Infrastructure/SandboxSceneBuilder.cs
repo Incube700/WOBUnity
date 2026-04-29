@@ -40,6 +40,7 @@ namespace RicochetTanks.Infrastructure
         public SandboxGameplayEvents GameplayEvents { get; }
     }
 
+    // Dev/procedural fallback only. The playable prototype should use saved scenes and prefabs.
     public static class SandboxSceneBuilder
     {
         public static SandboxSceneContext Build(Transform root)

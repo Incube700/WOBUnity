@@ -7,6 +7,8 @@ namespace RicochetTanks.UI.MainMenu
     {
         private readonly SceneLoaderService _sceneLoaderService = new SceneLoaderService();
 
+        [SerializeField] private MainMenuView _view;
+
         private MainMenuPresenter _presenter;
 
         private void Start()
@@ -24,18 +26,10 @@ namespace RicochetTanks.UI.MainMenu
         {
             UiFactory.EnsureEventSystem("Main Menu EventSystem");
 
-            var canvas = UiFactory.CreateCanvas("MainMenuCanvas");
-            var title = UiFactory.CreateText(canvas.transform, "Title", new Vector2(0f, 120f), new Vector2(420f, 55f), TextAnchor.MiddleCenter);
-            title.text = "Ricochet Tanks / World of Balance";
-            title.fontSize = 32;
+            _view = _view != null ? _view : new MainMenuViewFactory().CreateFallbackView();
 
-            var playButton = UiFactory.CreateButton(canvas.transform, "Play Demo", new Vector2(0f, 30f), null);
-            var quitButton = UiFactory.CreateButton(canvas.transform, "Quit", new Vector2(0f, -30f), null);
-
-            var view = canvas.gameObject.AddComponent<MainMenuView>();
-            view.Configure(playButton, quitButton);
             _presenter?.Dispose();
-            _presenter = new MainMenuPresenter(view, _sceneLoaderService);
+            _presenter = new MainMenuPresenter(_view, _sceneLoaderService);
         }
     }
 }

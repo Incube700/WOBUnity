@@ -28,6 +28,20 @@ Build Settings should include:
 3. Install on an Android device.
 4. Launch the app.
 
+## Troubleshooting
+
+### Active Input Handling Is Both
+
+This prototype uses Unity's legacy Input API. Do not migrate it to the New Input System for the Android prototype.
+
+If the Android build warns or fails because `Active Input Handling` is set to `Both`:
+
+1. Open `Edit > Project Settings > Player`.
+2. Go to `Other Settings > Configuration > Active Input Handling`.
+3. Set it to `Input Manager (Old)`.
+4. Restart the Unity Editor.
+5. Build again.
+
 ## Device Test
 
 - Main menu opens.

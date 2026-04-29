@@ -1,11 +1,12 @@
 using RicochetTanks.Configs;
 using RicochetTanks.Gameplay.Combat;
 using RicochetTanks.Gameplay.Events;
+using RicochetTanks.UI.Core;
 using System;
 
 namespace RicochetTanks.UI.Sandbox
 {
-    public sealed class SandboxHudPresenter : IDisposable
+    public sealed class SandboxHudPresenter : IPresenter
     {
         private readonly SandboxHudView _view;
         private readonly TankHealth _playerHealth;

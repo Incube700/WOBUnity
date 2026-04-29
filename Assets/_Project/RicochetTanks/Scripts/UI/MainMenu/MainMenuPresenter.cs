@@ -1,9 +1,10 @@
 using System;
 using RicochetTanks.Infrastructure.SceneLoading;
+using RicochetTanks.UI.Core;
 
 namespace RicochetTanks.UI.MainMenu
 {
-    public sealed class MainMenuPresenter : IDisposable
+    public sealed class MainMenuPresenter : IPresenter
     {
         private readonly MainMenuView _view;
         private readonly SceneLoaderService _sceneLoaderService;

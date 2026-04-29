@@ -1,6 +1,7 @@
 using System;
 using RicochetTanks.Configs;
 using RicochetTanks.Gameplay.Events;
+using RicochetTanks.Gameplay.Match;
 using RicochetTanks.Gameplay.Tanks;
 using RicochetTanks.Infrastructure;
 using RicochetTanks.Infrastructure.SceneLoading;

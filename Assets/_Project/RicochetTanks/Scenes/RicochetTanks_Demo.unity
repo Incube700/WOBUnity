@@ -154,7 +154,7 @@ MonoBehaviour:
   _enemyTankConfig: {fileID: 11400000, guid: 4ee738c9e822147109cf6fc3604e1ddf, type: 2}
   _projectileConfig: {fileID: 11400000, guid: 5322aaee670ec4e0b8531d8650a017d3, type: 2}
   _debugLogConfig: {fileID: 11400000, guid: dd1ed0b3b35b4b0f99017cc27da77001, type: 2}
-  _inputMode: 2
+  _inputMode: 1
   _mobileControlsPrefab: {fileID: 0}
   _arenaRoot: {fileID: 363391573}
   _playerSpawnPoint: {fileID: 2116587695}

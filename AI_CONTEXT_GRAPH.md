@@ -49,8 +49,13 @@ The project is not DOTS/Entitas. It uses feature-based MonoBehaviours, plain C# 
 GameplayEntryPoint
   -> composition root for RicochetTanks_Demo
   -> resolves scene refs/configs
-  -> configures ProjectileFactory, tanks, HUD, match controller, combat feedback
+  -> configures ProjectileFactory and delegates tanks/HUD/combat feedback to composition helpers
   -> should stay thin; no gameplay rules or animation logic
+
+Infrastructure/Composition
+  -> TankCompositionFactory
+  -> SandboxHudViewFactory
+  -> CombatFeedbackComposition
 
 TankFacade
   -> TankMovement
@@ -101,11 +106,17 @@ SandboxGameplayEvents
 UI/Sandbox
   -> SandboxHudView
   -> SandboxHudPresenter
+
+Gameplay/Match
   -> SandboxMatchController
 
 UI/CombatFeedback
   -> CombatFeedbackFactory
   -> CombatFeedbackPresenter
+  -> ProjectileTrailVfxFactory
+  -> ImpactVfxFactory
+  -> DeathVfxFactory
+  -> ShotRecoilVfxPlayer
   -> TankHealthBarView
   -> TankHealthBarPresenter
   -> FloatingHitTextView
@@ -127,6 +138,7 @@ UI/CombatFeedback
 - No-penetration and armor ricochet produce no damage.
 - HP and death are handled by `TankHealth`.
 - Win/lose is handled by `SandboxMatchController`.
+- Tank setup is composed by `TankCompositionFactory`, keeping `GameplayEntryPoint` thinner.
 - Combat feedback uses event-driven world HP bars and floating hit text.
 - Mobile controls prototype is implemented and owner-verified in Mobile mode in the Editor.
 - Minimal VFX/recoil prototypes are implemented; custom art/prefab polish remains future work.
