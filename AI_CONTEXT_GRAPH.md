@@ -141,6 +141,9 @@ UI/CombatFeedback
 - Tank setup is composed by `TankCompositionFactory`, keeping `GameplayEntryPoint` thinner.
 - Combat feedback uses event-driven world HP bars and floating hit text.
 - Mobile controls prototype is implemented and owner-verified in Mobile mode in the Editor.
+- Android build launches on device.
+- Mobile controls v1 work on Android: left joystick is arcade desired movement direction, right joystick aims turret, `FIRE` shoots.
+- Mobile controls were enlarged for Android readability, but final mobile UX is not done and needs tester feedback.
 - Minimal VFX/recoil prototypes are implemented; custom art/prefab polish remains future work.
 - MainMenu -> RicochetTanks_Demo flow exists and was owner-verified in Unity.
 - Network/multiplayer is future research only, not an immediate implementation target.
@@ -196,7 +199,7 @@ From camera/match configs:
 - Scene layout and scene generator.
 - Materials/prefabs unless a serialized reference is broken.
 - GDD/README unless the task is documentation sync.
-- Do not rewrite controls before `docs/MOBILE_CONTROLS.md` is reviewed.
+- Do not rewrite controls without a focused mobile controls task and tester feedback.
 - Do not implement network/multiplayer yet.
 
 ## Important Coding Rules
@@ -218,7 +221,7 @@ From camera/match configs:
 - Core Unity Play Mode smoke test was owner-verified on 2026-04-29.
 - HP bars/floating hit text/restart duplication were owner-verified in Unity; HP bar prefab readability may still need polish.
 - Projectile speed loss after ricochet may be too subtle visually and needs manual review/tuning.
-- Android APK/device verification is still required.
+- Android APK launches and mobile controls v1 work; final mobile UX still needs tester feedback.
 - Debug logs can spam Console if enabled in `DebugLogConfig`: `[SHOT]`, `[HIT]`, `[BOUNCE]`, `[ARMOR]`.
 - Materials may need visual polish if Unity shows broken/magenta visuals.
 - Scene/prefab/config edits made in Unity must be saved and committed.
@@ -228,7 +231,7 @@ From camera/match configs:
 
 ## Next Safe Tasks
 
-1. Build/test local Android APK with MainMenu -> RicochetTanks_Demo.
+1. Collect tester feedback on Android mobile controls v1.
 2. Tune HP bar prefab readability if the current prototype bar is too flat or hard to read.
 3. Validate damage, penetration, armor, ricochet, and speed-loss formulas in Play Mode during future balance passes.
 4. Review whether ricochet speed loss is visually strong enough.

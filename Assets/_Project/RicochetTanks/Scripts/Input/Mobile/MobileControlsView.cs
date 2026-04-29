@@ -5,13 +5,14 @@ namespace RicochetTanks.Input.Mobile
 {
     public sealed class MobileControlsView : MonoBehaviour
     {
-        private const float JoystickSize = 164f;
-        private const float JoystickRadius = 70f;
-        private const float JoystickHorizontalOffset = 180f;
-        private const float JoystickVerticalOffset = 170f;
-        private const float FireButtonHorizontalOffset = 110f;
-        private const float FireButtonVerticalOffset = 300f;
-        private const float FireButtonSize = 92f;
+        private const float JoystickSize = 300f;
+        private const float JoystickKnobSize = 130f;
+        private const float JoystickRadius = 125f;
+        private const float JoystickHorizontalOffset = 240f;
+        private const float JoystickVerticalOffset = 240f;
+        private const float FireButtonHorizontalOffset = 170f;
+        private const float FireButtonVerticalOffset = 440f;
+        private const float FireButtonSize = 210f;
 
         [SerializeField] private MobileJoystick _movementJoystick;
         [SerializeField] private MobileJoystick _aimJoystick;
@@ -42,7 +43,7 @@ namespace RicochetTanks.Input.Mobile
 
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 20;
+            canvas.sortingOrder = 50;
 
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -53,11 +54,13 @@ namespace RicochetTanks.Input.Mobile
             var movement = CreateJoystick(
                 canvasObject.transform,
                 "MovementJoystick",
+                "MOVE",
                 new Vector2(0f, 0f),
                 new Vector2(JoystickHorizontalOffset, JoystickVerticalOffset));
             var aim = CreateJoystick(
                 canvasObject.transform,
                 "AimJoystick",
+                "AIM",
                 new Vector2(1f, 0f),
                 new Vector2(-JoystickHorizontalOffset, JoystickVerticalOffset));
             var fire = CreateFireButton(canvasObject.transform);
@@ -65,7 +68,7 @@ namespace RicochetTanks.Input.Mobile
             return view;
         }
 
-        private static MobileJoystick CreateJoystick(Transform parent, string objectName, Vector2 anchor, Vector2 anchoredPosition)
+        private static MobileJoystick CreateJoystick(Transform parent, string objectName, string labelText, Vector2 anchor, Vector2 anchoredPosition)
         {
             var root = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(MobileJoystick));
             var rectTransform = (RectTransform)root.transform;
@@ -77,7 +80,7 @@ namespace RicochetTanks.Input.Mobile
             rectTransform.sizeDelta = new Vector2(JoystickSize, JoystickSize);
 
             var background = root.GetComponent<Image>();
-            background.color = new Color(0.05f, 0.08f, 0.1f, 0.42f);
+            background.color = new Color(0.04f, 0.07f, 0.09f, 0.74f);
 
             var knobObject = new GameObject("Knob", typeof(RectTransform), typeof(Image));
             var knobTransform = (RectTransform)knobObject.transform;
@@ -86,10 +89,12 @@ namespace RicochetTanks.Input.Mobile
             knobTransform.anchorMax = new Vector2(0.5f, 0.5f);
             knobTransform.pivot = new Vector2(0.5f, 0.5f);
             knobTransform.anchoredPosition = Vector2.zero;
-            knobTransform.sizeDelta = new Vector2(70f, 70f);
+            knobTransform.sizeDelta = new Vector2(JoystickKnobSize, JoystickKnobSize);
 
             var knob = knobObject.GetComponent<Image>();
-            knob.color = new Color(0.75f, 0.9f, 1f, 0.72f);
+            knob.color = new Color(0.75f, 0.92f, 1f, 0.92f);
+
+            CreateLabel(rectTransform, labelText, new Vector2(0f, -JoystickSize * 0.58f), 34);
 
             var joystick = root.GetComponent<MobileJoystick>();
             joystick.Configure(knobTransform, JoystickRadius);
@@ -108,24 +113,41 @@ namespace RicochetTanks.Input.Mobile
             rectTransform.sizeDelta = new Vector2(FireButtonSize, FireButtonSize);
 
             var image = buttonObject.GetComponent<Image>();
-            image.color = new Color(1f, 0.33f, 0.18f, 0.78f);
+            image.color = new Color(1f, 0.28f, 0.13f, 0.9f);
 
-            var textObject = new GameObject("Label", typeof(RectTransform), typeof(Text));
-            var textTransform = (RectTransform)textObject.transform;
-            textTransform.SetParent(rectTransform, false);
-            textTransform.anchorMin = Vector2.zero;
-            textTransform.anchorMax = Vector2.one;
-            textTransform.offsetMin = Vector2.zero;
-            textTransform.offsetMax = Vector2.zero;
-
-            var text = textObject.GetComponent<Text>();
-            text.text = "FIRE";
-            text.alignment = TextAnchor.MiddleCenter;
-            text.color = Color.white;
-            text.fontSize = 20;
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            var text = CreateLabel(rectTransform, "FIRE", Vector2.zero, 42);
+            Stretch(text.rectTransform);
 
             return buttonObject.GetComponent<MobileFireButton>();
+        }
+
+        private static Text CreateLabel(RectTransform parent, string textValue, Vector2 anchoredPosition, int fontSize)
+        {
+            var textObject = new GameObject("Label", typeof(RectTransform), typeof(Text));
+            var textTransform = (RectTransform)textObject.transform;
+            textTransform.SetParent(parent, false);
+            textTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            textTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            textTransform.pivot = new Vector2(0.5f, 0.5f);
+            textTransform.anchoredPosition = anchoredPosition;
+            textTransform.sizeDelta = new Vector2(180f, 52f);
+
+            var text = textObject.GetComponent<Text>();
+            text.text = textValue;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = new Color(1f, 1f, 1f, 0.92f);
+            text.fontSize = fontSize;
+            text.fontStyle = FontStyle.Bold;
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            return text;
+        }
+
+        private static void Stretch(RectTransform rectTransform)
+        {
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
         }
     }
 }

@@ -12,6 +12,10 @@
 /[Uu]ser[Ss]ettings/
 *.log
 
+# Unity generated local artifacts
+/[Aa]ssets/_Recovery/
+*_BurstDebugInformation_DoNotShip/
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/

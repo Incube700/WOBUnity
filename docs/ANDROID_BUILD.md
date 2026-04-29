@@ -47,15 +47,18 @@ If the Android build warns or fails because `Active Input Handling` is set to `B
 - Main menu opens.
 - Play loads `RicochetTanks_Demo`.
 - Mobile joysticks and `FIRE` button are visible.
-- Left joystick moves/turns the tank.
-- Right joystick aims the turret.
-- Fire button shoots.
+- Left joystick uses arcade movement: it represents the desired movement direction on the XZ plane.
+- The tank hull rotates toward the left joystick direction and moves forward while the joystick is held.
+- Right joystick aims the turret/cannon.
+- `FIRE` button shoots.
 - Projectile direction follows the barrel.
 - HP bars and floating hit text appear.
 - Restart reloads cleanly without duplicate UI.
 
 ## Known Prototype Notes
 
-- Mobile controls are a first prototype, not final UX.
+- Android test build launches and the current scene works on device.
+- Mobile controls v1 are implemented and enlarged for Android readability.
+- Mobile controls are still a first prototype, not final UX; collect tester feedback before deeper tuning.
 - VFX are placeholder/fallback unless custom prefabs are assigned in `CombatVfxConfig`.
 - Enemy is currently a dummy target, not full AI.

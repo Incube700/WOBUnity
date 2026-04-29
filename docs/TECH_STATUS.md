@@ -46,10 +46,12 @@ Manually checked in Unity:
 - Current ricochet speed loss is visible enough.
 - Mobile controls are visible and usable when `Input Mode` is set to `Mobile`.
 - MainMenu -> RicochetTanks_Demo flow works in Editor.
+- Android build launches on device.
+- Mobile controls v1 work on Android with arcade left joystick movement.
 
 Still Needs Manual Unity Check:
 
-- Android APK build/device test.
+- Further mobile usability feedback from testers on actual devices.
 - HP bar visual polish through prefab tuning if the current prototype bar needs better readability.
 - Unity scene/prefab changes are saved and committed after editor-side changes.
 
@@ -191,7 +193,7 @@ Main roles:
 | Debug Logs | Partial | Implemented with `DebugLogConfig` and debug visualizer | `DebugLogConfig`, `SandboxDebugVisualizer`, projectile systems | Watch console volume | Log tuning still needs Unity check |
 | Materials / Visual Polish | Partial | Greybox materials/prefabs exist | Prefabs, scene materials | Inspect for magenta/broken visuals | Visual polish not final |
 | Main Menu | Done | Scene and UI flow exist | `MainMenu.unity`, `UI/MainMenu/*`, `SceneLoaderService` | Owner verified in Unity | Play loads demo |
-| Mobile Controls | Partial | Prototype implemented | `Input/Mobile/*`, `GameplayEntryPoint` | Owner verified in Mobile mode; Android device check pending | Desktop hidden by default |
+| Mobile Controls | Partial | Prototype implemented | `Input/Mobile/*`, `GameplayEntryPoint` | Owner verified in Mobile mode and Android launch test | Arcade movement v1 works; tester usability feedback still needed |
 | Enemy AI | Future | Enemy is dummy | `EnemyDummyTank`, `TankFacade` | N/A | No movement/aim/shoot AI |
 
 ## Demo Scene Checklist
@@ -218,7 +220,7 @@ Main roles:
 - Scene and prefab changes made inside Unity must be saved and committed manually.
 - HP bar visuals may need later prefab tuning for final readability.
 - Enemy AI is not implemented; enemy is still a dummy target.
-- Android APK/device flow is not verified yet.
+- Android APK launches and mobile controls v1 work; final mobile UX still needs tester feedback.
 - Generated `graphify-out/GRAPH_REPORT.md` is stale and should not override `AI_CONTEXT_GRAPH.md`.
 - Existing uncommitted Unity scene/config changes should be reviewed before commit.
 - Projectile speed is currently `48.8`; keep it as the current tuning unless design asks for a balance pass.

@@ -7,7 +7,6 @@ using RicochetTanks.Infrastructure.Composition;
 using RicochetTanks.Infrastructure.SceneLoading;
 using RicochetTanks.Input;
 using RicochetTanks.Input.Desktop;
-using RicochetTanks.Input.Mobile;
 using RicochetTanks.UI;
 using RicochetTanks.UI.Sandbox;
 using UnityEngine;
@@ -55,9 +54,8 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         private SandboxHudPresenter _hudPresenter;
         private SandboxMatchController _matchController;
         private CombatFeedbackComposition _combatFeedbackComposition;
+        private GameplaySceneReferences _sceneReferences;
         private ITankInputReader _activeInputReader;
-        private MobileInputReader _mobileInputReader;
-        private MobileControlsView _mobileControlsView;
 
         private void Start()
         {
@@ -111,131 +109,47 @@ namespace RicochetTanks.Infrastructure.Bootstrap
 
         private void ResolveSceneReferences()
         {
-            _arenaRoot = _arenaRoot != null ? _arenaRoot : transform.Find("ArenaRoot");
-            _playerSpawnPoint = _playerSpawnPoint != null ? _playerSpawnPoint : FindDescendant(transform, "PlayerSpawnPoint");
-            _enemySpawnPoint = _enemySpawnPoint != null ? _enemySpawnPoint : FindDescendant(transform, "EnemySpawnPoint");
-            _playerTank = _playerTank != null ? _playerTank : ResolveTankReference("PlayerTank");
-            _enemyDummyTank = _enemyDummyTank != null ? _enemyDummyTank : ResolveTankReference("EnemyDummyTank");
-            _cameraRig = _cameraRig != null ? _cameraRig : FindDescendant(transform, "CameraRig");
-            _camera = _camera != null ? _camera : GetComponentInChildren<Camera>(true);
-            _gameplayCanvas = _gameplayCanvas != null ? _gameplayCanvas : GetComponentInChildren<Canvas>(true);
-            _hudView = _hudView != null ? _hudView : GetComponentInChildren<SandboxHudView>(true);
-            _combatFeedbackRoot = _combatFeedbackRoot != null ? _combatFeedbackRoot : FindDescendant(transform, "CombatFeedbackRoot");
+            _sceneReferences = new GameplaySceneReferences(
+                _arenaRoot,
+                _playerSpawnPoint,
+                _enemySpawnPoint,
+                _playerTank,
+                _enemyDummyTank,
+                _cameraRig,
+                _camera,
+                _gameplayCanvas,
+                _hudView,
+                _combatFeedbackRoot);
+            _sceneReferences.ResolveMissing(transform);
             ResolveCombatFeedbackPrefabFallbacks();
         }
 
         private void ApplyCameraConfig()
         {
-            if (_camera == null || _cameraConfig == null)
+            if (_sceneReferences.Camera == null || _cameraConfig == null)
             {
                 return;
             }
 
-            if (_cameraRig != null)
+            if (_sceneReferences.CameraRig != null)
             {
-                _camera.transform.SetParent(_cameraRig, false);
+                _sceneReferences.Camera.transform.SetParent(_sceneReferences.CameraRig, false);
             }
 
-            _camera.transform.localPosition = _cameraConfig.LocalPosition;
-            _camera.transform.localRotation = Quaternion.Euler(_cameraConfig.LocalEulerAngles);
-            _camera.clearFlags = CameraClearFlags.SolidColor;
-            _camera.backgroundColor = _cameraConfig.BackgroundColor;
-            _camera.orthographic = _cameraConfig.Orthographic;
-            _camera.orthographicSize = _cameraConfig.OrthographicSize;
-            _camera.nearClipPlane = _cameraConfig.NearClipPlane;
-            _camera.farClipPlane = _cameraConfig.FarClipPlane;
+            _sceneReferences.Camera.transform.localPosition = _cameraConfig.LocalPosition;
+            _sceneReferences.Camera.transform.localRotation = Quaternion.Euler(_cameraConfig.LocalEulerAngles);
+            _sceneReferences.Camera.clearFlags = CameraClearFlags.SolidColor;
+            _sceneReferences.Camera.backgroundColor = _cameraConfig.BackgroundColor;
+            _sceneReferences.Camera.orthographic = _cameraConfig.Orthographic;
+            _sceneReferences.Camera.orthographicSize = _cameraConfig.OrthographicSize;
+            _sceneReferences.Camera.nearClipPlane = _cameraConfig.NearClipPlane;
+            _sceneReferences.Camera.farClipPlane = _cameraConfig.FarClipPlane;
         }
 
         private void EnsureInputReader()
         {
-            EnsureDesktopInputReader();
-
-            if (ResolveInputMode() == TankInputMode.Mobile)
-            {
-                EnsureMobileInputReader();
-                return;
-            }
-
-            SetMobileControlsVisible(false);
-            _activeInputReader = _inputReader;
-        }
-
-        private void EnsureDesktopInputReader()
-        {
-            if (_inputReader == null)
-            {
-                _inputReader = GetComponent<DesktopInputReader>();
-            }
-
-            if (_inputReader == null)
-            {
-                _inputReader = gameObject.AddComponent<DesktopInputReader>();
-            }
-        }
-
-        private void EnsureMobileInputReader()
-        {
-            if (_mobileInputReader == null)
-            {
-                _mobileInputReader = GetComponent<MobileInputReader>();
-            }
-
-            if (_mobileInputReader == null)
-            {
-                _mobileInputReader = gameObject.AddComponent<MobileInputReader>();
-            }
-
-            if (_mobileControlsView == null)
-            {
-                _mobileControlsView = CreateMobileControlsView();
-            }
-
-            SetMobileControlsVisible(true);
-            _mobileInputReader.Configure(_mobileControlsView);
-            _activeInputReader = _mobileInputReader;
-        }
-
-        private TankInputMode ResolveInputMode()
-        {
-            if (_inputMode != TankInputMode.Auto)
-            {
-                return _inputMode;
-            }
-
-            return Application.isMobilePlatform ? TankInputMode.Mobile : TankInputMode.Desktop;
-        }
-
-        private MobileControlsView CreateMobileControlsView()
-        {
-            if (_mobileControlsPrefab != null)
-            {
-                var controlsObject = Instantiate(_mobileControlsPrefab, transform);
-                controlsObject.name = _mobileControlsPrefab.name;
-
-                if (controlsObject.TryGetComponent<MobileControlsView>(out var prefabView))
-                {
-                    return prefabView;
-                }
-
-                var childView = controlsObject.GetComponentInChildren<MobileControlsView>(true);
-                if (childView != null)
-                {
-                    return childView;
-                }
-
-                Debug.LogWarning("[MOBILE_INPUT] Mobile controls prefab has no MobileControlsView. Runtime controls will be created.");
-                Destroy(controlsObject);
-            }
-
-            return MobileControlsView.CreateDefault("MobileControlsCanvas", transform);
-        }
-
-        private void SetMobileControlsVisible(bool isVisible)
-        {
-            if (_mobileControlsView != null)
-            {
-                _mobileControlsView.gameObject.SetActive(isVisible);
-            }
+            _activeInputReader = new InputComposition(this, _inputMode, _mobileControlsPrefab, _inputReader)
+                .CreateActiveInputReader();
         }
 
         private void EnsureProjectileFactory()
@@ -255,24 +169,24 @@ namespace RicochetTanks.Infrastructure.Bootstrap
 
         private void ConfigureTanks()
         {
-            var tankFactory = new TankCompositionFactory(_camera, _activeInputReader, _projectileFactory, _projectileConfig);
-            tankFactory.ConfigureTank(_playerTank, _playerSpawnPoint, _playerTankConfig, true);
-            tankFactory.ConfigureTank(_enemyDummyTank, _enemySpawnPoint, _enemyTankConfig, false);
+            var tankFactory = new TankCompositionFactory(_sceneReferences.Camera, _activeInputReader, _projectileFactory, _projectileConfig);
+            tankFactory.ConfigureTank(_sceneReferences.PlayerTank, _sceneReferences.PlayerSpawnPoint, _playerTankConfig, true);
+            tankFactory.ConfigureTank(_sceneReferences.EnemyDummyTank, _sceneReferences.EnemySpawnPoint, _enemyTankConfig, false);
         }
 
         private void BindHud()
         {
-            if (_hudView == null)
+            if (_sceneReferences.HudView == null)
             {
-                _hudView = new SandboxHudViewFactory().Create(_gameplayCanvas);
-                _gameplayCanvas = _hudView.GetComponentInParent<Canvas>();
+                _sceneReferences.HudView = new SandboxHudViewFactory().Create(_sceneReferences.GameplayCanvas);
+                _sceneReferences.SetGameplayCanvas(_sceneReferences.HudView.GetComponentInParent<Canvas>());
             }
 
             _hudPresenter?.Dispose();
             _hudPresenter = new SandboxHudPresenter(
-                _hudView,
-                _playerTank.Health,
-                _enemyDummyTank.Health,
+                _sceneReferences.HudView,
+                _sceneReferences.PlayerTank.Health,
+                _sceneReferences.EnemyDummyTank.Health,
                 _gameplayEvents,
                 RequestRestart,
                 _matchConfig);
@@ -287,21 +201,16 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 _worldHealthBarPrefab,
                 _floatingHitTextPrefab,
                 _combatVfxConfig,
-                _combatFeedbackRoot,
-                _camera,
+                _sceneReferences.CombatFeedbackRoot,
+                _sceneReferences.Camera,
                 _gameplayEvents,
-                _playerTank,
-                _enemyDummyTank);
+                _sceneReferences.PlayerTank,
+                _sceneReferences.EnemyDummyTank);
         }
 
         private void EnsureCombatFeedbackRoot()
         {
-            if (_combatFeedbackRoot != null)
-            {
-                return;
-            }
-
-            _combatFeedbackRoot = CreateChild(transform, "CombatFeedbackRoot", Vector3.zero);
+            _sceneReferences.EnsureCombatFeedbackRoot(transform);
         }
 
         private void ResolveCombatFeedbackPrefabFallbacks()
@@ -327,60 +236,18 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 _matchController = gameObject.AddComponent<SandboxMatchController>();
             }
 
-            _matchController.Configure(_playerTank, _enemyDummyTank, _gameplayEvents, _activeInputReader, _sceneLoaderService, _matchConfig);
+            _matchController.Configure(
+                _sceneReferences.PlayerTank,
+                _sceneReferences.EnemyDummyTank,
+                _gameplayEvents,
+                _activeInputReader,
+                _sceneLoaderService,
+                _matchConfig);
         }
 
         private void RequestRestart()
         {
             _matchController?.RequestRestart();
-        }
-
-        private static T GetOrAdd<T>(GameObject target) where T : Component
-        {
-            if (target.TryGetComponent<T>(out var component))
-            {
-                return component;
-            }
-
-            return target.AddComponent<T>();
-        }
-
-        private static Transform FindDescendant(Transform root, string objectName)
-        {
-            if (root == null)
-            {
-                return null;
-            }
-
-            if (root.name == objectName)
-            {
-                return root;
-            }
-
-            for (var index = 0; index < root.childCount; index++)
-            {
-                var result = FindDescendant(root.GetChild(index), objectName);
-                if (result != null)
-                {
-                    return result;
-                }
-            }
-
-            return null;
-        }
-
-        private static Transform CreateChild(Transform parent, string objectName, Vector3 localPosition)
-        {
-            var child = new GameObject(objectName).transform;
-            child.SetParent(parent, false);
-            child.localPosition = localPosition;
-            return child;
-        }
-
-        private TankFacade ResolveTankReference(string objectName)
-        {
-            var child = FindDescendant(transform, objectName);
-            return child != null ? GetOrAdd<TankFacade>(child.gameObject) : null;
         }
 
     }
