@@ -1,30 +1,33 @@
 # Enemy AI FSM Plan
 
-No enemy AI is implemented yet. The current enemy remains a dummy tank for the local prototype.
+MVP enemy AI is now implemented under `Assets/_Project/RicochetTanks/Scripts/Gameplay/AI`.
 
-## Planned States
+## MVP States
 
 - `Idle`
-- `Patrol / Reposition`
-- `AimAtPlayer`
-- `Shoot`
-- `AvoidObstacle`
+- `AimAndShoot`
 - `KeepDistance`
-- `ChaseLineOfSight`
-- `Retreat`
+- `Reposition`
+- `AvoidObstacle`
 - `Dead`
+
+## Current Behavior
+
+- Enemy shoots at the player.
+- Enemy aims before shooting and checks line of sight.
+- Enemy tries to keep distance.
+- Enemy repositions when blocked or periodically.
+- Enemy reverses and turns when an obstacle is directly ahead.
 
 ## Future Behavior Goals
 
-- Enemy shoots at the player.
-- Enemy aims before shooting.
-- Enemy tries to keep distance.
-- Enemy avoids obstacles.
-- Enemy tries to get line of sight.
-- Enemy does not drive into walls forever.
+- Better patrol/reposition choices.
+- Chasing line of sight around obstacles.
+- Smarter retreating when low HP.
+- Avoid getting stuck in corners for long periods.
 
 ## Integration Notes
 
 - Keep AI decisions separate from combat formulas.
 - AI should send movement/aim/fire commands through the same tank-facing APIs as player input.
-- Do not change armor, ricochet, damage, projectile, or movement math while adding AI.
+- Do not change armor, ricochet, damage, projectile, or movement math while improving AI.

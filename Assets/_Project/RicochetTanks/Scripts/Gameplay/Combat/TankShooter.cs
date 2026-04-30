@@ -15,6 +15,8 @@ namespace RicochetTanks.Gameplay.Combat
         private float _nextShotTime;
         private bool _canShoot = true;
 
+        public Transform Muzzle { get { return _muzzle; } }
+
         public void Configure(Transform muzzle, TankFacade owner, ProjectileFactory projectileFactory, ProjectileConfig projectileConfig)
         {
             _muzzle = muzzle;
