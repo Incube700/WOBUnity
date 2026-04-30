@@ -22,6 +22,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         [SerializeField] private TankConfig _enemyTankConfig;
         [SerializeField] private ProjectileConfig _projectileConfig;
         [SerializeField] private DebugLogConfig _debugLogConfig;
+        [SerializeField] private LaserAimConfig _laserAimConfig;
 
         [Header("Input")]
         [SerializeField] private TankInputMode _inputMode = TankInputMode.Auto;
@@ -93,8 +94,20 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             _playerTankConfig = _playerTankConfig != null ? _playerTankConfig : ScriptableObject.CreateInstance<TankConfig>();
             _enemyTankConfig = _enemyTankConfig != null ? _enemyTankConfig : _playerTankConfig;
             _projectileConfig = _projectileConfig != null ? _projectileConfig : ScriptableObject.CreateInstance<ProjectileConfig>();
+            ResolveLaserAimConfigFallback();
+            _laserAimConfig = _laserAimConfig != null ? _laserAimConfig : ScriptableObject.CreateInstance<LaserAimConfig>();
             ResolveCombatVfxConfigFallback();
             _combatVfxConfig = _combatVfxConfig != null ? _combatVfxConfig : ScriptableObject.CreateInstance<CombatVfxConfig>();
+        }
+
+        private void ResolveLaserAimConfigFallback()
+        {
+#if UNITY_EDITOR
+            if (_laserAimConfig == null)
+            {
+                _laserAimConfig = UnityEditor.AssetDatabase.LoadAssetAtPath<LaserAimConfig>("Assets/_Project/RicochetTanks/Configs/LaserAimConfig.asset");
+            }
+#endif
         }
 
         private void ResolveCombatVfxConfigFallback()
@@ -169,7 +182,7 @@ namespace RicochetTanks.Infrastructure.Bootstrap
 
         private void ConfigureTanks()
         {
-            var tankFactory = new TankCompositionFactory(_sceneReferences.Camera, _activeInputReader, _projectileFactory, _projectileConfig);
+            var tankFactory = new TankCompositionFactory(_sceneReferences.Camera, _activeInputReader, _projectileFactory, _projectileConfig, _laserAimConfig);
             tankFactory.ConfigureTank(_sceneReferences.PlayerTank, _sceneReferences.PlayerSpawnPoint, _playerTankConfig, true);
             tankFactory.ConfigureTank(_sceneReferences.EnemyDummyTank, _sceneReferences.EnemySpawnPoint, _enemyTankConfig, false);
         }
