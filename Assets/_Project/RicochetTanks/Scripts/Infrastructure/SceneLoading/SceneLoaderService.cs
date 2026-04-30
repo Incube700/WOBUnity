@@ -23,6 +23,7 @@ namespace RicochetTanks.Infrastructure.SceneLoading
         public static void QuitGame()
         {
 #if UNITY_EDITOR
+            UnityEngine.Debug.Log("Exit requested");
             UnityEditor.EditorApplication.isPlaying = false;
 #else
             UnityEngine.Application.Quit();

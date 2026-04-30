@@ -1,4 +1,5 @@
 using RicochetTanks.Configs;
+using RicochetTanks.Gameplay.AI;
 using RicochetTanks.Gameplay.Events;
 using RicochetTanks.Gameplay.Match;
 using RicochetTanks.Gameplay.Projectiles;
@@ -7,6 +8,7 @@ using RicochetTanks.Infrastructure.Composition;
 using RicochetTanks.Infrastructure.SceneLoading;
 using RicochetTanks.Input;
 using RicochetTanks.Input.Desktop;
+using RicochetTanks.Statistics;
 using RicochetTanks.UI;
 using RicochetTanks.UI.Sandbox;
 using UnityEngine;
@@ -23,6 +25,8 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         [SerializeField] private ProjectileConfig _projectileConfig;
         [SerializeField] private DebugLogConfig _debugLogConfig;
         [SerializeField] private LaserAimConfig _laserAimConfig;
+        [SerializeField] private LocalSessionConfig _sessionConfig;
+        [SerializeField] private EnemyAiConfig _enemyAiConfig;
 
         [Header("Input")]
         [SerializeField] private TankInputMode _inputMode = TankInputMode.Auto;
@@ -54,7 +58,10 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         private SandboxGameplayEvents _gameplayEvents;
         private SandboxHudPresenter _hudPresenter;
         private SandboxMatchController _matchController;
+        private EnemyTankAiController _enemyAiController;
         private CombatFeedbackComposition _combatFeedbackComposition;
+        private StatisticsComposition _statisticsComposition;
+        private LocalMatchSessionService _sessionService;
         private GameplaySceneReferences _sceneReferences;
         private ITankInputReader _activeInputReader;
 
@@ -67,6 +74,8 @@ namespace RicochetTanks.Infrastructure.Bootstrap
         {
             _combatFeedbackComposition?.Dispose();
             _combatFeedbackComposition = null;
+            _statisticsComposition?.Dispose();
+            _statisticsComposition = null;
             _hudPresenter?.Dispose();
             _hudPresenter = null;
         }
@@ -81,7 +90,9 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             EnsureInputReader();
             EnsureProjectileFactory();
             ConfigureTanks();
+            BindEnemyAi();
             BindCombatFeedback();
+            BindStatistics();
             BindHud();
             BindMatch();
             UiFactory.EnsureEventSystem("Gameplay EventSystem");
@@ -96,6 +107,8 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             _projectileConfig = _projectileConfig != null ? _projectileConfig : ScriptableObject.CreateInstance<ProjectileConfig>();
             ResolveLaserAimConfigFallback();
             _laserAimConfig = _laserAimConfig != null ? _laserAimConfig : ScriptableObject.CreateInstance<LaserAimConfig>();
+            _sessionConfig = _sessionConfig != null ? _sessionConfig : ScriptableObject.CreateInstance<LocalSessionConfig>();
+            _enemyAiConfig = _enemyAiConfig != null ? _enemyAiConfig : ScriptableObject.CreateInstance<EnemyAiConfig>();
             ResolveCombatVfxConfigFallback();
             _combatVfxConfig = _combatVfxConfig != null ? _combatVfxConfig : ScriptableObject.CreateInstance<CombatVfxConfig>();
         }
@@ -187,6 +200,26 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             tankFactory.ConfigureTank(_sceneReferences.EnemyDummyTank, _sceneReferences.EnemySpawnPoint, _enemyTankConfig, false);
         }
 
+        private void BindEnemyAi()
+        {
+            if (_sceneReferences.EnemyDummyTank == null || _sceneReferences.PlayerTank == null)
+            {
+                return;
+            }
+
+            _enemyAiController = _sceneReferences.EnemyDummyTank.GetComponent<EnemyTankAiController>();
+            if (_enemyAiController == null)
+            {
+                _enemyAiController = _sceneReferences.EnemyDummyTank.gameObject.AddComponent<EnemyTankAiController>();
+            }
+
+            _enemyAiController.Configure(
+                _sceneReferences.EnemyDummyTank,
+                _sceneReferences.PlayerTank,
+                _enemyAiConfig,
+                _gameplayEvents);
+        }
+
         private void BindHud()
         {
             if (_sceneReferences.HudView == null)
@@ -202,7 +235,19 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 _sceneReferences.EnemyDummyTank.Health,
                 _gameplayEvents,
                 RequestRestart,
+                RequestExitToMainMenu,
                 _matchConfig);
+        }
+
+        private void BindStatistics()
+        {
+            _sessionService = _sessionService ?? new LocalMatchSessionService();
+            _statisticsComposition?.Dispose();
+            _statisticsComposition = new StatisticsComposition(
+                _gameplayEvents,
+                _sceneReferences.PlayerTank,
+                _sceneReferences.EnemyDummyTank,
+                _sessionService);
         }
 
         private void BindCombatFeedback()
@@ -255,12 +300,19 @@ namespace RicochetTanks.Infrastructure.Bootstrap
                 _gameplayEvents,
                 _activeInputReader,
                 _sceneLoaderService,
-                _matchConfig);
+                _matchConfig,
+                _sessionConfig,
+                _sessionService);
         }
 
         private void RequestRestart()
         {
             _matchController?.RequestRestart();
+        }
+
+        private void RequestExitToMainMenu()
+        {
+            _matchController?.RequestExitToMainMenu();
         }
 
     }

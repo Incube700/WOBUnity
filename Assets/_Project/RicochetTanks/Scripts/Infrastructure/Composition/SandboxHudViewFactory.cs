@@ -19,13 +19,17 @@ namespace RicochetTanks.Infrastructure.Composition
             AnchorTopLeft(lastHitText.rectTransform);
             var roundResultText = UiFactory.CreateText(canvas.transform, "RoundResultText", new Vector2(0f, -18f), new Vector2(360f, 30f), TextAnchor.MiddleCenter);
             AnchorTopCenter(roundResultText.rectTransform);
+            var scoreText = UiFactory.CreateText(canvas.transform, "ScoreText", new Vector2(0f, -52f), new Vector2(420f, 28f), TextAnchor.MiddleCenter);
+            AnchorTopCenter(scoreText.rectTransform);
             var controlsHintText = UiFactory.CreateText(canvas.transform, "ControlsHintText", new Vector2(0f, 22f), new Vector2(900f, 30f), TextAnchor.MiddleCenter);
             AnchorBottomCenter(controlsHintText.rectTransform);
             var restartButton = UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(-20f, -20f), new Vector2(160f, 42f), null);
             AnchorTopRight((RectTransform)restartButton.transform);
+            var exitButton = UiFactory.CreateButton(canvas.transform, "Menu", new Vector2(-20f, -68f), new Vector2(160f, 42f), null);
+            AnchorTopRight((RectTransform)exitButton.transform);
 
             var hudView = canvas.gameObject.AddComponent<SandboxHudView>();
-            hudView.Configure(playerHpText, enemyHpText, lastHitText, roundResultText, controlsHintText, restartButton);
+            hudView.Configure(playerHpText, enemyHpText, lastHitText, roundResultText, scoreText, controlsHintText, restartButton, exitButton);
             return hudView;
         }
 

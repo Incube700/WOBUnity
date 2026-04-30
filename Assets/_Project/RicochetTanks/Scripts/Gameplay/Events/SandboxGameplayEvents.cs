@@ -15,6 +15,10 @@ namespace RicochetTanks.Gameplay.Events
         public event Action<HitResolvedEvent> HitResolved;
         public event Action<CombatFeedbackEvent> CombatFeedbackRequested;
         public event Action MatchStarted;
+        public event Action RoundStarted;
+        public event Action<RoundFinishedEvent> RoundFinished;
+        public event Action<SessionScoreEvent> SessionScoreChanged;
+        public event Action<string> SessionStatusChanged;
         public event Action<MatchFinishedEvent> MatchFinished;
         public event Action RestartRequested;
 
@@ -40,9 +44,9 @@ namespace RicochetTanks.Gameplay.Events
             ProjectileHit?.Invoke(new ProjectileHitEvent(projectile, collider, point, normal, direction));
         }
 
-        public void RaiseProjectileBounced(Projectile projectile, int ricochetCount, int bouncesLeft, float speed, float damage, Vector3 normal)
+        public void RaiseProjectileBounced(Projectile projectile, TankFacade owner, int ricochetCount, int bouncesLeft, float speed, float damage, Vector3 normal)
         {
-            ProjectileBounced?.Invoke(new ProjectileBouncedEvent(projectile, ricochetCount, bouncesLeft, speed, damage, normal));
+            ProjectileBounced?.Invoke(new ProjectileBouncedEvent(projectile, owner, ricochetCount, bouncesLeft, speed, damage, normal));
         }
 
         public void RaiseHitResolved(HitResolvedEvent hit)
@@ -94,6 +98,26 @@ namespace RicochetTanks.Gameplay.Events
         public void RaiseMatchStarted()
         {
             MatchStarted?.Invoke();
+        }
+
+        public void RaiseRoundStarted()
+        {
+            RoundStarted?.Invoke();
+        }
+
+        public void RaiseRoundFinished(RoundFinishedEvent round)
+        {
+            RoundFinished?.Invoke(round);
+        }
+
+        public void RaiseSessionScoreChanged(SessionScoreEvent score)
+        {
+            SessionScoreChanged?.Invoke(score);
+        }
+
+        public void RaiseSessionStatusChanged(string status)
+        {
+            SessionStatusChanged?.Invoke(status);
         }
 
         public void RaiseMatchFinished(MatchResult result, string label)

@@ -1,11 +1,33 @@
 # Ricochet Tanks - Technical Status
 
-**Synced:** 2026-04-29
-**Branch observed:** `main`
+**Synced:** 2026-04-30
+**Branch observed:** `feature/ricochet-tanks-prototype`
 **Prototype root:** `Assets/_Project/RicochetTanks/`  
-**Main scene:** `Assets/_Project/RicochetTanks/Scenes/RicochetTanks_Demo.unity`
+**Main flow:** `MainMenu.unity -> RicochetTanks_Demo.unity`
 
 This file records what appears implemented in code/assets and what still needs manual Unity verification. It should not be used to invent completion: if Play Mode was not checked, the item stays **Needs Manual Unity Check**.
+
+## 2026-04-30 Single-Player Flow Update
+
+Implemented in code/assets:
+
+- MainMenu is first in build settings and has runtime `Start Game`, `Statistics`, and `Exit` controls.
+- `Start Game` starts a fresh local session and loads `RicochetTanks_Demo`.
+- Gameplay now supports a simple local round series: `RoundsToWin = 3`, `RoundBreakSeconds = 5`.
+- After each round, the HUD shows round result, score, and next-round countdown.
+- After one side reaches 3 round wins, the full match/session finishes and the HUD shows `Restart` and `Exit to MainMenu`.
+- Round-to-round map support exists through `LocalSessionConfig`, but all default round scenes currently reuse `RicochetTanks_Demo`.
+- Local statistics persist through PlayerPrefs JSON key `RicochetTanks.PlayerStatistics.v1`.
+- Statistics are counted by `StatisticsTracker` from `SandboxGameplayEvents` and saved only after full session finish.
+- No production analytics or external telemetry is used.
+
+Needs Manual Unity Check:
+
+- Complete first-to-3 flow in Play Mode.
+- Return to MainMenu and verify statistics/recent games update.
+- Restart a finished match and confirm score resets to `0 : 0`.
+- Exit to MainMenu and confirm no duplicate subscriptions/UI are created.
+- Android/mobile controls still need device verification after this session-flow change.
 
 ## Current Playable Prototype Status
 
@@ -23,7 +45,7 @@ Implemented in code/assets:
 - Armor zones are `Front`, `Side`, and `Rear` from tank-local hit normal.
 - Effective armor uses `effectiveArmor = armor / max(cos(angle), safeMinCos)`.
 - Damage/HP/death are implemented through `TankHealth`.
-- Win/lose/restart request flow is implemented through `SandboxMatchController`.
+- Round win, full-session finish, restart, and menu-exit flow are implemented through `SandboxMatchController`.
 - Screen HUD exists through `SandboxHudView` and `SandboxHudPresenter`.
 - Combat feedback exists through world-space HP bars and floating hit text.
 - Projectile trail exists in code/assets.
@@ -170,7 +192,8 @@ Main roles:
 - Combat math lives in `HitResolver` and `TankArmor`.
 - Visual feedback lives in `UI/CombatFeedback`.
 - Combat VFX is split behind `CombatVfxFactory` into trail, impact, death, and shot recoil helpers.
-- Match flow lives under `Gameplay/Match`; UI only displays match state.
+- Match/session flow lives under `Gameplay/Match`; UI only displays match state.
+- Local statistics live under `Statistics` and subscribe to `SandboxGameplayEvents`.
 - Screen HUD remains `SandboxHudView` + `SandboxHudPresenter`.
 - `SandboxDebugVisualizer` remains debug-only.
 - `SandboxSceneBuilder` is a dev/procedural fallback only; saved scenes/prefabs are the main path.
@@ -188,7 +211,8 @@ Main roles:
 | Tank Armor / NoPen | Done | Implemented | `HitResolver`, `TankArmor`, `ArmorHitInfo` | Owner verified in Unity | Uses effective armor |
 | Tank Ricochet | Done | Implemented | `HitResolver`, projectile ricochet systems | Owner verified in Unity | Uses current ricochet request path |
 | Damage / HP | Done | Implemented | `TankHealth`, `HitResolver` | Owner verified in Unity | Player 100, enemy 300 |
-| Win/Lose | Done | Implemented | `Gameplay/Match/SandboxMatchController`, HUD presenter | Owner verified in Unity | Restart checked |
+| Win Series / Result Flow | Needs Manual Unity Check | Implemented in code | `Gameplay/Match/SandboxMatchController`, HUD presenter | Needs first-to-3 Play Mode test | Restart/menu exit added |
+| Local Statistics | Needs Manual Unity Check | Implemented in code | `Statistics/*`, `MainMenu/*` | Needs persistence/reset test | PlayerPrefs JSON, local only |
 | Combat Feedback UI | Done | Implemented | `UI/CombatFeedback/*`, `WorldHealthBarPrefab` | Owner verified in Unity | HP bar prefab polish may be tuned later |
 | Debug Logs | Partial | Implemented with `DebugLogConfig` and debug visualizer | `DebugLogConfig`, `SandboxDebugVisualizer`, projectile systems | Watch console volume | Log tuning still needs Unity check |
 | Materials / Visual Polish | Partial | Greybox materials/prefabs exist | Prefabs, scene materials | Inspect for magenta/broken visuals | Visual polish not final |

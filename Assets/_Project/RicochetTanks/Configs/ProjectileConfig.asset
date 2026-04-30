@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ProjectileConfig
   m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.Configs.ProjectileConfig
   _projectilePrefab: {fileID: 2768913020350325106, guid: c589f65c263e24ae5bb2b19c930a8d8c, type: 3}
-  _speed: 48.8
+  _speed: 65.7
   _bounceSpeedMultiplier: 0.78
   _cooldown: 0.8
   _safeTime: 0.15
