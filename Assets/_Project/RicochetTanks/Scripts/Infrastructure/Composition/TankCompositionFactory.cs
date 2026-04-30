@@ -3,6 +3,7 @@ using RicochetTanks.Configs;
 using RicochetTanks.Gameplay.Combat;
 using RicochetTanks.Gameplay.Projectiles;
 using RicochetTanks.Gameplay.Tanks;
+using RicochetTanks.Gameplay.Tanks.Presentation;
 using RicochetTanks.Input;
 using UnityEngine;
 
@@ -14,17 +15,20 @@ namespace RicochetTanks.Infrastructure.Composition
         private readonly ITankInputReader _inputReader;
         private readonly ProjectileFactory _projectileFactory;
         private readonly ProjectileConfig _projectileConfig;
+        private readonly LaserAimConfig _laserAimConfig;
 
         public TankCompositionFactory(
             Camera camera,
             ITankInputReader inputReader,
             ProjectileFactory projectileFactory,
-            ProjectileConfig projectileConfig)
+            ProjectileConfig projectileConfig,
+            LaserAimConfig laserAimConfig)
         {
             _camera = camera;
             _inputReader = inputReader;
             _projectileFactory = projectileFactory;
             _projectileConfig = projectileConfig;
+            _laserAimConfig = laserAimConfig;
         }
 
         public void ConfigureTank(TankFacade tank, Transform spawnPoint, TankConfig tankConfig, bool isPlayerControlled)
@@ -89,6 +93,27 @@ namespace RicochetTanks.Infrastructure.Composition
             controller.Configure(tank, _inputReader, _camera);
             tank.Configure(movement, aiming, shooter, health, controller);
             tank.SetPlayerControlled(isPlayerControlled);
+            ConfigureLaserAim(body, muzzle, health, isPlayerControlled);
+        }
+
+        private void ConfigureLaserAim(GameObject body, Transform muzzle, TankHealth health, bool isPlayerControlled)
+        {
+            var shouldShowLaser = _laserAimConfig != null
+                && (isPlayerControlled ? _laserAimConfig.ShowPlayerLaser : _laserAimConfig.ShowEnemyLaser);
+
+            if (!shouldShowLaser)
+            {
+                if (body.TryGetComponent<LaserAimView>(out var existingLaser))
+                {
+                    existingLaser.enabled = false;
+                }
+
+                return;
+            }
+
+            var laserAimView = GetOrAdd<LaserAimView>(body);
+            laserAimView.enabled = true;
+            laserAimView.Configure(muzzle, _laserAimConfig, health, body.transform);
         }
 
         private static T GetOrAdd<T>(GameObject target) where T : Component
