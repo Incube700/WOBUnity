@@ -12,11 +12,14 @@ namespace RicochetTanks.Gameplay.Match
 {
     public sealed class SandboxMatchController : MonoBehaviour
     {
-        private enum MatchFlowState
+        private enum GameplaySessionState
         {
-            Playing,
-            Ending,
-            Finished
+            Initializing,
+            RoundStarting,
+            RoundPlaying,
+            RoundFinished,
+            BetweenRounds,
+            MatchFinished
         }
 
         private TankFacade _player;
@@ -25,9 +28,12 @@ namespace RicochetTanks.Gameplay.Match
         private ITankInputReader _inputReader;
         private SceneLoaderService _sceneLoaderService;
         private MatchConfig _matchConfig;
-        private MatchResult _matchResult = MatchResult.Playing;
-        private MatchFlowState _state = MatchFlowState.Playing;
+        private LocalSessionConfig _sessionConfig;
+        private LocalMatchSessionService _sessionService;
+        private MatchResult _roundResult = MatchResult.Playing;
+        private GameplaySessionState _state = GameplaySessionState.Initializing;
         private Coroutine _finishRoutine;
+        private Coroutine _betweenRoundsRoutine;
         private bool _isSubscribed;
 
         public void Configure(
@@ -37,7 +43,7 @@ namespace RicochetTanks.Gameplay.Match
             DesktopInputReader inputReader,
             SceneLoaderService sceneLoaderService)
         {
-            Configure(player, enemy, gameplayEvents, inputReader, sceneLoaderService, null);
+            Configure(player, enemy, gameplayEvents, inputReader, sceneLoaderService, null, null, null);
         }
 
         public void Configure(
@@ -48,7 +54,7 @@ namespace RicochetTanks.Gameplay.Match
             SceneLoaderService sceneLoaderService,
             MatchConfig matchConfig)
         {
-            Configure(player, enemy, gameplayEvents, (ITankInputReader)inputReader, sceneLoaderService, matchConfig);
+            Configure(player, enemy, gameplayEvents, inputReader, sceneLoaderService, matchConfig, null, null);
         }
 
         public void Configure(
@@ -59,6 +65,19 @@ namespace RicochetTanks.Gameplay.Match
             SceneLoaderService sceneLoaderService,
             MatchConfig matchConfig)
         {
+            Configure(player, enemy, gameplayEvents, inputReader, sceneLoaderService, matchConfig, null, null);
+        }
+
+        public void Configure(
+            TankFacade player,
+            TankFacade enemy,
+            SandboxGameplayEvents gameplayEvents,
+            ITankInputReader inputReader,
+            SceneLoaderService sceneLoaderService,
+            MatchConfig matchConfig,
+            LocalSessionConfig sessionConfig,
+            LocalMatchSessionService sessionService)
+        {
             Unsubscribe();
 
             _player = player;
@@ -67,12 +86,22 @@ namespace RicochetTanks.Gameplay.Match
             _inputReader = inputReader;
             _sceneLoaderService = sceneLoaderService;
             _matchConfig = matchConfig;
-            _matchResult = MatchResult.Playing;
-            _state = MatchFlowState.Playing;
-            StopFinishRoutine();
+            _sessionConfig = sessionConfig != null ? sessionConfig : ScriptableObject.CreateInstance<LocalSessionConfig>();
+            _sessionService = sessionService ?? new LocalMatchSessionService();
+            _roundResult = MatchResult.Playing;
+            _state = GameplaySessionState.RoundStarting;
+            StopRoutines();
 
+            var isNewMatch = _sessionService.EnsureMatch(_sessionConfig.RoundsToWin);
+            var shouldRaiseMatchStarted = _sessionService.ConsumeMatchStartedFlag();
             Subscribe();
-            _gameplayEvents?.RaiseMatchStarted();
+
+            if (isNewMatch || shouldRaiseMatchStarted)
+            {
+                _gameplayEvents?.RaiseMatchStarted();
+            }
+
+            BeginRound();
         }
 
         private void Update()
@@ -85,8 +114,32 @@ namespace RicochetTanks.Gameplay.Match
 
         private void OnDestroy()
         {
-            StopFinishRoutine();
+            StopRoutines();
             Unsubscribe();
+        }
+
+        public void RequestRestart()
+        {
+            _gameplayEvents?.RaiseRestartRequested();
+        }
+
+        public void RequestExitToMainMenu()
+        {
+            _sessionService?.AbandonMatch();
+            _sceneLoaderService?.Load(SceneLoaderService.MainMenuSceneName);
+        }
+
+        private void BeginRound()
+        {
+            _state = GameplaySessionState.RoundPlaying;
+            EnableTank(_player);
+            EnableTank(_enemy);
+            _gameplayEvents?.RaiseRoundStarted();
+            RaiseScore();
+            _gameplayEvents?.RaiseSessionStatusChanged(
+                "Round " + _sessionService.CurrentRound
+                + " | Score Player " + _sessionService.GetScoreLabel() + " Enemy"
+                + " | First to " + _sessionService.RoundsToWin);
         }
 
         private void Subscribe()
@@ -141,23 +194,23 @@ namespace RicochetTanks.Gameplay.Match
 
         private void OnPlayerDied(TankHealth health)
         {
-            BeginEnding(ResolveDeathResult(MatchResult.EnemyWins), _player, _enemy);
+            BeginRoundEnding(ResolveDeathResult(MatchResult.EnemyWins), _player, _enemy);
         }
 
         private void OnEnemyDied(TankHealth health)
         {
-            BeginEnding(ResolveDeathResult(MatchResult.PlayerWins), _enemy, _player);
+            BeginRoundEnding(ResolveDeathResult(MatchResult.PlayerWins), _enemy, _player);
         }
 
-        private void BeginEnding(MatchResult result, TankFacade deadTank, TankFacade winnerTank)
+        private void BeginRoundEnding(MatchResult result, TankFacade deadTank, TankFacade winnerTank)
         {
-            if (_state != MatchFlowState.Playing)
+            if (_state != GameplaySessionState.RoundPlaying)
             {
                 return;
             }
 
-            _state = MatchFlowState.Ending;
-            _matchResult = result;
+            _state = GameplaySessionState.RoundFinished;
+            _roundResult = result;
 
             if (result == MatchResult.Draw)
             {
@@ -170,10 +223,10 @@ namespace RicochetTanks.Gameplay.Match
                 ConfigureWinnerDuringResultDelay(winnerTank);
             }
 
-            _finishRoutine = StartCoroutine(FinishAfterDelay());
+            _finishRoutine = StartCoroutine(FinishRoundAfterDelay());
         }
 
-        private IEnumerator FinishAfterDelay()
+        private IEnumerator FinishRoundAfterDelay()
         {
             var delay = _matchConfig != null ? _matchConfig.ResultDelaySeconds : 3f;
             if (delay > 0f)
@@ -181,27 +234,83 @@ namespace RicochetTanks.Gameplay.Match
                 yield return new WaitForSeconds(delay);
             }
 
-            Finish();
+            FinishRound();
         }
 
-        private void Finish()
+        private void FinishRound()
         {
-            if (_state != MatchFlowState.Ending)
+            if (_state != GameplaySessionState.RoundFinished)
             {
                 return;
             }
 
-            _state = MatchFlowState.Finished;
             DisableTank(_player);
             DisableTank(_enemy);
-
             _finishRoutine = null;
-            var label = ResolveResultLabel(_matchResult);
-            _gameplayEvents?.RaiseMatchFinished(_matchResult, label);
+
+            var label = ResolveResultLabel(_roundResult);
+            var completedRound = _sessionService.CurrentRound;
+            _sessionService.RecordRound(_roundResult);
+            RaiseScore();
+
+            _gameplayEvents?.RaiseRoundFinished(new RoundFinishedEvent(
+                _roundResult,
+                label,
+                _sessionService.PlayerScore,
+                _sessionService.EnemyScore,
+                completedRound,
+                _sessionService.RoundsToWin));
+
             if (_gameplayEvents == null || _gameplayEvents.ShouldLogRounds)
             {
-                Debug.Log($"[ROUND] result={label}");
+                Debug.Log("[ROUND] result=" + label + " score=" + _sessionService.GetScoreLabel());
             }
+
+            if (_sessionService.HasWinner())
+            {
+                FinishMatch();
+                return;
+            }
+
+            _betweenRoundsRoutine = StartCoroutine(LoadNextRoundAfterBreak(label));
+        }
+
+        private IEnumerator LoadNextRoundAfterBreak(string roundLabel)
+        {
+            _state = GameplaySessionState.BetweenRounds;
+            var remaining = _sessionConfig != null ? _sessionConfig.RoundBreakSeconds : 5f;
+
+            while (remaining > 0f)
+            {
+                _gameplayEvents?.RaiseSessionStatusChanged(
+                    "Round: " + roundLabel
+                    + " | Score Player " + _sessionService.GetScoreLabel() + " Enemy"
+                    + " | Next round in " + Mathf.CeilToInt(remaining));
+                yield return new WaitForSeconds(1f);
+                remaining -= 1f;
+            }
+
+            var nextScene = _sessionConfig.GetSceneForRound(_sessionService.CurrentRound, SceneLoaderService.DemoSceneName);
+            _sceneLoaderService?.Load(nextScene);
+        }
+
+        private void FinishMatch()
+        {
+            _state = GameplaySessionState.MatchFinished;
+            var result = _sessionService.CompleteMatch();
+            var label = "Match: " + ResolveResultLabel(result);
+            _gameplayEvents?.RaiseSessionStatusChanged(
+                label + " | Final score Player " + _sessionService.GetScoreLabel() + " Enemy");
+            _gameplayEvents?.RaiseMatchFinished(result, label);
+        }
+
+        private void RaiseScore()
+        {
+            _gameplayEvents?.RaiseSessionScoreChanged(new SessionScoreEvent(
+                _sessionService.PlayerScore,
+                _sessionService.EnemyScore,
+                _sessionService.CurrentRound,
+                _sessionService.RoundsToWin));
         }
 
         private string ResolveResultLabel(MatchResult result)
@@ -253,6 +362,14 @@ namespace RicochetTanks.Gameplay.Match
             }
         }
 
+        private static void EnableTank(TankFacade tank)
+        {
+            if (tank != null)
+            {
+                tank.SetGameplayEnabled(true);
+            }
+        }
+
         private static void DisableTank(TankFacade tank)
         {
             if (tank != null)
@@ -261,25 +378,25 @@ namespace RicochetTanks.Gameplay.Match
             }
         }
 
-        private void StopFinishRoutine()
+        private void StopRoutines()
         {
-            if (_finishRoutine == null)
+            if (_finishRoutine != null)
             {
-                return;
+                StopCoroutine(_finishRoutine);
+                _finishRoutine = null;
             }
 
-            StopCoroutine(_finishRoutine);
-            _finishRoutine = null;
-        }
-
-        public void RequestRestart()
-        {
-            _gameplayEvents?.RaiseRestartRequested();
+            if (_betweenRoundsRoutine != null)
+            {
+                StopCoroutine(_betweenRoundsRoutine);
+                _betweenRoundsRoutine = null;
+            }
         }
 
         private void OnRestartRequested()
         {
-            _sceneLoaderService?.ReloadActiveScene();
+            _sessionService?.StartNewMatch(_sessionConfig != null ? _sessionConfig.RoundsToWin : 3);
+            _sceneLoaderService?.Load(SceneLoaderService.DemoSceneName);
         }
     }
 }

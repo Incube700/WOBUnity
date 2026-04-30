@@ -15,6 +15,7 @@ namespace RicochetTanks.Gameplay.Projectiles.Systems
             var request = entity.RicochetRequest;
             entity.GameplayEvents?.RaiseProjectileBounced(
                 entity.Projectile,
+                entity.Owner,
                 entity.Ricochet.RicochetCount,
                 entity.Ricochet.BouncesLeft,
                 entity.MoveSpeed.Value,

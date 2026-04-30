@@ -13,6 +13,7 @@ namespace RicochetTanks.UI.Sandbox
         private readonly TankHealth _enemyHealth;
         private readonly SandboxGameplayEvents _gameplayEvents;
         private readonly Action _restartRequested;
+        private readonly Action _exitToMenuRequested;
         private readonly MatchConfig _matchConfig;
 
         public SandboxHudPresenter(
@@ -21,7 +22,7 @@ namespace RicochetTanks.UI.Sandbox
             TankHealth enemyHealth,
             SandboxGameplayEvents gameplayEvents,
             Action restartRequested)
-            : this(view, playerHealth, enemyHealth, gameplayEvents, restartRequested, null)
+            : this(view, playerHealth, enemyHealth, gameplayEvents, restartRequested, null, null)
         {
         }
 
@@ -32,24 +33,42 @@ namespace RicochetTanks.UI.Sandbox
             SandboxGameplayEvents gameplayEvents,
             Action restartRequested,
             MatchConfig matchConfig)
+            : this(view, playerHealth, enemyHealth, gameplayEvents, restartRequested, null, matchConfig)
+        {
+        }
+
+        public SandboxHudPresenter(
+            SandboxHudView view,
+            TankHealth playerHealth,
+            TankHealth enemyHealth,
+            SandboxGameplayEvents gameplayEvents,
+            Action restartRequested,
+            Action exitToMenuRequested,
+            MatchConfig matchConfig)
         {
             _view = view;
             _playerHealth = playerHealth;
             _enemyHealth = enemyHealth;
             _gameplayEvents = gameplayEvents;
             _restartRequested = restartRequested;
+            _exitToMenuRequested = exitToMenuRequested;
             _matchConfig = matchConfig;
 
             _playerHealth.HealthChanged += OnPlayerHealthChanged;
             _enemyHealth.HealthChanged += OnEnemyHealthChanged;
             _view.RestartClicked += OnRestartClicked;
+            _view.ExitToMenuClicked += OnExitToMenuClicked;
             _gameplayEvents.HitResolved += OnHitResolved;
             _gameplayEvents.MatchStarted += OnMatchStarted;
+            _gameplayEvents.RoundStarted += OnRoundStarted;
+            _gameplayEvents.RoundFinished += OnRoundFinished;
+            _gameplayEvents.SessionScoreChanged += OnSessionScoreChanged;
+            _gameplayEvents.SessionStatusChanged += OnSessionStatusChanged;
             _gameplayEvents.MatchFinished += OnMatchFinished;
 
             OnPlayerHealthChanged(_playerHealth.CurrentHp, _playerHealth.MaxHp);
             OnEnemyHealthChanged(_enemyHealth.CurrentHp, _enemyHealth.MaxHp);
-            OnMatchStarted();
+            OnRoundStarted();
         }
 
         public void Dispose()
@@ -57,8 +76,13 @@ namespace RicochetTanks.UI.Sandbox
             _playerHealth.HealthChanged -= OnPlayerHealthChanged;
             _enemyHealth.HealthChanged -= OnEnemyHealthChanged;
             _view.RestartClicked -= OnRestartClicked;
+            _view.ExitToMenuClicked -= OnExitToMenuClicked;
             _gameplayEvents.HitResolved -= OnHitResolved;
             _gameplayEvents.MatchStarted -= OnMatchStarted;
+            _gameplayEvents.RoundStarted -= OnRoundStarted;
+            _gameplayEvents.RoundFinished -= OnRoundFinished;
+            _gameplayEvents.SessionScoreChanged -= OnSessionScoreChanged;
+            _gameplayEvents.SessionStatusChanged -= OnSessionStatusChanged;
             _gameplayEvents.MatchFinished -= OnMatchFinished;
         }
 
@@ -84,19 +108,47 @@ namespace RicochetTanks.UI.Sandbox
 
         private void OnMatchStarted()
         {
+            _view.SetResultControlsVisible(false);
+        }
+
+        private void OnRoundStarted()
+        {
             _view.SetLastHitResult("Last Hit: none");
             _view.SetRoundResult(_matchConfig != null ? _matchConfig.PlayingLabel : "Round: Playing");
+            _view.SetResultControlsVisible(false);
             _view.SetControlsHint("W/S move  A/D turn  Mouse aim  LMB/Space fire  R restart");
+        }
+
+        private void OnRoundFinished(RoundFinishedEvent round)
+        {
+            _view.SetRoundResult("Round: " + round.Label);
+            _view.SetScore("Score: Player " + round.PlayerScore + " : " + round.EnemyScore + " Enemy");
+        }
+
+        private void OnSessionScoreChanged(SessionScoreEvent score)
+        {
+            _view.SetScore("Score: Player " + score.PlayerScore + " : " + score.EnemyScore + " Enemy");
+        }
+
+        private void OnSessionStatusChanged(string status)
+        {
+            _view.SetRoundResult(status);
         }
 
         private void OnMatchFinished(MatchFinishedEvent match)
         {
-            _view.SetRoundResult($"Round: {match.Label}");
+            _view.SetRoundResult(match.Label);
+            _view.SetResultControlsVisible(true);
         }
 
         private void OnRestartClicked()
         {
             _restartRequested?.Invoke();
+        }
+
+        private void OnExitToMenuClicked()
+        {
+            _exitToMenuRequested?.Invoke();
         }
 
         private static string Format(float value)
