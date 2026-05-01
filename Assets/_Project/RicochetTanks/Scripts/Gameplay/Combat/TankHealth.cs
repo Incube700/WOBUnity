@@ -44,7 +44,6 @@ namespace RicochetTanks.Gameplay.Combat
             if (CurrentHp == 0)
             {
                 Died?.Invoke(this);
-                gameObject.SetActive(false);
             }
         }
     }
