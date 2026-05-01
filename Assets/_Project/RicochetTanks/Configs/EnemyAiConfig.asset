@@ -22,19 +22,19 @@ MonoBehaviour:
     m_Bits: 4294967295
   _preferredDistance: 8
   _minDistance: 5
-  _maxDistance: 14
-  _fireCooldownMultiplier: 1
-  _shootReactionDelay: 0.25
-  _aimAngleToShoot: 8
-  _aimPredictionStrength: 0.1
+  _maxDistance: 13
+  _fireCooldownMultiplier: 1.01
+  _shootReactionDelay: 0.34
+  _aimAngleToShoot: 10.17
+  _aimPredictionStrength: 0.09
   _aimErrorAngle: 3
-  _aimErrorChangeInterval: 0.75
-  _repositionInterval: 2
-  _repositionDuration: 1
-  _repositionTurn: 0.55
-  _obstacleRayDistance: 2.5
-  _obstacleSideRayOffset: 0.55
+  _aimErrorChangeInterval: 1
+  _repositionInterval: 2.75
+  _repositionDuration: 0.64
+  _repositionTurn: 0.81
+  _obstacleRayDistance: 2.99
+  _obstacleSideRayOffset: 3.62
   _obstacleAvoidTurn: 1
-  _moveThrottle: 0.75
+  _moveThrottle: 0.56
   _retreatThrottle: -0.4
-  _debugLogs: 0
+  _debugLogs: 1
