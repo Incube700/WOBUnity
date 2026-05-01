@@ -2,6 +2,7 @@ using System;
 using RicochetTanks.Gameplay.Events;
 using RicochetTanks.Gameplay.Tanks;
 using RicochetTanks.Gameplay.AI.States;
+using RicochetTanks.Gameplay.Combat;
 using UnityEngine;
 
 namespace RicochetTanks.Gameplay.AI
