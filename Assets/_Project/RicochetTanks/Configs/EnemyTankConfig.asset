@@ -13,19 +13,19 @@ MonoBehaviour:
   m_Name: EnemyTankConfig
   m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.Configs.TankConfig
   _maxHp: 300
-  _maxForwardSpeed: 0
-  _maxReverseSpeed: 0
+  _maxForwardSpeed: 4.2
+  _maxReverseSpeed: 2
   _acceleration: 10
   _brakeDeceleration: 14
   _coastDeceleration: 6
-  _turnSpeed: 0
-  _turnSpeedAtLowVelocity: 0
-  _turretRotationSpeed: 0
+  _turnSpeed: 125
+  _turnSpeedAtLowVelocity: 90
+  _turretRotationSpeed: 210
   _inputDeadZone: 0.05
   _shotRecoilImpulse: 0.6
   _shotRecoilDecay: 8
   _maxRecoilVelocity: 1.5
   _frontArmor: 50
-  _sideArmor: 40
+  _sideArmor: 20
   _rearArmor: 10
   _autoRicochetAngle: 60

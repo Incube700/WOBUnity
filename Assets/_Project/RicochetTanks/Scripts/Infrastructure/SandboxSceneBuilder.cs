@@ -208,7 +208,7 @@ namespace RicochetTanks.Infrastructure
 
             var rigidbody = root.AddComponent<Rigidbody>();
             rigidbody.useGravity = false;
-            rigidbody.isKinematic = !isPlayerControlled;
+            rigidbody.isKinematic = false;
             rigidbody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 

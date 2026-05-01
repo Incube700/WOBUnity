@@ -27,12 +27,22 @@ namespace RicochetTanks.Gameplay.AI.States
             }
 
             _remainingTime -= deltaTime;
+
             _brain.AimAtTarget();
+
+            if (!_brain.HasObstacleAhead())
+            {
+                _brain.ChangeState(_brain.RepositionState);
+                return;
+            }
+
+            _brain.ChooseAvoidTurnDirection();
+
             _brain.DriveWithTurn(
                 _brain.Config.RetreatThrottle,
                 _brain.Config.ObstacleAvoidTurn * _brain.AvoidTurnDirection);
 
-            if (_remainingTime <= 0f || !_brain.HasObstacleAhead())
+            if (_remainingTime <= 0f)
             {
                 _brain.ChangeState(_brain.RepositionState);
             }
