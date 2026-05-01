@@ -93,6 +93,9 @@ namespace RicochetTanks.Infrastructure.Composition
             shooter.Configure(muzzle, tank, _projectileFactory, _projectileConfig);
             health.Configure(tankConfig.MaxHp);
             armor.Configure(tankConfig);
+
+            controller.Configure(tank, _inputReader, _camera);
+
             tank.Configure(movement, aiming, shooter, health, controller);
             tank.SetPlayerControlled(isPlayerControlled);
             deathHandler.Configure(tank, health);
