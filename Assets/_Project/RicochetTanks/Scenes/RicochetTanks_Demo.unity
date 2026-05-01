@@ -156,6 +156,7 @@ MonoBehaviour:
   _debugLogConfig: {fileID: 11400000, guid: dd1ed0b3b35b4b0f99017cc27da77001, type: 2}
   _laserAimConfig: {fileID: 0}
   _sessionConfig: {fileID: 0}
+  _enemyAiConfig: {fileID: 0}
   _inputMode: 0
   _mobileControlsPrefab: {fileID: 0}
   _arenaRoot: {fileID: 363391573}
@@ -686,11 +687,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.6
+      value: 1.22
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalScale.z
-      value: 16.5584
+      value: 16.6296
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalPosition.x
@@ -698,11 +699,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.8
+      value: 0.61
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.0353
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1070,7 +1071,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalScale.x
-      value: 30.274582
+      value: 30.7287
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalScale.y
@@ -1082,7 +1083,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.2532
+      value: -0.0256
       objectReference: {fileID: 0}
     - target: {fileID: 6917816078856469869, guid: 43cd7015b71614928a4b399ab1535208, type: 3}
       propertyPath: m_LocalPosition.y
