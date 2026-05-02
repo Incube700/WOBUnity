@@ -108,9 +108,21 @@ namespace RicochetTanks.Infrastructure.Bootstrap
             ResolveLaserAimConfigFallback();
             _laserAimConfig = _laserAimConfig != null ? _laserAimConfig : ScriptableObject.CreateInstance<LaserAimConfig>();
             _sessionConfig = _sessionConfig != null ? _sessionConfig : ScriptableObject.CreateInstance<LocalSessionConfig>();
+            ResolveEnemyAiConfigFallback();
             _enemyAiConfig = _enemyAiConfig != null ? _enemyAiConfig : ScriptableObject.CreateInstance<EnemyAiConfig>();
             ResolveCombatVfxConfigFallback();
             _combatVfxConfig = _combatVfxConfig != null ? _combatVfxConfig : ScriptableObject.CreateInstance<CombatVfxConfig>();
+            
+        }
+        
+        private void ResolveEnemyAiConfigFallback()
+        {
+#if UNITY_EDITOR
+            if (_enemyAiConfig == null)
+            {
+                _enemyAiConfig = UnityEditor.AssetDatabase.LoadAssetAtPath<EnemyAiConfig>("Assets/_Project/RicochetTanks/Configs/EnemyAiConfig.asset");
+            }
+#endif
         }
 
         private void ResolveLaserAimConfigFallback()

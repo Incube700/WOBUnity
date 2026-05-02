@@ -35,7 +35,8 @@ namespace RicochetTanks.Infrastructure.Composition
         {
             if (tank == null)
             {
-                throw new InvalidOperationException($"Missing {(isPlayerControlled ? "player" : "enemy")} tank scene reference.");
+                throw new InvalidOperationException(
+                    $"Missing {(isPlayerControlled ? "player" : "enemy")} tank scene reference.");
             }
 
             if (spawnPoint != null)
@@ -46,8 +47,9 @@ namespace RicochetTanks.Infrastructure.Composition
             var body = tank.gameObject;
             var rigidbody = GetOrAdd<Rigidbody>(body);
             rigidbody.useGravity = false;
-            rigidbody.isKinematic = !isPlayerControlled;
-            rigidbody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            rigidbody.isKinematic = false;
+            rigidbody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX |
+                                    RigidbodyConstraints.FreezeRotationZ;
             rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
             var hitbox = GetOrAdd<BoxCollider>(body);
@@ -60,6 +62,7 @@ namespace RicochetTanks.Infrastructure.Composition
             var health = GetOrAdd<TankHealth>(body);
             var armor = GetOrAdd<TankArmor>(body);
             var controller = GetOrAdd<PlayerTankController>(body);
+            var deathHandler = GetOrAdd<TankDeathHandler>(body);
             var turret = FindDescendant(tank.transform, "Turret");
             if (turret == null)
             {
@@ -90,9 +93,12 @@ namespace RicochetTanks.Infrastructure.Composition
             shooter.Configure(muzzle, tank, _projectileFactory, _projectileConfig);
             health.Configure(tankConfig.MaxHp);
             armor.Configure(tankConfig);
+
             controller.Configure(tank, _inputReader, _camera);
+
             tank.Configure(movement, aiming, shooter, health, controller);
             tank.SetPlayerControlled(isPlayerControlled);
+            deathHandler.Configure(tank, health);
             ConfigureLaserAim(body, muzzle, health, isPlayerControlled);
         }
 

@@ -41,7 +41,7 @@ namespace RicochetTanks.Gameplay.AI.States
             }
 
             _brain.TryShootTarget();
-            _brain.DriveWithTurn(_brain.Config.MoveThrottle, _brain.RepositionTurnDirection * 0.45f);
+            _brain.DriveWithTurn(_brain.Config.MoveThrottle, _brain.RepositionTurnDirection * _brain.Config.RepositionTurn);
 
             if (_remainingTime <= 0f)
             {
