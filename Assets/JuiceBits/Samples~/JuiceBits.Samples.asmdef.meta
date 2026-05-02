@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 782e0fa4211423d49a7253ef3204dd34
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Samples~/JuiceBits.Samples.asmdef
+  uploadId: 800772

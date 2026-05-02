@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2c02cb797b2734747a8bcc22e3d99a3d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Samples~/Demo 2D/Animations/Items/BoosterAnimator.controller
+  uploadId: 800772

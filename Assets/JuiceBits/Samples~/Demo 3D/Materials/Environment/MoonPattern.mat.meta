@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8367f9b46ce974d4c95a7245e49fd235
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Samples~/Demo 3D/Materials/Environment/MoonPattern.mat
+  uploadId: 800772

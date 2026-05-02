@@ -29,8 +29,8 @@ RectTransform:
   m_GameObject: {fileID: 184528120328968219}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.02, y: 0.02, z: 0.02}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5909958038024765389}
   - {fileID: 5149798597308626126}
@@ -40,7 +40,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 120, y: 28}
+  m_SizeDelta: {x: 122, y: 25.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &4660516858776478957
 Canvas:
@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.UI.CombatFeedback.TankHealthBarView
   _target: {fileID: 0}
-  _worldOffset: {x: 0, y: 1.35, z: 0}
+  _worldOffset: {x: 0, y: 2.46, z: 1.98}
   _canvas: {fileID: 4660516858776478957}
   _fillRect: {fileID: 5149798597308626126}
   _fillImage: {fileID: 1712967585996061699}

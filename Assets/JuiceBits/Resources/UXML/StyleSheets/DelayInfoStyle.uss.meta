@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 63acb099700f8af459d5f86ef98ac0bd
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 12385, guid: 0000000000000000e000000000000000, type: 0}
+  disableValidation: 0
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Resources/UXML/StyleSheets/DelayInfoStyle.uss
+  uploadId: 800772

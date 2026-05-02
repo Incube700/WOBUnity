@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 50f95a74316a985408fded3dd59d352c
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Runtime/Modules/Effects/HitFeedbackModule.cs
+  uploadId: 800772

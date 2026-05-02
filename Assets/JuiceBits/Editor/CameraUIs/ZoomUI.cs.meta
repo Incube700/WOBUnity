@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e0369580884a4f8458f4e1c009c7e9b3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Editor/CameraUIs/ZoomUI.cs
+  uploadId: 800772
