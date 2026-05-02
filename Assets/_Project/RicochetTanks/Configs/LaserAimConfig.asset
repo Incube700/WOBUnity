@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.Configs.LaserAimConfig
   _showPlayerLaser: 1
   _showEnemyLaser: 0
-  _maxDistance: 20
+  _maxDistance: 19.3
   _width: 0.025
   _color: {r: 1, g: 0.12, b: 0.08, a: 0.35}
   _collisionMask:
