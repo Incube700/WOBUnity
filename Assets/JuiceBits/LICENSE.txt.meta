@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: de9cef0ea377f7941ae93ee1292e6af5
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/LICENSE.txt
+  uploadId: 800772

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8935fb19d07a5c14f99989db8647ec5e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Samples~/Demo 3D/Prefabs/Tanks/Materials/TankColor.mat
+  uploadId: 800772

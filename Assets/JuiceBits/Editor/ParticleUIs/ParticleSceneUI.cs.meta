@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 94e5eeb2158ca444c82204c77bfc2f31
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Editor/ParticleUIs/ParticleSceneUI.cs
+  uploadId: 800772

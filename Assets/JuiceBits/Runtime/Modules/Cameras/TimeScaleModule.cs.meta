@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f9d180a25654dbe4baae3875c243ab32
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 337302
+  packageName: JuiceBits - Game Feel Toolkit
+  packageVersion: 1.0.0
+  assetPath: Assets/JuiceBits/Runtime/Modules/Cameras/TimeScaleModule.cs
+  uploadId: 800772
