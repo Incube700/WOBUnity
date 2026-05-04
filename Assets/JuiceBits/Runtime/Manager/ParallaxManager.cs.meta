@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: d071d24736fda774d8270ddc407a8b3e
-AssetOrigin:
-  serializedVersion: 1
-  productId: 337302
-  packageName: JuiceBits - Game Feel Toolkit
-  packageVersion: 1.0.0
-  assetPath: Assets/JuiceBits/Runtime/Manager/ParallaxManager.cs
-  uploadId: 800772

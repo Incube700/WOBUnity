@@ -18,7 +18,7 @@ MonoBehaviour:
   _ricochetSparkVfxPrefab: {fileID: 3042519775331041172, guid: 4f958f77f1ef049ed8f3f859ef62f878, type: 3}
   _tankDeathExplosionVfxPrefab: {fileID: 5586783540032275536, guid: fa1a9e313ad6d4ab09e68f4acb109968, type: 3}
   _wreckMarkerPrefab: {fileID: 0}
-  _smokeVfxPrefab: {fileID: 0}
+  _smokeVfxPrefab: {fileID: 1781949194303238870, guid: 511b009d6a0e04a72b6d152f1f2cad1e, type: 3}
   _projectileTrailLifetime: 0.28
   _projectileTrailWidth: 0.16
   _projectileTrailStartColor: {r: 1, g: 0.92, b: 0.18, a: 1}

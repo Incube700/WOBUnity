@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e0bf07244ab47e880f0248a76e8db0e, type: 3}
   m_Name: PlayerTankConfig
   m_EditorClassIdentifier: Assembly-CSharp::RicochetTanks.Configs.TankConfig
-  _maxHp: 100
+  _maxHp: 300
   _maxForwardSpeed: 5
   _maxReverseSpeed: 2.5
   _acceleration: 10
